@@ -155,29 +155,28 @@ export default function AccessSection() {
             return (
               <div
                 ref={(el) => { cardRefs.current[0] = el; }}
-                className="section-fade group relative rounded-2xl border overflow-hidden mb-5 transition-all duration-500"
-                style={{
-                  background: "hsl(var(--card))",
-                  borderColor: "hsl(var(--border))",
-                }}
-                onMouseEnter={(e) => {
-                  (e.currentTarget as HTMLDivElement).style.borderColor = meta.colorBorder;
-                  (e.currentTarget as HTMLDivElement).style.boxShadow = `0 16px 48px -8px ${meta.colorBg.replace("0.08", "0.25")}`;
-                }}
-                onMouseLeave={(e) => {
-                  (e.currentTarget as HTMLDivElement).style.borderColor = "hsl(var(--border))";
-                  (e.currentTarget as HTMLDivElement).style.boxShadow = "";
-                }}
+                className="section-fade free-card-glow-border group mb-5"
               >
-                {/* Left color bar */}
-                <div className="absolute left-0 top-0 bottom-0 w-1" style={{ background: meta.color }} />
+                <div
+                  className="relative rounded-2xl overflow-hidden free-card-shimmer transition-all duration-500"
+                  style={{
+                    background: "linear-gradient(135deg, hsl(215 28% 9%) 0%, hsl(220 30% 11%) 50%, hsl(215 28% 9%) 100%)",
+                    border: "1px solid hsl(215 28% 50% / 0.3)",
+                  }}
+                >
+                {/* Ambient glow */}
+                <div className="absolute -top-10 -left-10 w-48 h-48 rounded-full blur-[60px] pointer-events-none"
+                  style={{ background: "hsl(215 28% 50% / 0.12)" }} />
+                <div className="absolute -bottom-8 right-10 w-36 h-36 rounded-full blur-[50px] pointer-events-none"
+                  style={{ background: "hsl(142 72% 37% / 0.08)" }} />
+
                 {/* Watermark */}
-                <div className="absolute right-6 top-1/2 -translate-y-1/2 pointer-events-none select-none"
-                  style={{ opacity: 0.05 }}>
-                  <meta.icon style={{ width: 72, height: 72, color: meta.color }} />
+                <div className="absolute right-6 top-1/2 -translate-y-1/2 pointer-events-none select-none transition-all duration-500 group-hover:scale-110"
+                  style={{ opacity: 0.07 }}>
+                  <meta.icon style={{ width: 80, height: 80, color: meta.color }} />
                 </div>
 
-                <div className="pl-7 pr-6 py-5 flex flex-col sm:flex-row sm:items-center gap-4 relative z-10">
+                <div className="px-6 py-5 flex flex-col sm:flex-row sm:items-center gap-4 relative z-10">
                   {/* Icon + title */}
                   <div className="flex items-center gap-3 shrink-0">
                     <div className="w-9 h-9 rounded-xl flex items-center justify-center"
@@ -237,12 +236,14 @@ export default function AccessSection() {
                     >
                       {pack.cta}
                       <ArrowRight className="w-3.5 h-3.5 transition-transform duration-200 group-hover/btn:translate-x-1" />
-                    </button>
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
             );
           })()}
+
 
           {/* PRO / INSTITUTIONNEL / DÉVELOPPEUR — 3-column grid */}
           <div className="grid sm:grid-cols-3 gap-5 mb-14">
