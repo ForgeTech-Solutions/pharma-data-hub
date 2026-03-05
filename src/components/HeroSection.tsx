@@ -229,6 +229,9 @@ export default function HeroSection() {
         <div className="absolute top-1/2 right-0 w-[500px] h-[500px] rounded-full opacity-[0.06] blur-[120px] pointer-events-none" style={{ background: "hsl(210 80% 50%)" }} />
         <div className="absolute bottom-0 left-1/3 w-[400px] h-[400px] rounded-full opacity-[0.05] blur-[100px] pointer-events-none" style={{ background: "hsl(262 72% 55%)" }} />
 
+        {/* Floating code particles */}
+        <FloatingParticles />
+
         {/* ── Content ─────────────────────────────────────── */}
         <div className="relative max-w-6xl mx-auto px-6 pt-28 pb-20 w-full">
           <div className="grid lg:grid-cols-2 gap-14 items-center">
