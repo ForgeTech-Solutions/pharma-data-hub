@@ -120,6 +120,10 @@ function FloatingParticles() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
+    // Skip on low-end / narrow screens to preserve perf
+    const isMobile = window.innerWidth < 768;
+    const count    = isMobile ? 8 : 22;
+
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
@@ -129,15 +133,15 @@ function FloatingParticles() {
     resize();
     window.addEventListener("resize", resize);
 
-    const particles: Particle[] = Array.from({ length: 22 }, (_, i) => ({
+    const particles: Particle[] = Array.from({ length: count }, (_, i) => ({
       id: i,
       x: Math.random() * canvas.width,
       y: Math.random() * canvas.height,
-      vx: (Math.random() - 0.5) * 0.18,
-      vy: -0.12 - Math.random() * 0.18,
-      opacity: 0.04 + Math.random() * 0.1,
+      vx: (Math.random() - 0.5) * 0.15,
+      vy: -0.1 - Math.random() * 0.15,
+      opacity: 0.03 + Math.random() * 0.08,
       token: CODE_TOKENS[i % CODE_TOKENS.length],
-      size: 10 + Math.random() * 3,
+      size: isMobile ? 9 : 10 + Math.random() * 3,
     }));
 
     let raf: number;
@@ -166,7 +170,6 @@ function FloatingParticles() {
     <canvas
       ref={canvasRef}
       className="absolute inset-0 w-full h-full pointer-events-none"
-      style={{ opacity: 1 }}
     />
   );
 }
