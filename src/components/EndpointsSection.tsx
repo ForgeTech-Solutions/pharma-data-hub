@@ -1,123 +1,183 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import { ExternalLink } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const groups = [
   {
     name: "Auth",
+    label: "Authentification",
     color: "hsl(0 70% 45%)",
-    bg: "hsl(0 60% 97%)",
-    border: "hsl(0 60% 88%)",
+    accent: "hsl(0 70% 45%)",
     endpoints: [
-      { method: "POST", path: "/auth/token", desc: "Obtenir un token JWT" },
-      { method: "POST", path: "/auth/refresh", desc: "Renouveler le token" },
+      { method: "POST", path: "/auth/token", desc: "Obtenir un token JWT d'accès" },
+      { method: "POST", path: "/auth/refresh", desc: "Renouveler un token expiré" },
     ],
   },
   {
     name: "Médicaments",
+    label: "Médicaments",
     color: "hsl(142 72% 37%)",
-    bg: "hsl(142 60% 97%)",
-    border: "hsl(142 60% 85%)",
+    accent: "hsl(142 72% 37%)",
     endpoints: [
-      { method: "GET", path: "/medicaments", desc: "Liste paginée avec filtres" },
-      { method: "GET", path: "/medicaments/{id}", desc: "Détail d'un médicament" },
-      { method: "GET", path: "/medicaments/search", desc: "Recherche full-text" },
-      { method: "GET", path: "/medicaments/export/csv", desc: "Export CSV filtré" },
-      { method: "GET", path: "/medicaments/stats", desc: "Statistiques & dashboard" },
+      { method: "GET", path: "/medicaments", desc: "Liste paginée avec filtres avancés" },
+      { method: "GET", path: "/medicaments/{id}", desc: "Fiche détaillée d'un médicament" },
+      { method: "GET", path: "/medicaments/search", desc: "Recherche full-text DCI / marque" },
+      { method: "GET", path: "/medicaments/export/csv", desc: "Export CSV de la nomenclature" },
+      { method: "GET", path: "/medicaments/stats", desc: "Statistiques & données agrégées" },
     ],
   },
 ];
 
-const methodColors: Record<string, { bg: string; text: string }> = {
-  GET: { bg: "hsl(142 60% 92%)", text: "hsl(142 72% 30%)" },
-  POST: { bg: "hsl(196 60% 90%)", text: "hsl(196 80% 35%)" },
+const METHOD_CONFIG: Record<string, { bg: string; text: string; label: string }> = {
+  GET:  { bg: "hsl(142 50% 92%)", text: "hsl(142 72% 28%)", label: "GET" },
+  POST: { bg: "hsl(210 70% 92%)", text: "hsl(210 80% 38%)", label: "POST" },
 };
 
 export default function EndpointsSection() {
   const sectionRef = useRef<HTMLElement>(null);
+  const [activeGroup, setActiveGroup] = useState(groups[0].name);
+  const rowRefs = useRef<(HTMLLIElement | null)[]>([]);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => entries.forEach((e) => e.isIntersecting && e.target.classList.add("visible")),
-      { threshold: 0.1 }
+      { threshold: 0.06 }
     );
     if (sectionRef.current) observer.observe(sectionRef.current);
     return () => observer.disconnect();
   }, []);
 
+  // animate rows on tab change
+  useEffect(() => {
+    rowRefs.current.forEach((r, i) => {
+      if (!r) return;
+      r.style.opacity = "0";
+      r.style.transform = "translateY(12px)";
+      setTimeout(() => {
+        if (r) { r.style.opacity = "1"; r.style.transform = "translateY(0)"; }
+      }, i * 60 + 50);
+    });
+  }, [activeGroup]);
+
+  const currentGroup = groups.find((g) => g.name === activeGroup)!;
+
   return (
-    <section id="endpoints" ref={sectionRef} className="py-24 bg-secondary section-fade">
+    <section id="endpoints" ref={sectionRef} className="py-28 bg-secondary section-fade overflow-hidden">
       <div className="max-w-6xl mx-auto px-6">
-        <div className="text-center mb-16">
-          <span className="inline-block text-xs font-semibold uppercase tracking-widest text-primary mb-3">
-            Endpoints
-          </span>
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground">
-            Référence des routes principales
-          </h2>
-          <p className="mt-4 text-muted-foreground">
-            Trois groupes cohérents pour une intégration simple et prévisible.
-          </p>
+        {/* Header */}
+        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-14">
+          <div>
+            <span className="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.18em] text-primary mb-4">
+              <span className="w-6 h-px bg-primary inline-block" />
+              Endpoints
+            </span>
+            <h2 className="text-3xl md:text-4xl font-extrabold text-foreground leading-tight">
+              Référence des routes
+              <br />
+              <span className="text-gradient">disponibles</span>
+            </h2>
+          </div>
+          <Link
+            to="/docs"
+            className="inline-flex items-center gap-2 text-sm font-semibold text-primary hover:text-primary/80 transition-colors group"
+          >
+            Explorateur interactif
+            <ExternalLink className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+          </Link>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-6">
-          {groups.map((group) => (
-            <div
-              key={group.name}
-              className="bg-card border rounded-2xl overflow-hidden hover:shadow-md transition-shadow duration-300"
-              style={{ borderColor: group.border }}
-            >
-              {/* Group header */}
-              <div
-                className="px-5 py-4 border-b flex items-center gap-3"
-                style={{ backgroundColor: group.bg, borderColor: group.border }}
-              >
-                <span
-                  className="w-2 h-2 rounded-full"
-                  style={{ backgroundColor: group.color }}
-                />
-                <span
-                  className="text-sm font-bold tracking-wide"
-                  style={{ color: group.color }}
-                >
-                  {group.name}
-                </span>
-                <span
-                  className="ml-auto text-xs font-medium px-2 py-0.5 rounded-full"
+        <div className="flex flex-col lg:flex-row gap-8">
+          {/* Sidebar tabs */}
+          <div className="lg:w-52 shrink-0 flex lg:flex-col gap-2">
+            {groups.map((g) => {
+              const isActive = g.name === activeGroup;
+              return (
+                <button
+                  key={g.name}
+                  onClick={() => setActiveGroup(g.name)}
+                  className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all duration-200 text-left w-full"
                   style={{
-                    backgroundColor: `${group.color}18`,
-                    color: group.color,
+                    background: isActive ? `${g.color}12` : "transparent",
+                    color: isActive ? g.color : "hsl(var(--muted-foreground))",
+                    boxShadow: isActive ? `inset 3px 0 0 ${g.color}` : "none",
                   }}
                 >
-                  {group.endpoints.length} routes
+                  <span
+                    className="w-2 h-2 rounded-full shrink-0 transition-transform duration-200"
+                    style={{
+                      background: isActive ? g.color : "hsl(var(--border))",
+                      transform: isActive ? "scale(1.4)" : "scale(1)",
+                    }}
+                  />
+                  {g.label}
+                  <span
+                    className="ml-auto text-[10px] font-bold px-1.5 py-0.5 rounded-full"
+                    style={{ background: `${g.color}18`, color: g.color }}
+                  >
+                    {g.endpoints.length}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Endpoint list */}
+          <div className="flex-1 min-w-0">
+            <div className="bg-card border border-border rounded-2xl overflow-hidden">
+              {/* Panel header */}
+              <div
+                className="px-6 py-4 border-b border-border flex items-center gap-3"
+                style={{ background: `${currentGroup.color}08` }}
+              >
+                <span className="w-2 h-2 rounded-full" style={{ background: currentGroup.color }} />
+                <span className="text-sm font-bold" style={{ color: currentGroup.color }}>
+                  {currentGroup.label}
                 </span>
+                <code className="ml-auto text-xs text-muted-foreground font-mono">
+                  https://api.npp.dz
+                </code>
               </div>
 
-              {/* Endpoints */}
-              <ul className="divide-y divide-border">
-                {group.endpoints.map((ep) => (
-                  <li
-                    key={ep.path}
-                    className="px-5 py-3.5 flex items-start gap-3 hover:bg-secondary/60 transition-colors duration-150"
-                  >
-                    <span
-                      className="shrink-0 mt-0.5 text-[10px] font-bold px-1.5 py-0.5 rounded font-mono"
-                      style={{
-                        backgroundColor: methodColors[ep.method]?.bg,
-                        color: methodColors[ep.method]?.text,
-                      }}
+              <ul>
+                {currentGroup.endpoints.map((ep, i) => {
+                  const mc = METHOD_CONFIG[ep.method];
+                  return (
+                    <li
+                      key={ep.path}
+                      ref={(el) => { rowRefs.current[i] = el; }}
+                      className="flex items-center gap-4 px-6 py-4 border-b border-border last:border-0 hover:bg-secondary/60 transition-all duration-200"
+                      style={{ transition: "opacity 0.3s ease, transform 0.3s ease, background 0.15s ease" }}
                     >
-                      {ep.method}
-                    </span>
-                    <div>
-                      <code className="text-xs font-mono text-foreground font-medium">
+                      {/* Method badge */}
+                      <span
+                        className="shrink-0 text-[10px] font-black px-2.5 py-1 rounded-lg font-mono min-w-[46px] text-center tracking-wider"
+                        style={{ background: mc.bg, color: mc.text }}
+                      >
+                        {mc.label}
+                      </span>
+
+                      {/* Path */}
+                      <code className="text-sm font-mono text-foreground font-semibold flex-1 min-w-0 truncate">
                         {ep.path}
                       </code>
-                      <p className="text-xs text-muted-foreground mt-0.5">{ep.desc}</p>
-                    </div>
-                  </li>
-                ))}
+
+                      {/* Desc */}
+                      <span className="text-sm text-muted-foreground hidden md:block whitespace-nowrap">
+                        {ep.desc}
+                      </span>
+                    </li>
+                  );
+                })}
               </ul>
             </div>
-          ))}
+
+            {/* Base URL note */}
+            <p className="mt-4 text-xs text-muted-foreground text-right">
+              Base URL : <code className="font-mono text-foreground">https://api.npp.dz/v1</code>
+              {" · "}Format : <code className="font-mono text-foreground">JSON</code>
+              {" · "}Auth : <code className="font-mono text-foreground">Bearer JWT</code>
+            </p>
+          </div>
         </div>
       </div>
     </section>
