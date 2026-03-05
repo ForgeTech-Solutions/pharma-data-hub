@@ -185,7 +185,13 @@ export default function AccessSection() {
                       <meta.icon className="w-4 h-4" style={{ color: meta.color }} />
                     </div>
                     <div>
-                      <div className="text-[10px] font-black uppercase tracking-widest" style={{ color: meta.color }}>{meta.id}</div>
+                      <div className="flex items-center gap-2">
+                        <div className="text-[10px] font-black uppercase tracking-widest" style={{ color: meta.color }}>{meta.id}</div>
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-widest text-white"
+                          style={{ background: "linear-gradient(135deg, hsl(142 72% 37%), hsl(162 72% 42%))" }}>
+                          Gratuit
+                        </span>
+                      </div>
                       <div className="text-xs text-muted-foreground">{pack.tagline}</div>
                     </div>
                   </div>
@@ -210,24 +216,29 @@ export default function AccessSection() {
                   </div>
 
                   {/* CTA */}
-                  <button
-                    onClick={() => handleCta(meta.id, 0)}
-                    className="shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold transition-all duration-300 group/btn"
-                    style={{ background: meta.colorBg, color: meta.color, border: `1px solid ${meta.colorBorder}` }}
-                    onMouseEnter={(e) => {
-                      (e.currentTarget as HTMLButtonElement).style.background = meta.color;
-                      (e.currentTarget as HTMLButtonElement).style.color = "#fff";
-                      (e.currentTarget as HTMLButtonElement).style.borderColor = meta.color;
-                    }}
-                    onMouseLeave={(e) => {
-                      (e.currentTarget as HTMLButtonElement).style.background = meta.colorBg;
-                      (e.currentTarget as HTMLButtonElement).style.color = meta.color;
-                      (e.currentTarget as HTMLButtonElement).style.borderColor = meta.colorBorder;
-                    }}
-                  >
-                    {pack.cta}
-                    <ArrowRight className="w-3.5 h-3.5 transition-transform duration-200 group-hover/btn:translate-x-1" />
-                  </button>
+                  <div className="shrink-0 relative">
+                    {/* Pulse ring */}
+                    <span className="absolute inset-0 rounded-xl animate-[pulse_2s_cubic-bezier(0.4,0,0.6,1)_infinite]"
+                      style={{ background: meta.colorBg, border: `1px solid ${meta.color}` }} />
+                    <button
+                      onClick={() => handleCta(meta.id, 0)}
+                      className="relative shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold transition-all duration-300 group/btn"
+                      style={{ background: meta.colorBg, color: meta.color, border: `1px solid ${meta.colorBorder}` }}
+                      onMouseEnter={(e) => {
+                        (e.currentTarget as HTMLButtonElement).style.background = meta.color;
+                        (e.currentTarget as HTMLButtonElement).style.color = "#fff";
+                        (e.currentTarget as HTMLButtonElement).style.borderColor = meta.color;
+                      }}
+                      onMouseLeave={(e) => {
+                        (e.currentTarget as HTMLButtonElement).style.background = meta.colorBg;
+                        (e.currentTarget as HTMLButtonElement).style.color = meta.color;
+                        (e.currentTarget as HTMLButtonElement).style.borderColor = meta.colorBorder;
+                      }}
+                    >
+                      {pack.cta}
+                      <ArrowRight className="w-3.5 h-3.5 transition-transform duration-200 group-hover/btn:translate-x-1" />
+                    </button>
+                  </div>
                 </div>
               </div>
             );
