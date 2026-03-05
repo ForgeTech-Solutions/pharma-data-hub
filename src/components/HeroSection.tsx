@@ -1,4 +1,5 @@
 import heroBg from "@/assets/hero-bg.jpg";
+import { Link } from "react-router-dom";
 
 export default function HeroSection() {
   return (
