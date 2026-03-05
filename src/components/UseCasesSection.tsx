@@ -47,7 +47,7 @@ export default function UseCasesSection() {
   }, []);
 
   return (
-    <section id="usecases" ref={sectionRef} className="py-28 bg-background section-fade overflow-hidden relative">
+    <section id="usecases" ref={sectionRef} className="py-14 bg-background section-fade overflow-hidden relative">
 
       {/* Background dot pattern */}
       <div className="absolute inset-0 pointer-events-none opacity-[0.015]"
@@ -56,7 +56,7 @@ export default function UseCasesSection() {
       <div className="max-w-6xl mx-auto px-6 relative">
 
         {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-16">
+        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-10">
           <div>
             <span className="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.18em] mb-4"
               style={{ color: "hsl(var(--primary))" }}>

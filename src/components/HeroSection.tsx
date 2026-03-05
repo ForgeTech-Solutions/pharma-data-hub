@@ -236,7 +236,7 @@ export default function HeroSection() {
         <FloatingParticles />
 
         {/* ── Content ─────────────────────────────────────── */}
-        <div className="relative max-w-6xl mx-auto px-6 pt-28 pb-20 w-full">
+        <div className="relative max-w-6xl mx-auto px-6 pt-24 pb-14 w-full">
           <div className="grid lg:grid-cols-2 gap-14 items-center">
 
             {/* Left: Text */}

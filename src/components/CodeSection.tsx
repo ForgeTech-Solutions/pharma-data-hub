@@ -135,7 +135,7 @@ export default function CodeSection() {
   };
 
   return (
-    <section ref={sectionRef} className="py-28 bg-background overflow-hidden relative">
+    <section ref={sectionRef} className="py-14 bg-background overflow-hidden relative">
 
       {/* Background dot pattern */}
       <div className="absolute inset-0 pointer-events-none opacity-[0.015]"

@@ -41,7 +41,7 @@ export default function EndpointsSection() {
     <section
       id="endpoints"
       ref={sectionRef}
-      className="py-28 section-fade overflow-hidden relative"
+      className="py-14 section-fade overflow-hidden relative"
       style={{ background: "hsl(215 28% 7%)" }}
     >
       {/* Background grid */}
@@ -70,7 +70,7 @@ export default function EndpointsSection() {
         </div>
 
         {/* Heading */}
-        <div className="text-center mb-16 max-w-2xl mx-auto">
+        <div className="text-center mb-10 max-w-2xl mx-auto">
           <h2 className="text-3xl md:text-5xl font-extrabold text-white leading-tight mb-4">
             Explorez l'API en{" "}
             <span className="text-gradient">temps réel</span>
