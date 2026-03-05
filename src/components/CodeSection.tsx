@@ -217,8 +217,8 @@ export default function CodeSection() {
                 </button>
               </div>
 
-              {/* Language tabs */}
-              <div className="flex border-b" style={{ background: "hsl(215 28% 9%)", borderColor: "hsl(215 28% 14%)" }}>
+              {/* Language tabs — scrollable on mobile */}
+              <div className="flex border-b overflow-x-auto scrollbar-none" style={{ background: "hsl(215 28% 9%)", borderColor: "hsl(215 28% 14%)" }}>
                 {(Object.keys(SNIPPETS) as Lang[]).map((l) => {
                   const s = SNIPPETS[l];
                   const LIcon = s.icon;
@@ -227,7 +227,7 @@ export default function CodeSection() {
                     <button
                       key={l}
                       onClick={() => setLang(l)}
-                      className="flex items-center gap-1.5 px-4 py-2.5 text-[11px] font-bold transition-all duration-200 relative"
+                      className="flex items-center gap-1.5 px-4 py-2.5 text-[11px] font-bold transition-all duration-200 relative shrink-0"
                       style={{ color: isActive ? s.color : "hsl(215 20% 40%)" }}
                     >
                       <LIcon className="w-3.5 h-3.5" />
