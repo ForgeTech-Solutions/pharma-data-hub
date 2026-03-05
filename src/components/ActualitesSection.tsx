@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import { ArrowRight, Zap, Shield, Package, Wrench, Star } from "lucide-react";
 import { Link } from "react-router-dom";
 import newsV1Release from "@/assets/news-v1-release.jpg";
@@ -28,81 +29,29 @@ const TYPE_CONFIG = {
 
 export { TYPE_CONFIG };
 
-export const latestNews: NewsItem[] = [
-  {
-    id: "v1-0-release",
-    date: "5 mars 2026",
-    type: "release",
-    badge: "v1.0",
-    image: newsV1Release,
-    title: "Lancement officiel de l'API NPP v1.0",
-    excerpt: "Première version stable de l'API Nomenclature Produits Pharmaceutiques. Accès à 7 000+ médicaments référencés, authentification JWT, packs FREE / PRO / INSTITUTIONNEL / DÉVELOPPEUR.",
-    highlight: "7 000+ médicaments disponibles dès le lancement",
-    details: [
-      "Base de données complète avec 7 000+ médicaments référencés en France",
-      "Authentification sécurisée via JWT avec expiration configurable à 30 minutes",
-      "4 packs tarifaires : FREE (100 req/jour), PRO, INSTITUTIONNEL et DÉVELOPPEUR (illimités)",
-      "Documentation complète avec explorateur interactif intégré",
-      "Endpoints couvrant : liste paginée, recherche fulltext, détail par CIS, DCI (PRO+), stats & dashboard (INSTITUTIONNEL+)",
-      "Taux de disponibilité garanti à 99,9 % avec temps de réponse < 100 ms",
-    ],
-  },
-  {
-    id: "dashboard-endpoint",
-    date: "5 mars 2026",
-    type: "feature",
-    image: newsDashboard,
-    title: "Nouvel endpoint : tableau de bord enrichi",
-    excerpt: "L'endpoint GET /medicaments/dashboard est disponible pour les packs INSTITUTIONNEL et DÉVELOPPEUR. Il retourne le top 10 laboratoires, top 10 pays d'origine et la répartition par forme galénique.",
-    highlight: "Disponible dès les packs INSTITUTIONNEL et DÉVELOPPEUR",
-    details: [
-      "Route : GET /medicaments/dashboard — accès INSTITUTIONNEL+ uniquement",
-      "Retourne le Top 10 des laboratoires pharmaceutiques par volume de médicaments",
-      "Retourne le Top 10 des pays d'origine des principes actifs",
-      "Répartition complète par forme galénique (comprimés, gélules, sirops, injectables…)",
-      "Données en temps réel synchronisées avec la base BDPM (Base de données publique des médicaments)",
-      "Format JSON structuré, compatible avec les bibliothèques de visualisation (Chart.js, Recharts, D3.js)",
-    ],
-  },
-  {
-    id: "csv-export",
-    date: "5 mars 2026",
-    type: "feature",
-    image: newsCsvExport,
-    title: "Export CSV de la base complète",
-    excerpt: "Les utilisateurs PRO+ peuvent désormais exporter la totalité de la base médicamenteuse au format CSV via GET /medicaments/export/csv avec filtres par catégorie, pays et laboratoire.",
-    highlight: "Export filtrable : catégorie, pays, laboratoire",
-    details: [
-      "Route : GET /medicaments/export/csv — accès PRO et supérieur",
-      "Export de la base complète (7 000+ entrées) en un seul fichier CSV optimisé",
-      "Filtrage à la volée : paramètres ?categorie=, ?pays=, ?laboratoire= cumulables",
-      "Champs inclus : CIS, DCI, nom commercial, laboratoire, pays d'origine, forme, dosage, voie d'administration",
-      "Encodage UTF-8 avec BOM pour une compatibilité optimale avec Excel et LibreOffice",
-      "En-têtes de colonnes en français, séparateur point-virgule (;) configurable",
-    ],
-  },
-  {
-    id: "jwt-security",
-    date: "5 mars 2026",
-    type: "security",
-    image: newsJwtSecurity,
-    title: "Authentification JWT avec expiration 30 min",
-    excerpt: "Toutes les routes protégées nécessitent un Bearer Token obtenu via POST /auth/login. Les tokens expirent automatiquement après 30 minutes pour garantir la sécurité des accès institutionnels.",
-    highlight: "Expiration automatique toutes les 30 minutes",
-    details: [
-      "Obtention du token : POST /auth/login avec corps JSON {\"email\": \"...\", \"password\": \"...\"}",
-      "Transmission via header HTTP : Authorization: Bearer <votre_token>",
-      "Expiration automatique après 30 minutes — renouvellement silencieux possible côté client",
-      "Algorithme HS256 (HMAC SHA-256) pour la signature des tokens",
-      "Gestion des erreurs : HTTP 401 si token absent ou invalide, HTTP 403 si pack insuffisant",
-      "Recommandation : stocker le token en mémoire (non persistant) pour les applications institutionnelles",
-    ],
-  },
-];
+const NEWS_IMAGES = [newsV1Release, newsDashboard, newsCsvExport, newsJwtSecurity];
+const NEWS_TYPES: NewsItem["type"][] = ["release", "feature", "feature", "security"];
+const NEWS_BADGES = ["v1.0", undefined, undefined, undefined];
+
+export const latestNews: NewsItem[] = NEWS_IMAGES.map((img, i) => ({
+  id: `news-${i}`,
+  date: "",
+  type: NEWS_TYPES[i],
+  title: "",
+  excerpt: "",
+  badge: NEWS_BADGES[i],
+  image: img,
+}));
 
 export default function ActualitesSection() {
+  const { t } = useTranslation();
   const sectionRef = useRef<HTMLElement>(null);
   const cardRefs   = useRef<(HTMLDivElement | null)[]>([]);
+
+  const newsItems = t("news.items", { returnObjects: true }) as Array<{
+    date: string; title: string; excerpt: string; highlight: string;
+  }>;
+  const typeLabels = t("news.typeLabels", { returnObjects: true }) as Record<string, string>;
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -114,74 +63,56 @@ export default function ActualitesSection() {
     return () => observer.disconnect();
   }, []);
 
-  // Show only 3 on homepage
-  const preview = latestNews.slice(0, 3);
+  const preview = newsItems.slice(0, 3);
 
   return (
     <section id="actualites" ref={sectionRef} className="py-28 bg-secondary section-fade overflow-hidden">
       <div className="max-w-6xl mx-auto px-6">
 
-        {/* Header */}
         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-14">
           <div>
             <span className="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.18em] text-primary mb-4">
               <span className="w-6 h-px bg-primary inline-block" />
-              Actualités
+              {t("news.label")}
             </span>
             <h2 className="text-3xl md:text-4xl font-extrabold text-foreground leading-tight">
-              Nouveautés & évolutions
+              {t("news.title1")}
               <br />
-              <span className="text-gradient">de l'API</span>
+              <span className="text-gradient">{t("news.title2")}</span>
             </h2>
           </div>
-          <Link
-            to="/actualites"
-            className="inline-flex items-center gap-2 text-sm font-semibold text-primary hover:text-primary/80 transition-colors group shrink-0"
-          >
-            Toutes les actualités
+          <Link to="/actualites" className="inline-flex items-center gap-2 text-sm font-semibold text-primary hover:text-primary/80 transition-colors group shrink-0">
+            {t("news.allNews")}
             <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
           </Link>
         </div>
 
-        {/* Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
           {preview.map((item, i) => {
-            const cfg = TYPE_CONFIG[item.type];
+            const type = NEWS_TYPES[i];
+            const cfg = TYPE_CONFIG[type];
             const TypeIcon = cfg.icon;
             return (
               <div
-                key={item.id}
+                key={i}
                 ref={(el) => { cardRefs.current[i] = el; }}
                 className="section-fade group relative bg-card border border-border rounded-2xl overflow-hidden flex flex-col hover:-translate-y-1.5 transition-all duration-300 cursor-default"
                 style={{ transitionDelay: `${i * 80}ms` }}
               >
-                {/* Image */}
                 <div className="relative h-40 overflow-hidden shrink-0">
-                  <img
-                    src={item.image}
-                    alt={item.title}
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                  />
+                  <img src={NEWS_IMAGES[i]} alt={item.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
                   <div className="absolute inset-0 bg-gradient-to-t from-card/90 via-card/20 to-transparent" />
-                  {/* Badge over image */}
-                  <span
-                    className="absolute top-3 left-3 inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full shadow-sm backdrop-blur-sm"
-                    style={{ background: `${cfg.bg}ee`, color: cfg.color }}
-                  >
+                  <span className="absolute top-3 left-3 inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full shadow-sm backdrop-blur-sm" style={{ background: `${cfg.bg}ee`, color: cfg.color }}>
                     <TypeIcon className="w-3 h-3" />
-                    {cfg.label}
+                    {typeLabels[type]}
                   </span>
-                  {item.badge && (
-                    <span
-                      className="absolute top-3 right-3 text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full backdrop-blur-sm"
-                      style={{ background: "hsl(var(--muted) / 0.9)", color: "hsl(var(--muted-foreground))" }}
-                    >
-                      {item.badge}
+                  {NEWS_BADGES[i] && (
+                    <span className="absolute top-3 right-3 text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full backdrop-blur-sm" style={{ background: "hsl(var(--muted) / 0.9)", color: "hsl(var(--muted-foreground))" }}>
+                      {NEWS_BADGES[i]}
                     </span>
                   )}
                 </div>
 
-                {/* Content */}
                 <div className="flex flex-col gap-3 p-5 flex-1">
                   <span className="text-[11px] text-muted-foreground font-mono">{item.date}</span>
                   <h3 className="text-sm font-bold text-foreground leading-snug group-hover:text-primary transition-colors duration-200">
@@ -192,11 +123,7 @@ export default function ActualitesSection() {
                   </p>
                 </div>
 
-                {/* Accent bottom line */}
-                <div
-                  className="absolute bottom-0 left-0 right-0 h-0.5 rounded-b-2xl scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"
-                  style={{ background: cfg.color }}
-                />
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 rounded-b-2xl scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left" style={{ background: cfg.color }} />
               </div>
             );
           })}
