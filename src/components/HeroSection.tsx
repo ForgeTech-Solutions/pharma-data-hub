@@ -106,6 +106,71 @@ function LiveTerminal() {
   );
 }
 
+// ─── Floating code tokens ─────────────────────────────────────────────────────
+const CODE_TOKENS = [
+  "GET /medicaments", "Bearer eyJ...", "200 OK", "{ id: 189 }",
+  "DCI:", "Authorization:", "search?q=", "application/json",
+  "curl -X", "\"statut\":", "pagination", "JWT", "< 100ms",
+  "REST API", "7000+", ".json()", "fetch(", "requests.get(",
+];
+
+type Particle = { id: number; x: number; y: number; vx: number; vy: number; opacity: number; token: string; size: number };
+
+function FloatingParticles() {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    const resize = () => { canvas.width = canvas.offsetWidth; canvas.height = canvas.offsetHeight; };
+    resize();
+    window.addEventListener("resize", resize);
+
+    const particles: Particle[] = Array.from({ length: 22 }, (_, i) => ({
+      id: i,
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      vx: (Math.random() - 0.5) * 0.18,
+      vy: -0.12 - Math.random() * 0.18,
+      opacity: 0.04 + Math.random() * 0.1,
+      token: CODE_TOKENS[i % CODE_TOKENS.length],
+      size: 10 + Math.random() * 3,
+    }));
+
+    let raf: number;
+    const draw = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      particles.forEach((p) => {
+        ctx.save();
+        ctx.globalAlpha = p.opacity;
+        ctx.fillStyle = "#4ade80";
+        ctx.font = `${p.size}px 'Courier New', monospace`;
+        ctx.fillText(p.token, p.x, p.y);
+        ctx.restore();
+        p.x += p.vx;
+        p.y += p.vy;
+        if (p.y < -30) { p.y = canvas.height + 10; p.x = Math.random() * canvas.width; }
+        if (p.x < -120) p.x = canvas.width + 10;
+        if (p.x > canvas.width + 10) p.x = -100;
+      });
+      raf = requestAnimationFrame(draw);
+    };
+    draw();
+    return () => { cancelAnimationFrame(raf); window.removeEventListener("resize", resize); };
+  }, []);
+
+  return (
+    <canvas
+      ref={canvasRef}
+      className="absolute inset-0 w-full h-full pointer-events-none"
+      style={{ opacity: 1 }}
+    />
+  );
+}
+
 const STATS = [
   { icon: Database, value: "7 000+", numTarget: 7000, suffix: "+", label: "Médicaments",      color: "hsl(142 72% 45%)" },
   { icon: Zap,      value: "< 100ms", numTarget: null, suffix: null, label: "Latence",          color: "hsl(210 80% 55%)" },
