@@ -20,11 +20,11 @@ export type NewsItem = {
 };
 
 const TYPE_CONFIG = {
-  feature:     { icon: Star,    color: "hsl(262 72% 50%)", bg: "hsl(262 55% 95%)" },
-  improvement: { icon: Zap,     color: "hsl(210 80% 48%)", bg: "hsl(210 70% 95%)" },
-  fix:         { icon: Wrench,  color: "hsl(38 90% 40%)",  bg: "hsl(38 90% 95%)"  },
-  release:     { icon: Package, color: "hsl(142 72% 37%)", bg: "hsl(142 55% 95%)" },
-  security:    { icon: Shield,  color: "hsl(0 70% 45%)",   bg: "hsl(0 60% 96%)"   },
+  feature:     { label: "Nouveauté",    icon: Star,    color: "hsl(262 72% 50%)", bg: "hsl(262 55% 95%)" },
+  improvement: { label: "Amélioration", icon: Zap,     color: "hsl(210 80% 48%)", bg: "hsl(210 70% 95%)" },
+  fix:         { label: "Correctif",    icon: Wrench,  color: "hsl(38 90% 40%)",  bg: "hsl(38 90% 95%)"  },
+  release:     { label: "Version",      icon: Package, color: "hsl(142 72% 37%)", bg: "hsl(142 55% 95%)" },
+  security:    { label: "Sécurité",     icon: Shield,  color: "hsl(0 70% 45%)",   bg: "hsl(0 60% 96%)"   },
 };
 
 export { TYPE_CONFIG };
