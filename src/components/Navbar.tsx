@@ -50,18 +50,18 @@ export default function Navbar() {
         </div>
 
         <div className="hidden md:flex items-center gap-3">
-          <a
-            href="#"
+          <Link
+            to="/docs"
             className="text-sm text-[hsl(215_20%_70%)] hover:text-white transition-colors px-3 py-1.5"
           >
-            Swagger
-          </a>
-          <a
-            href="#"
+            Explorateur API
+          </Link>
+          <Link
+            to="/docs"
             className="text-sm gradient-primary text-white px-4 py-1.5 rounded-lg font-medium hover:opacity-90 transition-opacity glow-primary"
           >
             Démarrer
-          </a>
+          </Link>
         </div>
 
         <button
