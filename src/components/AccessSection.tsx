@@ -237,8 +237,8 @@ export default function AccessSection() {
                       {pack.cta}
                       <ArrowRight className="w-3.5 h-3.5 transition-transform duration-200 group-hover/btn:translate-x-1" />
                     </button>
-                  </div>
                 </div>
+              </div>
               </div>
             );
           })()}
