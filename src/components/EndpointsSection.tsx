@@ -9,8 +9,7 @@ const groups = [
     color: "hsl(0 70% 45%)",
     accent: "hsl(0 70% 45%)",
     endpoints: [
-      { method: "POST", path: "/auth/token", desc: "Obtenir un token JWT d'accès" },
-      { method: "POST", path: "/auth/refresh", desc: "Renouveler un token expiré" },
+      { method: "POST", path: "/auth/login", desc: "Obtenir un token JWT d'accès" },
     ],
   },
   {
@@ -19,11 +18,23 @@ const groups = [
     color: "hsl(142 72% 37%)",
     accent: "hsl(142 72% 37%)",
     endpoints: [
-      { method: "GET", path: "/medicaments", desc: "Liste paginée avec filtres avancés" },
-      { method: "GET", path: "/medicaments/{id}", desc: "Fiche détaillée d'un médicament" },
-      { method: "GET", path: "/medicaments/search", desc: "Recherche full-text DCI / marque" },
-      { method: "GET", path: "/medicaments/export/csv", desc: "Export CSV de la nomenclature" },
-      { method: "GET", path: "/medicaments/stats", desc: "Statistiques & données agrégées" },
+      { method: "GET",  path: "/medicaments",                    desc: "Liste paginée avec filtres et tri" },
+      { method: "GET",  path: "/medicaments?q=amoxicilline",     desc: "Recherche par nom, DCI, code, labo" },
+      { method: "GET",  path: "/medicaments?categorie=RETRAIT",  desc: "Filtrer par catégorie" },
+      { method: "GET",  path: "/medicaments/{id}",               desc: "Fiche détaillée par identifiant" },
+      { method: "GET",  path: "/medicaments/par-dci/{dci}",      desc: "Tous les médicaments d'une molécule" },
+      { method: "GET",  path: "/medicaments/statistiques",       desc: "Répartition labo, pays, type, catégorie" },
+      { method: "GET",  path: "/medicaments/dashboard",          desc: "Top 10 labos & pays, chiffres globaux" },
+      { method: "GET",  path: "/medicaments/export",             desc: "Export CSV complet (avec filtres)" },
+    ],
+  },
+  {
+    name: "Système",
+    label: "Système",
+    color: "hsl(210 70% 45%)",
+    accent: "hsl(210 70% 45%)",
+    endpoints: [
+      { method: "GET", path: "/health", desc: "Statut de l'API (sans token)" },
     ],
   },
 ];
@@ -173,7 +184,7 @@ export default function EndpointsSection() {
 
             {/* Base URL note */}
             <p className="mt-4 text-xs text-muted-foreground text-right">
-              Base URL : <code className="font-mono text-foreground">https://api.npp.dz/v1</code>
+              Base URL : <code className="font-mono text-foreground">https://nnp.forge-solutions.tech/v1</code>
               {" · "}Format : <code className="font-mono text-foreground">JSON</code>
               {" · "}Auth : <code className="font-mono text-foreground">Bearer JWT</code>
             </p>
