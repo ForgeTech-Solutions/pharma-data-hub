@@ -303,9 +303,15 @@ export default {
   },
   footer: {
     copyright: "© 2025–2026 API NPP · Données officielles MSPRH",
-    ministry: "Ministère de la Santé · République Algérienne",
+    ministry: "MSPRH · République Algérienne",
+    madeWith: "Fait avec",
     bottom: "API Nomenclature Produits Pharmaceutiques · v1.0 · 2025–2026",
+    slogan: "L'API officielle de la Nomenclature des Produits Pharmaceutiques en Algérie — rapide, sécurisée et ouverte aux acteurs de santé.",
+    apiStatus: "API opérationnelle",
     links: ["Documentation", "Swagger UI", "GitHub", "Contact"],
+    col1: { title: "Ressources", link1: "Documentation", link2: "Swagger UI", link3: "Fonctionnalités", link4: "Tarification" },
+    col2: { title: "Plateforme", link1: "Cas d'usage", link2: "Actualités", link3: "Demander l'accès", link4: "Contact" },
+    col3: { title: "Légal", link1: "Mentions légales", link2: "Politique de confidentialité", link3: "GitHub", link4: "Licence" },
   },
   actualitesPage: {
     title: "Actualités de l'API NPP",
