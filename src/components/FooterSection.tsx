@@ -1,3 +1,5 @@
+import logo from "@/assets/logo_npp.png";
+
 export default function FooterSection() {
   return (
     <footer className="gradient-hero border-t border-[hsl(var(--code-border))]">
