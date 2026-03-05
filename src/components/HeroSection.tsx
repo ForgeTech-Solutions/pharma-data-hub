@@ -107,14 +107,48 @@ function LiveTerminal() {
 }
 
 const STATS = [
-  { icon: Database, value: "7 000+",  label: "Médicaments",       color: "hsl(142 72% 45%)" },
-  { icon: Zap,      value: "< 100ms", label: "Latence",           color: "hsl(210 80% 55%)" },
-  { icon: Shield,   value: "JWT",     label: "Authentification",  color: "hsl(262 72% 60%)" },
+  { icon: Database, value: "7 000+", numTarget: 7000, suffix: "+", label: "Médicaments",      color: "hsl(142 72% 45%)" },
+  { icon: Zap,      value: "< 100ms", numTarget: null, suffix: null, label: "Latence",          color: "hsl(210 80% 55%)" },
+  { icon: Shield,   value: "JWT",     numTarget: null, suffix: null, label: "Authentification", color: "hsl(262 72% 60%)" },
 ];
+
+function StatItem({ icon: Icon, value, numTarget, suffix, label, color, triggered }: {
+  icon: React.ElementType; value: string; numTarget: number | null; suffix: string | null;
+  label: string; color: string; triggered: boolean;
+}) {
+  const counted = useCounter(numTarget ?? 0, 1600, triggered && numTarget !== null);
+  const displayValue = triggered && numTarget !== null
+    ? `${(counted / 1000).toFixed(0)} 000${suffix ?? ""}`
+    : value;
+
+  return (
+    <div className="flex items-center gap-2.5 group cursor-default">
+      <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 transition-all duration-200 group-hover:scale-110"
+        style={{ background: color.replace(")", " / 0.12)"), border: `1px solid ${color.replace(")", " / 0.3)")}` }}>
+        <Icon size={14} style={{ color }} />
+      </div>
+      <div>
+        <div className="text-sm font-black text-white tabular-nums">{displayValue}</div>
+        <div className="text-[10px] text-[hsl(215_20%_45%)] uppercase tracking-wider">{label}</div>
+      </div>
+    </div>
+  );
+}
 
 export default function HeroSection() {
   const { t } = useTranslation();
   const [modalOpen, setModalOpen] = useState(false);
+  const statsRef   = useRef<HTMLDivElement>(null);
+  const [statsTriggered, setStatsTriggered] = useState(false);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => { if (entries[0].isIntersecting) { setStatsTriggered(true); observer.disconnect(); } },
+      { threshold: 0.5 }
+    );
+    if (statsRef.current) observer.observe(statsRef.current);
+    return () => observer.disconnect();
+  }, []);
 
   return (
     <>
