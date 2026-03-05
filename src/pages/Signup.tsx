@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { authApi } from "@/lib/api";
 import logo from "@/assets/logo_npp.png";
 import {
