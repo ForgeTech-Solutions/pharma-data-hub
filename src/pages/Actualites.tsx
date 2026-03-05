@@ -1,17 +1,9 @@
 import { useEffect, useRef } from "react";
-import { ArrowLeft, Zap, Shield, Package, Wrench, Star, Rss } from "lucide-react";
+import { ArrowLeft, Rss } from "lucide-react";
 import { Link } from "react-router-dom";
-import { latestNews, type NewsItem } from "@/components/ActualitesSection";
+import { latestNews, TYPE_CONFIG, type NewsItem } from "@/components/ActualitesSection";
 import Navbar from "@/components/Navbar";
 import FooterSection from "@/components/FooterSection";
-
-const TYPE_CONFIG = {
-  feature:     { label: "Nouveauté",    icon: Star,    color: "hsl(262 72% 50%)", bg: "hsl(262 55% 95%)" },
-  improvement: { label: "Amélioration", icon: Zap,     color: "hsl(210 80% 48%)", bg: "hsl(210 70% 95%)" },
-  fix:         { label: "Correctif",    icon: Wrench,  color: "hsl(38 90% 40%)",  bg: "hsl(38 90% 95%)"  },
-  release:     { label: "Version",      icon: Package, color: "hsl(142 72% 37%)", bg: "hsl(142 55% 95%)" },
-  security:    { label: "Sécurité",     icon: Shield,  color: "hsl(0 70% 45%)",   bg: "hsl(0 60% 96%)"   },
-};
 
 function NewsCard({ item, index }: { item: NewsItem; index: number }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -23,43 +15,41 @@ function NewsCard({ item, index }: { item: NewsItem; index: number }) {
     if (!el) return;
     const observer = new IntersectionObserver(
       ([e]) => e.isIntersecting && el.classList.add("visible"),
-      { threshold: 0.08 }
+      { threshold: 0.06 }
     );
     observer.observe(el);
     return () => observer.disconnect();
   }, []);
 
   return (
-    <div
+    <article
       ref={ref}
-      className="section-fade group relative bg-card border border-border rounded-2xl p-7 flex flex-col md:flex-row gap-6 hover:border-border/80 hover:shadow-md transition-all duration-300"
+      className="section-fade group relative bg-card border border-border rounded-2xl overflow-hidden hover:border-border/80 hover:shadow-lg transition-all duration-300"
       style={{ transitionDelay: `${index * 60}ms` }}
     >
-      {/* Left: date column */}
-      <div className="md:w-32 shrink-0 flex md:flex-col items-center md:items-start gap-3 md:gap-1">
-        <div
-          className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
-          style={{ background: cfg.bg }}
-        >
-          <TypeIcon className="w-5 h-5" style={{ color: cfg.color }} />
-        </div>
-        <span className="text-xs text-muted-foreground mt-1 font-mono">{item.date}</span>
-      </div>
+      {/* Image banner */}
+      <div className="relative h-52 overflow-hidden">
+        <img
+          src={item.image}
+          alt={item.title}
+          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-card/95 via-card/30 to-transparent" />
 
-      {/* Right: content */}
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2 mb-3 flex-wrap">
+        {/* Badges over image */}
+        <div className="absolute top-4 left-4 flex items-center gap-2">
           <span
-            className="text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full"
-            style={{ background: cfg.bg, color: cfg.color }}
+            className="inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full shadow backdrop-blur-sm"
+            style={{ background: `${cfg.bg}ee`, color: cfg.color }}
           >
+            <TypeIcon className="w-3 h-3" />
             {cfg.label}
           </span>
           {item.badge && (
             <span
-              className="text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full border"
+              className="text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full backdrop-blur-sm border"
               style={{
-                background: "hsl(var(--muted))",
+                background: "hsl(var(--muted) / 0.85)",
                 color: "hsl(var(--muted-foreground))",
                 borderColor: "hsl(var(--border))",
               }}
@@ -69,20 +59,58 @@ function NewsCard({ item, index }: { item: NewsItem; index: number }) {
           )}
         </div>
 
-        <h3 className="text-base font-bold text-foreground mb-2 leading-snug group-hover:text-primary transition-colors duration-200">
-          {item.title}
-        </h3>
-        <p className="text-sm text-muted-foreground leading-relaxed">
-          {item.excerpt}
-        </p>
+        {/* Date bottom-left of image */}
+        <span className="absolute bottom-3 left-4 text-xs text-muted-foreground font-mono">
+          {item.date}
+        </span>
       </div>
 
-      {/* Accent left bar */}
+      {/* Content */}
+      <div className="p-7">
+        <h3 className="text-lg font-bold text-foreground mb-3 leading-snug group-hover:text-primary transition-colors duration-200">
+          {item.title}
+        </h3>
+
+        <p className="text-sm text-muted-foreground leading-relaxed mb-5">
+          {item.excerpt}
+        </p>
+
+        {/* Highlight pill */}
+        {item.highlight && (
+          <div
+            className="inline-flex items-center gap-2 text-xs font-semibold px-3 py-1.5 rounded-full mb-5"
+            style={{ background: cfg.bg, color: cfg.color }}
+          >
+            <span
+              className="w-1.5 h-1.5 rounded-full shrink-0"
+              style={{ background: cfg.color }}
+            />
+            {item.highlight}
+          </div>
+        )}
+
+        {/* Detail bullets */}
+        {item.details && item.details.length > 0 && (
+          <ul className="space-y-2.5 border-t border-border pt-5 mt-1">
+            {item.details.map((detail, i) => (
+              <li key={i} className="flex items-start gap-2.5 text-sm text-muted-foreground">
+                <span
+                  className="mt-1.5 w-1.5 h-1.5 rounded-full shrink-0"
+                  style={{ background: cfg.color }}
+                />
+                {detail}
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+
+      {/* Left accent bar */}
       <div
-        className="absolute left-0 top-6 bottom-6 w-0.5 rounded-full scale-y-0 group-hover:scale-y-100 transition-transform duration-300 origin-top"
+        className="absolute left-0 top-0 bottom-0 w-0.5 rounded-l-2xl scale-y-0 group-hover:scale-y-100 transition-transform duration-300 origin-top"
         style={{ background: cfg.color }}
       />
-    </div>
+    </article>
   );
 }
 
@@ -144,7 +172,7 @@ export default function Actualites() {
 
       {/* News list */}
       <section className="py-20">
-        <div className="max-w-4xl mx-auto px-6 space-y-4">
+        <div className="max-w-4xl mx-auto px-6 grid grid-cols-1 gap-8">
           {latestNews.map((item, i) => (
             <NewsCard key={item.id} item={item} index={i} />
           ))}
