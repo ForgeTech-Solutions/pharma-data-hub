@@ -17,6 +17,9 @@ import DashboardPassword from "./pages/DashboardPassword";
 import DashboardDelete from "./pages/DashboardDelete";
 import DashboardTokens from "./pages/DashboardTokens";
 import PageTransition from "./components/PageTransition";
+import MentionsLegales from "./pages/MentionsLegales";
+import PolitiqueConfidentialite from "./pages/PolitiqueConfidentialite";
+import Contact from "./pages/Contact";
 
 const queryClient = new QueryClient();
 
