@@ -147,9 +147,96 @@ export default function AccessSection() {
             </p>
           </div>
 
-          {/* Pack cards grid */}
-          <div className="grid sm:grid-cols-2 xl:grid-cols-4 gap-5 mb-14">
-            {PACK_META.map((meta, i) => {
+          {/* FREE pack — full-width CTA banner */}
+          {(() => {
+            const meta = PACK_META[0];
+            const pack = packs[0];
+            if (!pack) return null;
+            return (
+              <div
+                ref={(el) => { cardRefs.current[0] = el; }}
+                className="section-fade group relative rounded-2xl border overflow-hidden mb-5 transition-all duration-500"
+                style={{
+                  background: "hsl(var(--card))",
+                  borderColor: "hsl(var(--border))",
+                }}
+                onMouseEnter={(e) => {
+                  (e.currentTarget as HTMLDivElement).style.borderColor = meta.colorBorder;
+                  (e.currentTarget as HTMLDivElement).style.boxShadow = `0 16px 48px -8px ${meta.colorBg.replace("0.08", "0.25")}`;
+                }}
+                onMouseLeave={(e) => {
+                  (e.currentTarget as HTMLDivElement).style.borderColor = "hsl(var(--border))";
+                  (e.currentTarget as HTMLDivElement).style.boxShadow = "";
+                }}
+              >
+                {/* Left color bar */}
+                <div className="absolute left-0 top-0 bottom-0 w-1" style={{ background: meta.color }} />
+                {/* Watermark */}
+                <div className="absolute right-6 top-1/2 -translate-y-1/2 pointer-events-none select-none"
+                  style={{ opacity: 0.05 }}>
+                  <meta.icon style={{ width: 72, height: 72, color: meta.color }} />
+                </div>
+
+                <div className="pl-7 pr-6 py-5 flex flex-col sm:flex-row sm:items-center gap-4 relative z-10">
+                  {/* Icon + title */}
+                  <div className="flex items-center gap-3 shrink-0">
+                    <div className="w-9 h-9 rounded-xl flex items-center justify-center"
+                      style={{ background: meta.colorBg, border: `1px solid ${meta.colorBorder}` }}>
+                      <meta.icon className="w-4 h-4" style={{ color: meta.color }} />
+                    </div>
+                    <div>
+                      <div className="text-[10px] font-black uppercase tracking-widest" style={{ color: meta.color }}>{meta.id}</div>
+                      <div className="text-xs text-muted-foreground">{pack.tagline}</div>
+                    </div>
+                  </div>
+
+                  {/* Divider */}
+                  <div className="hidden sm:block w-px h-8 bg-border shrink-0" />
+
+                  {/* Quota badge */}
+                  <div className="inline-flex items-center gap-1.5 text-[11px] font-bold px-2.5 py-1 rounded-lg shrink-0"
+                    style={{ background: meta.colorBg, color: meta.color, border: `1px solid ${meta.colorBorder}` }}>
+                    <Zap className="w-3 h-3" /> {pack.quotaLabel}
+                  </div>
+
+                  {/* Features inline */}
+                  <div className="hidden md:flex items-center gap-4 flex-1 flex-wrap">
+                    {pack.features.filter(f => f.ok).slice(0, 4).map((f, fi) => (
+                      <span key={fi} className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+                        <Check className="w-3 h-3 shrink-0" style={{ color: meta.color }} />
+                        {f.label}
+                      </span>
+                    ))}
+                  </div>
+
+                  {/* CTA */}
+                  <button
+                    onClick={() => handleCta(meta.id, 0)}
+                    className="shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold transition-all duration-300 group/btn"
+                    style={{ background: meta.colorBg, color: meta.color, border: `1px solid ${meta.colorBorder}` }}
+                    onMouseEnter={(e) => {
+                      (e.currentTarget as HTMLButtonElement).style.background = meta.color;
+                      (e.currentTarget as HTMLButtonElement).style.color = "#fff";
+                      (e.currentTarget as HTMLButtonElement).style.borderColor = meta.color;
+                    }}
+                    onMouseLeave={(e) => {
+                      (e.currentTarget as HTMLButtonElement).style.background = meta.colorBg;
+                      (e.currentTarget as HTMLButtonElement).style.color = meta.color;
+                      (e.currentTarget as HTMLButtonElement).style.borderColor = meta.colorBorder;
+                    }}
+                  >
+                    {pack.cta}
+                    <ArrowRight className="w-3.5 h-3.5 transition-transform duration-200 group-hover/btn:translate-x-1" />
+                  </button>
+                </div>
+              </div>
+            );
+          })()}
+
+          {/* PRO / INSTITUTIONNEL / DÉVELOPPEUR — 3-column grid */}
+          <div className="grid sm:grid-cols-3 gap-5 mb-14">
+            {PACK_META.slice(1).map((meta, idx) => {
+              const i = idx + 1;
               const pack = packs[i];
               if (!pack) return null;
 
