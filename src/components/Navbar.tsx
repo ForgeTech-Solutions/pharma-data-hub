@@ -96,12 +96,31 @@ export default function Navbar() {
             >
               {t("nav.explorer")}
             </Link>
-            <button
-              onClick={() => setModalOpen(true)}
-              className="text-sm gradient-primary text-white px-4 py-1.5 rounded-lg font-medium hover:opacity-90 transition-all duration-200 glow-primary hover:scale-105"
-            >
-              {t("nav.requestAccess")}
-            </button>
+            {isLoggedIn ? (
+              <>
+                <Link
+                  to="/dashboard"
+                  className="flex items-center gap-1.5 text-sm text-[hsl(215_20%_70%)] hover:text-white transition-colors px-3 py-1.5"
+                >
+                  <LayoutDashboard size={14} />
+                  Mon Espace
+                </Link>
+                <button
+                  onClick={handleLogout}
+                  className="flex items-center gap-1.5 text-sm text-[hsl(215_20%_65%)] hover:text-[hsl(0_72%_60%)] transition-colors px-3 py-1.5 rounded-lg hover:bg-[hsl(0_72%_37%/0.1)] border border-transparent hover:border-[hsl(0_72%_37%/0.3)]"
+                >
+                  <LogOut size={14} />
+                  Déconnexion
+                </button>
+              </>
+            ) : (
+              <button
+                onClick={() => setModalOpen(true)}
+                className="text-sm gradient-primary text-white px-4 py-1.5 rounded-lg font-medium hover:opacity-90 transition-all duration-200 glow-primary hover:scale-105"
+              >
+                {t("nav.requestAccess")}
+              </button>
+            )}
           </div>
 
           <button
