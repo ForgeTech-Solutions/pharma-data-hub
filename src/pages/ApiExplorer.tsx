@@ -48,6 +48,7 @@ const groups: Group[] = [
         summary: "Statut de l'API",
         description: "Vérifie que l'API est opérationnelle. Accessible sans token JWT.",
         requiresAuth: false,
+        params: [],
         exampleResponse: { status: "ok", version: "1.0.0", uptime: "99.98%" },
       },
       {
