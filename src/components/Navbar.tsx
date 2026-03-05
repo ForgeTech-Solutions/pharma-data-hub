@@ -38,7 +38,6 @@ export default function Navbar() {
               src={logo}
               alt="API Nomenclature NPP"
               className="h-11 w-auto transition-all duration-200 group-hover:opacity-90"
-              style={{ filter: "brightness(0) invert(1) drop-shadow(0 0 6px hsl(142 72% 50% / 0.4))" }}
             />
           </a>
 

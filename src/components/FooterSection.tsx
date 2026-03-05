@@ -11,7 +11,6 @@ export default function FooterSection() {
               src={logo}
               alt="API Nomenclature NPP"
               className="h-14 w-auto opacity-90"
-              style={{ filter: "brightness(0) invert(1) drop-shadow(0 0 8px hsl(142 72% 50% / 0.3))" }}
             />
           </div>
 
