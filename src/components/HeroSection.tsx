@@ -214,18 +214,9 @@ export default function HeroSection() {
               </div>
 
               {/* Stats row */}
-              <div className="animate-fade-up-4 flex flex-wrap gap-6 pt-6 border-t border-[hsl(215_28%_16%)]">
-                {STATS.map(({ icon: Icon, value, label, color }) => (
-                  <div key={label} className="flex items-center gap-2.5 group cursor-default">
-                    <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 transition-all duration-200 group-hover:scale-110"
-                      style={{ background: color.replace("hsl(", "hsl(").replace(")", " / 0.12)"), border: `1px solid ${color.replace("hsl(", "hsl(").replace(")", " / 0.3)")}` }}>
-                      <Icon size={14} style={{ color }} />
-                    </div>
-                    <div>
-                      <div className="text-sm font-black text-white">{value}</div>
-                      <div className="text-[10px] text-[hsl(215_20%_45%)] uppercase tracking-wider">{label}</div>
-                    </div>
-                  </div>
+              <div ref={statsRef} className="animate-fade-up-4 flex flex-wrap gap-6 pt-6 border-t border-[hsl(215_28%_16%)]">
+                {STATS.map((stat) => (
+                  <StatItem key={stat.label} {...stat} triggered={statsTriggered} />
                 ))}
               </div>
             </div>
