@@ -15,6 +15,7 @@ import DashboardPack from "./pages/DashboardPack";
 import DashboardProfile from "./pages/DashboardProfile";
 import DashboardPassword from "./pages/DashboardPassword";
 import DashboardDelete from "./pages/DashboardDelete";
+import DashboardTokens from "./pages/DashboardTokens";
 
 const queryClient = new QueryClient();
 
@@ -36,6 +37,7 @@ const App = () => (
           <Route path="/dashboard/profile" element={<DashboardProfile />} />
           <Route path="/dashboard/password" element={<DashboardPassword />} />
           <Route path="/dashboard/delete" element={<DashboardDelete />} />
+          <Route path="/dashboard/tokens" element={<DashboardTokens />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

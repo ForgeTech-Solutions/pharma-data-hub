@@ -1,18 +1,26 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { authApi } from "@/lib/api";
 import { useAuth } from "@/hooks/useAuth";
+import { scheduleTokenRefresh } from "@/lib/api";
 import logo from "@/assets/logo_npp.png";
-import { LogIn, Eye, EyeOff, AlertCircle } from "lucide-react";
+import { LogIn, Eye, EyeOff, AlertCircle, CheckCircle2, Clock, Info } from "lucide-react";
 
 export default function Login() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { saveSession } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPwd, setShowPwd] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  // URL-based contextual messages
+  const isDeleted  = searchParams.get("deleted") === "1";
+  const isPending  = searchParams.get("pending") === "1";
+  const isExpired  = searchParams.get("expired") === "1";
+  const isRenew    = searchParams.get("renew")   === "1";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -21,6 +29,7 @@ export default function Login() {
     try {
       const res = await authApi.login(email, password);
       saveSession(res.access_token, res.pack, res.is_approved);
+      scheduleTokenRefresh(res.access_token);
       navigate("/dashboard");
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Erreur inconnue";
@@ -47,6 +56,44 @@ export default function Login() {
           <h1 className="text-2xl font-extrabold text-white">Connexion</h1>
           <p className="text-sm text-[hsl(215_20%_60%)] mt-1">Accédez à votre espace client</p>
         </div>
+
+        {/* Contextual banners */}
+        {isDeleted && (
+          <div className="mb-5 flex items-start gap-2.5 rounded-xl border border-[hsl(142_72%_37%/0.35)] bg-[hsl(142_72%_37%/0.08)] px-4 py-3 text-sm text-[hsl(142_72%_60%)]">
+            <CheckCircle2 size={16} className="mt-0.5 shrink-0" />
+            <div>
+              <strong className="text-white block mb-0.5">Compte supprimé</strong>
+              Votre compte a été supprimé définitivement. Merci d'avoir utilisé l'API NPP.
+            </div>
+          </div>
+        )}
+        {isPending && (
+          <div className="mb-5 flex items-start gap-2.5 rounded-xl border border-[hsl(38_72%_50%/0.4)] bg-[hsl(38_72%_37%/0.08)] px-4 py-3 text-sm text-[hsl(38_72%_65%)]">
+            <Clock size={16} className="mt-0.5 shrink-0" />
+            <div>
+              <strong className="text-white block mb-0.5">Demande en attente</strong>
+              Votre inscription a bien été reçue. Un administrateur vous contactera sous 48h pour activer votre compte.
+            </div>
+          </div>
+        )}
+        {isExpired && (
+          <div className="mb-5 flex items-start gap-2.5 rounded-xl border border-[hsl(38_72%_50%/0.4)] bg-[hsl(38_72%_37%/0.08)] px-4 py-3 text-sm text-[hsl(38_72%_65%)]">
+            <Clock size={16} className="mt-0.5 shrink-0" />
+            <div>
+              <strong className="text-white block mb-0.5">Session expirée</strong>
+              Votre token JWT a expiré après 30 minutes. Reconnectez-vous pour obtenir un nouveau token.
+            </div>
+          </div>
+        )}
+        {isRenew && (
+          <div className="mb-5 flex items-start gap-2.5 rounded-xl border border-[hsl(210_80%_50%/0.35)] bg-[hsl(210_80%_50%/0.08)] px-4 py-3 text-sm text-[hsl(210_80%_65%)]">
+            <Info size={16} className="mt-0.5 shrink-0" />
+            <div>
+              <strong className="text-white block mb-0.5">Régénération du token</strong>
+              Reconnectez-vous pour obtenir un nouveau token Bearer actif valable 30 minutes.
+            </div>
+          </div>
+        )}
 
         <div className="rounded-2xl border border-[hsl(var(--code-border))] bg-[hsl(215_28%_11%)] p-8">
           {error && (
