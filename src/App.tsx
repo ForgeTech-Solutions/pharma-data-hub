@@ -15,6 +15,7 @@ import DashboardPack from "./pages/DashboardPack";
 import DashboardProfile from "./pages/DashboardProfile";
 import DashboardPassword from "./pages/DashboardPassword";
 import DashboardDelete from "./pages/DashboardDelete";
+import DashboardTokens from "./pages/DashboardTokens";
 
 const queryClient = new QueryClient();
 
