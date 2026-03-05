@@ -380,7 +380,7 @@ function EndpointCard({ endpoint, jwtToken }: { endpoint: Endpoint; jwtToken: st
           {endpoint.summary}
         </span>
         {endpoint.requiresAuth && (
-          <Lock className="w-3.5 h-3.5 shrink-0 text-muted-foreground/50" title="Authentification requise" />
+          <Lock className="w-3.5 h-3.5 shrink-0 text-muted-foreground/50" aria-label="Authentification requise" />
         )}
         {open
           ? <ChevronDown className="w-4 h-4 text-muted-foreground shrink-0" />
