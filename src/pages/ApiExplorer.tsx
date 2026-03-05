@@ -43,7 +43,7 @@ const groups: Group[] = [
         method: "POST",
         path: "/auth/token",
         summary: "Obtenir un token JWT",
-        description: "Génère un token d'accès et un token de rafraîchissement valides 30 minutes.",
+        description: "Génère un token d'accès valide 30 minutes à partir de vos identifiants.",
         params: [
           { name: "username", in: "body", required: true, type: "string", description: "Nom d'utilisateur" },
           { name: "password", in: "body", required: true, type: "string", description: "Mot de passe" },
@@ -139,6 +139,22 @@ const groups: Group[] = [
           pays_origine: "Algérie",
           statut: "Actif",
           date_enregistrement: "2021-03-15",
+        },
+      },
+      {
+        id: "med-export",
+        method: "GET",
+        path: "/medicaments/export/csv",
+        summary: "Export CSV",
+        description: "Télécharge les données filtrées au format CSV. Accepte les mêmes paramètres que la liste.",
+        params: [
+          { name: "q", in: "query", type: "string", description: "Filtre de recherche", default: "" },
+          { name: "statut", in: "query", type: "string", description: "Filtre par statut (Actif, Retiré…)", default: "" },
+        ],
+        exampleResponse: {
+          message: "Fichier CSV généré",
+          filename: "medicaments_export_2026-03-05.csv",
+          rows: 7234,
         },
       },
       {

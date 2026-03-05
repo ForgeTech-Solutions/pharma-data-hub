@@ -15,7 +15,6 @@ export default function Navbar() {
   const links = [
     { label: "Fonctionnalités", href: "#features" },
     { label: "Cas d'usage", href: "#usecases" },
-    { label: "Stack", href: "#stack" },
     { label: "Endpoints", href: "#endpoints" },
   ];
 
