@@ -81,7 +81,7 @@
   }
 
   .card-hover {
-    @apply transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:border-primary/30;
+    @apply transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:border-primary/30;
   }
 
   .glow-primary {
@@ -90,13 +90,18 @@
 
   .section-fade {
     opacity: 0;
-    transform: translateY(28px);
-    transition: opacity 0.7s ease, transform 0.7s ease;
+    transform: translateY(32px);
+    transition: opacity 0.75s cubic-bezier(0.16, 1, 0.3, 1), transform 0.75s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
   .section-fade.visible {
     opacity: 1;
     transform: translateY(0);
+  }
+
+  /* Smooth scrolling */
+  html {
+    scroll-behavior: smooth;
   }
 }
 
