@@ -41,7 +41,7 @@ export default function EndpointsSection() {
     <section
       id="endpoints"
       ref={sectionRef}
-      className="py-28 section-fade overflow-hidden relative"
+      className="py-14 section-fade overflow-hidden relative"
       style={{ background: "hsl(215 28% 7%)" }}
     >
       {/* Background grid */}
