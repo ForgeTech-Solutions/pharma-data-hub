@@ -352,7 +352,7 @@ function EndpointCard({ endpoint, jwtToken }: { endpoint: Endpoint; jwtToken: st
   const curlSnippet = () => {
     const path = buildPath();
     const tokenVal = jwtToken.trim() || "<votre_token_jwt>";
-    const base = `curl -X ${endpoint.method} "https://api.npp.dz${path}" \\\n  -H "Authorization: Bearer ${tokenVal}" \\\n  -H "Accept: application/json"`;
+    const base = `curl -X ${endpoint.method} "https://nnp.forge-solutions.tech/v1${path}" \\\n  -H "Authorization: Bearer ${tokenVal}" \\\n  -H "Accept: application/json"`;
     const bodyParams = endpoint.params.filter((p) => p.in === "body");
     if (bodyParams.length) {
       const data = Object.fromEntries(bodyParams.map((p) => [p.name, values[p.name] || p.default || ""]));
@@ -580,7 +580,7 @@ export default function ApiExplorer() {
           </p>
           <div className="mt-4 flex flex-wrap gap-2.5">
             {[
-              { label: "Base URL", value: "https://api.npp.dz" },
+              { label: "Base URL", value: "https://nnp.forge-solutions.tech/v1" },
               { label: "Version",  value: "v1.0" },
               { label: "Format",   value: "JSON" },
               { label: "Auth",     value: "Bearer JWT" },

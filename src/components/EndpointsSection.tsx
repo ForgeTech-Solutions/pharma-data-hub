@@ -145,7 +145,7 @@ export default function EndpointsSection() {
                   {currentGroup.label}
                 </span>
                 <code className="ml-auto text-xs text-muted-foreground font-mono">
-                  https://api.npp.dz
+                  nnp.forge-solutions.tech/v1
                 </code>
               </div>
 
