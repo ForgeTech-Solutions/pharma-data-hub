@@ -146,23 +146,14 @@ export default function AccessSection() {
                     </ul>
 
                 <button
-                  onClick={() => openModal(meta.id)}
+                  onClick={() => handleCta(meta.id, i)}
                   className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-xs font-bold transition-all duration-300 group/btn"
                   style={{ background: meta.colorBg, color: meta.color }}
                   onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = meta.color; (e.currentTarget as HTMLButtonElement).style.color = "#fff"; }}
                   onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = meta.colorBg; (e.currentTarget as HTMLButtonElement).style.color = meta.color; }}
                 >
-                  {i === 0 ? (
-                    <a href="/signup" className="flex items-center gap-2 w-full justify-center" onClick={(e) => e.stopPropagation()}>
-                      {pack.cta}
-                      <ArrowRight className="w-3.5 h-3.5 transition-transform duration-200 group-hover/btn:translate-x-1" />
-                    </a>
-                  ) : (
-                    <>
-                      {pack.cta}
-                      <ArrowRight className="w-3.5 h-3.5 transition-transform duration-200 group-hover/btn:translate-x-1" />
-                    </>
-                  )}
+                  {pack.cta}
+                  <ArrowRight className="w-3.5 h-3.5 transition-transform duration-200 group-hover/btn:translate-x-1" />
                 </button>
                   </div>
                 </div>
