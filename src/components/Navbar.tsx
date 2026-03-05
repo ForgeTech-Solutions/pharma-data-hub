@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Menu, X } from "lucide-react";
 import { Link } from "react-router-dom";
 import AccessRequestModal from "@/components/AccessRequestModal";
-import logo from "@/assets/logo_npp.png";
+import logo from "@/assets/logo_npp_dark.png";
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);

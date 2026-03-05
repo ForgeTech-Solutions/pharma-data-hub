@@ -1,4 +1,4 @@
-import logo from "@/assets/logo_npp.png";
+import logo from "@/assets/logo_npp_dark.png";
 
 export default function FooterSection() {
   return (
