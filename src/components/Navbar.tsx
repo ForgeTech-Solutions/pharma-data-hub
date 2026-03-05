@@ -7,13 +7,16 @@ import logo from "@/assets/logo_npp.png";
 
 export default function Navbar() {
   const { t, i18n } = useTranslation();
+  const navigate = useNavigate();
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
     const handler = () => setScrolled(window.scrollY > 20);
     window.addEventListener("scroll", handler);
+    setIsLoggedIn(!!localStorage.getItem("npp_token"));
     return () => window.removeEventListener("scroll", handler);
   }, []);
 
@@ -21,6 +24,14 @@ export default function Navbar() {
     const next = i18n.language === "fr" ? "en" : "fr";
     i18n.changeLanguage(next);
     localStorage.setItem("lang", next);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("npp_token");
+    localStorage.removeItem("npp_pack");
+    localStorage.removeItem("npp_approved");
+    setIsLoggedIn(false);
+    navigate("/login");
   };
 
   const links = [
