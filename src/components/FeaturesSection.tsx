@@ -13,14 +13,14 @@ const ACCENT_COLORS = [
   { color: "hsl(210 80% 50%)", bg: "hsl(210 80% 50% / 0.08)", border: "hsl(210 80% 50% / 0.25)" },
 ];
 
-// Asymmetric grid spans per card index
+// Asymmetric grid: card 0 and 5 are wide (col-span-2) on md+
 const GRID_SPANS = [
-  "md:col-span-2 lg:col-span-2",  // 0 — wide
-  "md:col-span-1 lg:col-span-1",  // 1
-  "md:col-span-1 lg:col-span-1",  // 2
-  "md:col-span-1 lg:col-span-1",  // 3
-  "md:col-span-1 lg:col-span-1",  // 4
-  "md:col-span-2 lg:col-span-2",  // 5 — wide
+  "md:col-span-2",
+  "",
+  "",
+  "",
+  "",
+  "md:col-span-2",
 ];
 
 export default function FeaturesSection() {
@@ -31,21 +31,34 @@ export default function FeaturesSection() {
   const items = t("features.items", { returnObjects: true }) as Array<{ title: string; desc: string; tag: string }>;
 
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => entries.forEach((e) => e.isIntersecting && e.target.classList.add("visible")),
+    // Staggered per-card observer — each card gets its own threshold callback
+    const observers: IntersectionObserver[] = [];
+    cardRefs.current.forEach((card, i) => {
+      if (!card) return;
+      const obs = new IntersectionObserver(
+        ([entry]) => {
+          if (entry.isIntersecting) {
+            // Apply delay via setTimeout so it actually staggers visually
+            setTimeout(() => card.classList.add("visible"), i * 100);
+            obs.disconnect();
+          }
+        },
+        { threshold: 0.1 }
+      );
+      obs.observe(card);
+      observers.push(obs);
+    });
+    // Section header fade
+    const sectionObs = new IntersectionObserver(
+      ([e]) => { if (e.isIntersecting) sectionRef.current?.classList.add("visible"); },
       { threshold: 0.08 }
     );
-    if (sectionRef.current) observer.observe(sectionRef.current);
-    cardRefs.current.forEach((r) => r && observer.observe(r));
-    return () => observer.disconnect();
+    if (sectionRef.current) sectionObs.observe(sectionRef.current);
+    return () => { observers.forEach((o) => o.disconnect()); sectionObs.disconnect(); };
   }, []);
 
   return (
     <section id="features" ref={sectionRef} className="py-28 bg-background section-fade overflow-hidden">
-      {/* Subtle background texture */}
-      <div className="absolute inset-0 pointer-events-none opacity-[0.015]"
-        style={{ backgroundImage: "radial-gradient(hsl(var(--foreground)) 1px, transparent 1px)", backgroundSize: "28px 28px" }} />
-
       <div className="max-w-6xl mx-auto px-6 relative">
 
         {/* Header */}
@@ -77,31 +90,28 @@ export default function FeaturesSection() {
                 className={`section-fade group relative rounded-2xl border overflow-hidden cursor-default
                   transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl
                   ${GRID_SPANS[i]}`}
-                style={{
-                  transitionDelay: `${i * 70}ms`,
-                  background: "hsl(var(--card))",
-                  borderColor: "hsl(var(--border))",
-                }}
+                style={{ background: "hsl(var(--card))", borderColor: "hsl(var(--border))" }}
                 onMouseEnter={(e) => {
-                  (e.currentTarget as HTMLDivElement).style.borderColor = accent.border;
-                  (e.currentTarget as HTMLDivElement).style.boxShadow = `0 20px 60px -15px ${accent.bg.replace("0.08", "0.4")}`;
+                  const el = e.currentTarget as HTMLDivElement;
+                  el.style.borderColor = accent.border;
+                  el.style.boxShadow = `0 20px 60px -15px ${accent.bg.replace("0.08", "0.4")}`;
                 }}
                 onMouseLeave={(e) => {
-                  (e.currentTarget as HTMLDivElement).style.borderColor = "hsl(var(--border))";
-                  (e.currentTarget as HTMLDivElement).style.boxShadow = "";
+                  const el = e.currentTarget as HTMLDivElement;
+                  el.style.borderColor = "hsl(var(--border))";
+                  el.style.boxShadow = "";
                 }}
               >
-                {/* Top color stripe */}
+                {/* Top entry line */}
                 <div className="h-0.5 w-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                   style={{ background: `linear-gradient(90deg, ${accent.color}, transparent)` }} />
 
-                {/* Watermark icon */}
+                {/* Watermark */}
                 <div className="absolute bottom-3 right-4 pointer-events-none select-none opacity-[0.04] group-hover:opacity-[0.09] transition-opacity duration-500">
                   <Icon style={{ width: isWide ? 96 : 72, height: isWide ? 96 : 72, color: accent.color }} />
                 </div>
 
                 <div className={`p-6 flex ${isWide ? "md:flex-row md:items-center" : "flex-col"} gap-5 relative`}>
-                  {/* Icon bubble */}
                   <div
                     className="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 transition-all duration-300 group-hover:scale-110"
                     style={{ background: accent.bg, border: `1px solid ${accent.border}` }}
@@ -110,11 +120,8 @@ export default function FeaturesSection() {
                   </div>
 
                   <div className={isWide ? "flex-1" : ""}>
-                    {/* Tag */}
-                    <span
-                      className="inline-block text-[10px] font-black uppercase tracking-widest px-2.5 py-0.5 rounded-full mb-2"
-                      style={{ background: accent.bg, color: accent.color }}
-                    >
+                    <span className="inline-block text-[10px] font-black uppercase tracking-widest px-2.5 py-0.5 rounded-full mb-2"
+                      style={{ background: accent.bg, color: accent.color }}>
                       {f.tag}
                     </span>
                     <h3 className="text-base font-bold text-foreground mb-1.5 leading-snug">{f.title}</h3>
@@ -122,7 +129,7 @@ export default function FeaturesSection() {
                   </div>
                 </div>
 
-                {/* Bottom hover line */}
+                {/* Bottom slide line */}
                 <div className="absolute bottom-0 left-0 right-0 h-0.5 scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-500"
                   style={{ background: `linear-gradient(90deg, ${accent.color}, transparent)` }} />
               </div>
