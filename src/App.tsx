@@ -37,6 +37,7 @@ const App = () => (
           <Route path="/dashboard/profile" element={<DashboardProfile />} />
           <Route path="/dashboard/password" element={<DashboardPassword />} />
           <Route path="/dashboard/delete" element={<DashboardDelete />} />
+          <Route path="/dashboard/tokens" element={<DashboardTokens />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

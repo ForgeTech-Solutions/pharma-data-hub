@@ -12,6 +12,7 @@ const NAV_ITEMS = [
   { label: "Vue d'ensemble",     href: "/dashboard",          icon: LayoutDashboard },
   { label: "Mes statistiques",   href: "/dashboard/stats",    icon: BarChart3 },
   { label: "Mon pack",           href: "/dashboard/pack",     icon: Package },
+  { label: "Mes tokens",         href: "/dashboard/tokens",   icon: KeyRound },
   { label: "Mon profil",         href: "/dashboard/profile",  icon: User },
   { label: "Changer le MDP",     href: "/dashboard/password", icon: KeyRound },
   { label: "Supprimer le compte",href: "/dashboard/delete",   icon: Trash2, danger: true },
