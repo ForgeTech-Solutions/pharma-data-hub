@@ -1,6 +1,7 @@
 import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/HeroSection";
 import FeaturesSection from "@/components/FeaturesSection";
+import UseCasesSection from "@/components/UseCasesSection";
 import StackSection from "@/components/StackSection";
 import CodeSection from "@/components/CodeSection";
 import EndpointsSection from "@/components/EndpointsSection";
