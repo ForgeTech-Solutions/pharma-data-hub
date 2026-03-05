@@ -165,7 +165,7 @@ export default function HeroSection() {
                 {STATS.map(({ icon: Icon, value, label, color }) => (
                   <div key={label} className="flex items-center gap-2.5 group cursor-default">
                     <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 transition-all duration-200 group-hover:scale-110"
-                      style={{ background: `${color.replace(")", " / 0.12)")?.replace("hsl(", "hsl(")}`, border: `1px solid ${color.replace(")", " / 0.3)").replace("hsl(", "hsl(")}` }}>
+                      style={{ background: color.replace("hsl(", "hsl(").replace(")", " / 0.12)"), border: `1px solid ${color.replace("hsl(", "hsl(").replace(")", " / 0.3)")}` }}>
                       <Icon size={14} style={{ color }} />
                     </div>
                     <div>
@@ -184,13 +184,13 @@ export default function HeroSection() {
               {/* Trust badges below terminal */}
               <div className="mt-4 flex flex-wrap gap-2 justify-end">
                 {[
-                  { label: "REST JSON", color: "hsl(142 72% 37%)" },
-                  { label: "HTTPS / TLS", color: "hsl(210 80% 50%)" },
-                  { label: "MSPRH officiel", color: "hsl(38 72% 55%)" },
-                  { label: "99.9% uptime", color: "hsl(262 72% 55%)" },
-                ].map(({ label, color }) => (
+                  { label: "REST JSON",    color: "hsl(142 72% 37%)",  bg: "hsl(142 72% 37% / 0.1)",  border: "hsl(142 72% 37% / 0.3)"  },
+                  { label: "HTTPS / TLS", color: "hsl(210 80% 50%)",  bg: "hsl(210 80% 50% / 0.1)",  border: "hsl(210 80% 50% / 0.3)"  },
+                  { label: "MSPRH officiel", color: "hsl(38 72% 55%)", bg: "hsl(38 72% 37% / 0.1)",   border: "hsl(38 72% 37% / 0.3)"   },
+                  { label: "99.9% uptime",color: "hsl(262 72% 55%)",  bg: "hsl(262 72% 55% / 0.1)",  border: "hsl(262 72% 55% / 0.3)"  },
+                ].map(({ label, color, bg, border }) => (
                   <span key={label} className="text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-lg"
-                    style={{ background: `${color} / 0.1`.replace("hsl(", "hsl(").replace(" / 0.1", " / 0.1)").replace("hsl(", "hsl("), color, border: `1px solid ${color.slice(0, -1)} / 0.3)`.replace("hsl(", "hsl(") }}>
+                    style={{ color, background: bg, border: `1px solid ${border}` }}>
                     {label}
                   </span>
                 ))}
