@@ -18,12 +18,15 @@ const STAT_ICONS = [BarChart3, Zap, RefreshCw, Shield];
 
 export default function AccessSection() {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const sectionRef = useRef<HTMLElement>(null);
   const cardRefs   = useRef<(HTMLDivElement | null)[]>([]);
   const statsRef   = useRef<HTMLDivElement>(null);
   const [modalOpen, setModalOpen]   = useState(false);
   const [selectedType, setSelectedType] = useState("");
   const [hoveredStat, setHoveredStat]   = useState<number | null>(null);
+
+  const isLoggedIn = !!localStorage.getItem("npp_token");
 
   const packs = t("access.packs", { returnObjects: true }) as Array<{
     tagline: string; desc: string; quotaLabel: string; cta: string;
