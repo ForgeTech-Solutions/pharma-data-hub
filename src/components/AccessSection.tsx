@@ -129,7 +129,7 @@ export default function AccessSection() {
     return () => observer.disconnect();
   }, []);
 
-  const openModal = (type: string) => { setSelectedType(type); setModalOpen(true); };
+  const openModal = (packId: string) => { setSelectedType(packId); setModalOpen(true); };
 
   return (
     <>
