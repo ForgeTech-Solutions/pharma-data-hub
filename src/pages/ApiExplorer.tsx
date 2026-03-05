@@ -1,8 +1,11 @@
 import { useState, useEffect } from "react";
-import { ChevronDown, ChevronRight, Play, ArrowLeft, Copy, CheckCheck, Key, AlertCircle, Lock, Unlock, X } from "lucide-react";
+import {
+  ChevronDown, ChevronRight, Play, ArrowLeft, Copy, CheckCheck,
+  Key, AlertCircle, Lock, Unlock, X, Shield, Info,
+} from "lucide-react";
 import { Link } from "react-router-dom";
 
-// ─── Types ───────────────────────────────────────────────────────────────────
+// ─── Types ────────────────────────────────────────────────────────────────────
 interface Param {
   name: string;
   in: "query" | "path" | "body";
@@ -19,6 +22,8 @@ interface Endpoint {
   description: string;
   params: Param[];
   requiresAuth: boolean;
+  pack?: string;
+  packColor?: string;
   exampleResponse: object;
 }
 interface Group {
@@ -30,56 +35,155 @@ interface Group {
 
 // ─── Data ─────────────────────────────────────────────────────────────────────
 const groups: Group[] = [
+  // ── Publics ──────────────────────────────────────────────────────────────
+  {
+    name: "Endpoints publics",
+    color: "hsl(210 70% 45%)",
+    border: "hsl(210 60% 88%)",
+    endpoints: [
+      {
+        id: "health",
+        method: "GET",
+        path: "/health",
+        summary: "Statut de l'API",
+        description: "Vérifie que l'API est opérationnelle. Accessible sans token JWT.",
+        requiresAuth: false,
+        params: [],
+        exampleResponse: { status: "ok", version: "1.0.0", uptime: "99.98%" },
+      },
+      {
+        id: "packs",
+        method: "GET",
+        path: "/packs",
+        summary: "Catalogue des packs",
+        description: "Retourne le catalogue complet des offres d'accès disponibles : FREE, PRO, INSTITUTIONNEL, DÉVELOPPEUR.",
+        requiresAuth: false,
+        params: [],
+        exampleResponse: {
+          packs: [
+            { id: "FREE",          label: "FREE",          req_day: 100,         req_month: 1000,      features: ["Liste","Recherche","Détail"] },
+            { id: "PRO",           label: "PRO",           req_day: "illimité",  req_month: "illimité", features: ["FREE+","DCI","Export CSV"] },
+            { id: "INSTITUTIONNEL",label: "INSTITUTIONNEL",req_day: "illimité",  req_month: "illimité", features: ["PRO+","Stats","Dashboard"] },
+            { id: "DÉVELOPPEUR",   label: "DÉVELOPPEUR",   req_day: "illimité",  req_month: "illimité", features: ["Accès complet"] },
+          ],
+        },
+      },
+    ],
+  },
+
+  // ── Auth ──────────────────────────────────────────────────────────────────
   {
     name: "Authentification",
     color: "hsl(0 70% 45%)",
     border: "hsl(0 60% 88%)",
     endpoints: [
       {
+        id: "auth-signup",
+        method: "POST",
+        path: "/auth/signup",
+        summary: "Créer un compte",
+        description: "Crée un nouveau compte. Le compte sera en attente d'approbation par un administrateur avant de pouvoir se connecter.",
+        requiresAuth: false,
+        params: [
+          { name: "username", in: "body", required: true, type: "string", description: "Adresse e-mail", default: "votre@email.com" },
+          { name: "password", in: "body", required: true, type: "string", description: "Mot de passe (min. 8 caractères)", default: "motdepasse" },
+          { name: "organisation", in: "body", type: "string", description: "Nom de l'organisation / établissement", default: "" },
+        ],
+        exampleResponse: {
+          message: "Compte créé. En attente d'approbation admin.",
+          user_id: "usr_abc123",
+          status: "pending",
+        },
+      },
+      {
         id: "auth-login",
         method: "POST",
         path: "/auth/login",
-        summary: "Obtenir un token JWT",
-        description: "Génère un token d'accès à partir de vos identifiants. Envoyez username et password en form-data. Placez le token retourné dans le header Authorization de chaque requête protégée.",
+        summary: "Se connecter — obtenir un token JWT",
+        description: "Génère un token d'accès JWT à partir de vos identifiants. Envoyez username et password en form-data. Le token expire après 30 minutes.",
         requiresAuth: false,
         params: [
           { name: "username", in: "body", required: true, type: "string", description: "Adresse e-mail", default: "votre@email.com" },
           { name: "password", in: "body", required: true, type: "string", description: "Mot de passe", default: "motdepasse" },
         ],
         exampleResponse: {
-          access_token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyXzEyMyIsImV4cCI6MTc0MTIwMDAwMH0...",
+          access_token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyXzEyMyIsInBhY2siOiJQUk8iLCJleHAiOjE3NDEyMDAwMDB9...",
           token_type: "bearer",
+          expires_in: 1800,
+        },
+      },
+      {
+        id: "auth-me",
+        method: "GET",
+        path: "/auth/me",
+        summary: "Mon profil, pack & quotas",
+        description: "Retourne les informations du compte connecté : identifiant, pack souscrit, quotas consommés et restants.",
+        requiresAuth: true,
+        params: [],
+        exampleResponse: {
+          user_id: "usr_abc123",
+          email: "votre@email.com",
+          organisation: "CHU Mustapha",
+          pack: "INSTITUTIONNEL",
+          quotas: {
+            today: { used: 48, limit: "illimité" },
+            month: { used: 1204, limit: "illimité" },
+          },
+          approved: true,
         },
       },
     ],
   },
+
+  // ── Médicaments FREE+ ─────────────────────────────────────────────────────
   {
-    name: "Médicaments",
+    name: "Médicaments — FREE+",
     color: "hsl(142 72% 37%)",
     border: "hsl(142 60% 85%)",
     endpoints: [
       {
         id: "med-list",
         method: "GET",
-        path: "/medicaments",
+        path: "/medicaments/",
         summary: "Liste paginée des médicaments",
-        description: "Retourne la liste complète des médicaments avec pagination, filtres multiples et tri. Max 200 résultats par page.",
+        description: "Retourne la liste des médicaments avec pagination. Paramètres : skip (offset) et limit (max 200 par page).",
         requiresAuth: true,
+        pack: "FREE+",
+        packColor: "hsl(142 72% 37%)",
         params: [
-          { name: "q",                  in: "query", type: "string",  description: "Rechercher par nom, DCI, code ou laboratoire", default: "" },
-          { name: "categorie",          in: "query", type: "string",  description: "NOMENCLATURE | NON_RENOUVELE | RETRAIT", default: "" },
-          { name: "pays_laboratoire",   in: "query", type: "string",  description: "Ex : Algérie, France…", default: "" },
-          { name: "laboratoire",        in: "query", type: "string",  description: "Ex : SAIDAL", default: "" },
-          { name: "type",               in: "query", type: "string",  description: "Ex : GE (générique)", default: "" },
-          { name: "page",               in: "query", type: "integer", description: "Numéro de page", default: "1" },
-          { name: "page_size",          in: "query", type: "integer", description: "Résultats par page (max 200)", default: "20" },
-          { name: "sort_by",            in: "query", type: "string",  description: "Champ de tri (ex : dci)", default: "dci" },
-          { name: "order",              in: "query", type: "string",  description: "asc | desc", default: "asc" },
+          { name: "skip",  in: "query", type: "integer", description: "Nombre d'éléments à ignorer (offset)", default: "0" },
+          { name: "limit", in: "query", type: "integer", description: "Résultats par page (max 200)", default: "20" },
         ],
         exampleResponse: {
-          total: 9847, page: 1, page_size: 20,
+          total: 9847,
+          skip: 0,
+          limit: 20,
           items: [
             { id: 1, nom_marque: "AMOXICILLINE 500MG GÉLULE", dci: "Amoxicilline", laboratoire: "SAIDAL", pays_laboratoire: "Algérie", type: "GE", categorie: "NOMENCLATURE" },
+            { id: 2, nom_marque: "DOLIPRANE 1000MG COMPRIMÉ",  dci: "Paracetamol",  laboratoire: "SANOFI", pays_laboratoire: "France",  type: "Princeps", categorie: "NOMENCLATURE" },
+          ],
+        },
+      },
+      {
+        id: "med-search",
+        method: "GET",
+        path: "/medicaments/search",
+        summary: "Recherche par nom, DCI ou laboratoire",
+        description: "Recherche full-text sur le nom commercial, la DCI (molécule active) ou le laboratoire fabricant.",
+        requiresAuth: true,
+        pack: "FREE+",
+        packColor: "hsl(142 72% 37%)",
+        params: [
+          { name: "q",     in: "query", required: true, type: "string",  description: "Terme de recherche (nom, DCI, laboratoire)", default: "amoxicilline" },
+          { name: "skip",  in: "query",                 type: "integer", description: "Offset de pagination", default: "0" },
+          { name: "limit", in: "query",                 type: "integer", description: "Nombre de résultats (max 200)", default: "20" },
+        ],
+        exampleResponse: {
+          query: "amoxicilline",
+          total: 24,
+          items: [
+            { id: 1, nom_marque: "AMOXICILLINE 500MG GÉLULE", dci: "Amoxicilline", laboratoire: "SAIDAL" },
+            { id: 8, nom_marque: "CLAMOXYL 1G COMPRIMÉ",      dci: "Amoxicilline", laboratoire: "GSK" },
           ],
         },
       },
@@ -87,44 +191,97 @@ const groups: Group[] = [
         id: "med-detail",
         method: "GET",
         path: "/medicaments/{id}",
-        summary: "Détail d'un médicament",
-        description: "Retourne les informations complètes d'un médicament par son identifiant unique.",
+        summary: "Détail complet d'un médicament",
+        description: "Retourne toutes les informations d'un médicament identifié par son ID.",
         requiresAuth: true,
+        pack: "FREE+",
+        packColor: "hsl(142 72% 37%)",
         params: [
-          { name: "id", in: "path", required: true, type: "integer", description: "Identifiant du médicament", default: "1" },
+          { name: "id", in: "path", required: true, type: "integer", description: "Identifiant unique du médicament", default: "1" },
         ],
         exampleResponse: {
-          id: 1, nom_marque: "AMOXICILLINE 500MG GÉLULE", dci: "Amoxicilline",
-          laboratoire: "SAIDAL", pays_laboratoire: "Algérie", forme: "Gélule",
-          dosage: "500 mg", type: "GE", categorie: "NOMENCLATURE",
-          statut: "Actif", date_enregistrement: "2021-03-15",
+          id: 1,
+          nom_marque: "AMOXICILLINE 500MG GÉLULE",
+          dci: "Amoxicilline",
+          laboratoire: "SAIDAL",
+          pays_laboratoire: "Algérie",
+          forme: "Gélule",
+          dosage: "500 mg",
+          type: "GE",
+          categorie: "NOMENCLATURE",
+          statut: "Actif",
+          date_enregistrement: "2021-03-15",
         },
       },
+    ],
+  },
+
+  // ── Médicaments PRO+ ──────────────────────────────────────────────────────
+  {
+    name: "Médicaments — PRO+",
+    color: "hsl(262 72% 45%)",
+    border: "hsl(262 60% 85%)",
+    endpoints: [
       {
-        id: "med-par-dci",
+        id: "med-dci",
         method: "GET",
-        path: "/medicaments/par-dci/{dci}",
+        path: "/medicaments/dci/{dci}",
         summary: "Médicaments par molécule (DCI)",
-        description: "Retourne tous les médicaments partageant la même molécule active (DCI).",
+        description: "Retourne tous les médicaments partageant la même molécule active (DCI). Disponible à partir du pack PRO.",
         requiresAuth: true,
+        pack: "PRO+",
+        packColor: "hsl(262 72% 45%)",
         params: [
-          { name: "dci", in: "path", required: true, type: "string", description: "Nom de la molécule active", default: "paracetamol" },
+          { name: "dci", in: "path", required: true, type: "string", description: "Nom de la molécule active (DCI)", default: "paracetamol" },
         ],
         exampleResponse: {
-          dci: "Paracetamol", total: 18,
+          dci: "Paracetamol",
+          total: 18,
           items: [
             { id: 12, nom_marque: "PARACETAMOL 500MG ALGÉRIE", laboratoire: "SAIDAL" },
-            { id: 47, nom_marque: "DOLIPRANE 1000MG", laboratoire: "SANOFI" },
+            { id: 47, nom_marque: "DOLIPRANE 1000MG",           laboratoire: "SANOFI" },
           ],
         },
       },
       {
+        id: "med-export",
+        method: "GET",
+        path: "/medicaments/export/csv",
+        summary: "Export complet au format CSV",
+        description: "Télécharge la base complète des médicaments en fichier CSV. Disponible à partir du pack PRO.",
+        requiresAuth: true,
+        pack: "PRO+",
+        packColor: "hsl(262 72% 45%)",
+        params: [
+          { name: "categorie",        in: "query", type: "string", description: "NOMENCLATURE | NON_RENOUVELE | RETRAIT", default: "" },
+          { name: "pays_laboratoire", in: "query", type: "string", description: "Ex : France", default: "" },
+          { name: "laboratoire",      in: "query", type: "string", description: "Ex : SAIDAL", default: "" },
+        ],
+        exampleResponse: {
+          message: "Fichier CSV généré",
+          filename: "medicaments_export_2026-03-05.csv",
+          total_rows: 9847,
+          download_url: "https://nnp.forge-solutions.tech/v1/medicaments/export/csv?token=...",
+        },
+      },
+    ],
+  },
+
+  // ── Médicaments INSTITUTIONNEL+ ───────────────────────────────────────────
+  {
+    name: "Médicaments — INSTITUTIONNEL+",
+    color: "hsl(38 90% 38%)",
+    border: "hsl(38 85% 82%)",
+    endpoints: [
+      {
         id: "med-stats",
         method: "GET",
-        path: "/medicaments/statistiques",
-        summary: "Statistiques détaillées",
-        description: "Répartition par laboratoire, pays d'origine, type (générique/princeps) et catégorie.",
+        path: "/medicaments/stats",
+        summary: "Statistiques globales",
+        description: "Répartition par forme, laboratoire, pays, type et catégorie. Réservé aux packs INSTITUTIONNEL et DÉVELOPPEUR.",
         requiresAuth: true,
+        pack: "INSTITUTIONNEL+",
+        packColor: "hsl(38 90% 38%)",
         params: [],
         exampleResponse: {
           total_medicaments: 9847,
@@ -138,50 +295,18 @@ const groups: Group[] = [
         id: "med-dashboard",
         method: "GET",
         path: "/medicaments/dashboard",
-        summary: "Dashboard & chiffres globaux",
-        description: "Top 10 laboratoires et pays, chiffres globaux pour tableaux de bord et visualisations.",
+        summary: "Tableau de bord enrichi",
+        description: "Top 10 laboratoires et pays, chiffres globaux pour tableaux de bord et visualisations avancées. Réservé INSTITUTIONNEL+.",
         requiresAuth: true,
+        pack: "INSTITUTIONNEL+",
+        packColor: "hsl(38 90% 38%)",
         params: [],
         exampleResponse: {
           total: 9847,
           top10_laboratoires: [{ nom: "SAIDAL", count: 512 }, { nom: "SANOFI", count: 387 }],
           top10_pays: [{ pays: "Algérie", count: 3210 }, { pays: "France", count: 1845 }],
+          by_forme: { Gélule: 3201, Comprimé: 2987, Sirop: 1204 },
         },
-      },
-      {
-        id: "med-export",
-        method: "GET",
-        path: "/medicaments/export",
-        summary: "Export CSV complet",
-        description: "Télécharge toutes les données en fichier CSV. Filtres disponibles : categorie, pays_laboratoire, etc.",
-        requiresAuth: true,
-        params: [
-          { name: "categorie",        in: "query", type: "string", description: "NOMENCLATURE | NON_RENOUVELE | RETRAIT", default: "" },
-          { name: "pays_laboratoire", in: "query", type: "string", description: "Ex : France", default: "" },
-          { name: "laboratoire",      in: "query", type: "string", description: "Ex : SAIDAL", default: "" },
-        ],
-        exampleResponse: {
-          message: "Fichier CSV généré",
-          filename: "medicaments_export_2026-03-05.csv",
-          total_rows: 9847,
-        },
-      },
-    ],
-  },
-  {
-    name: "Système",
-    color: "hsl(210 70% 45%)",
-    border: "hsl(210 60% 85%)",
-    endpoints: [
-      {
-        id: "health",
-        method: "GET",
-        path: "/health",
-        summary: "Statut de l'API",
-        description: "Vérifie que l'API est opérationnelle. Accessible sans token JWT.",
-        requiresAuth: false,
-        params: [],
-        exampleResponse: { status: "ok", version: "1.0.0", uptime: "99.98%" },
       },
     ],
   },
@@ -192,7 +317,7 @@ const METHOD_STYLES: Record<string, { bg: string; text: string }> = {
   POST: { bg: "hsl(210 65% 90%)", text: "hsl(210 80% 32%)" },
 };
 
-// ─── JWT Banner ───────────────────────────────────────────────────────────────
+// ─── JWT Panel ────────────────────────────────────────────────────────────────
 const JWT_KEY = "npp_jwt_token";
 
 function JwtPanel({ token, onChange }: { token: string; onChange: (v: string) => void }) {
@@ -203,14 +328,14 @@ function JwtPanel({ token, onChange }: { token: string; onChange: (v: string) =>
     <div
       className="rounded-2xl border overflow-hidden mb-8 transition-all duration-300"
       style={{
-        borderColor: hasToken ? "hsl(142 60% 80%)" : "hsl(var(--border))",
+        borderColor: hasToken ? "hsl(142 60% 75%)" : "hsl(var(--border))",
         background: hasToken ? "hsl(142 60% 98%)" : "hsl(var(--card))",
-        boxShadow: hasToken ? "0 0 0 1px hsl(142 60% 80%)" : "none",
+        boxShadow: hasToken ? "0 0 0 1px hsl(142 60% 80% / 0.5)" : "none",
       }}
     >
       <div className="flex items-center gap-3 px-5 py-4">
         <div
-          className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
+          className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 transition-all duration-300"
           style={{ background: hasToken ? "hsl(142 60% 90%)" : "hsl(0 60% 92%)" }}
         >
           {hasToken
@@ -219,26 +344,29 @@ function JwtPanel({ token, onChange }: { token: string; onChange: (v: string) =>
           }
         </div>
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <span className="text-sm font-bold" style={{ color: hasToken ? "hsl(142 72% 30%)" : "hsl(var(--foreground))" }}>
               Token JWT
             </span>
             {hasToken
-              ? <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full" style={{ background: "hsl(142 60% 88%)", color: "hsl(142 72% 28%)" }}>Actif</span>
-              : <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full" style={{ background: "hsl(0 60% 93%)", color: "hsl(0 70% 42%)" }}>Requis pour les routes protégées</span>
+              ? <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full" style={{ background: "hsl(142 60% 88%)", color: "hsl(142 72% 28%)" }}>● Actif</span>
+              : <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full" style={{ background: "hsl(0 60% 93%)", color: "hsl(0 70% 42%)" }}>Requis pour les routes protégées</span>
             }
+            <span className="text-[10px] text-muted-foreground hidden sm:block">
+              · Expire après 30 min · Obtenu via POST /auth/login
+            </span>
           </div>
-          <p className="text-xs text-muted-foreground mt-0.5 truncate">
-            {hasToken ? `${token.slice(0, 36)}…` : "Collez votre token Bearer ci-dessous"}
+          <p className="text-xs text-muted-foreground mt-0.5 truncate font-mono">
+            {hasToken ? `${token.slice(0, 48)}…` : "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9…"}
           </p>
         </div>
         {hasToken && (
           <button
             onClick={() => { onChange(""); localStorage.removeItem(JWT_KEY); }}
-            className="p-1.5 rounded-lg hover:bg-destructive/10 transition-colors"
+            className="p-1.5 rounded-lg hover:bg-destructive/10 transition-colors group"
             title="Effacer le token"
           >
-            <X className="w-3.5 h-3.5 text-muted-foreground" />
+            <X className="w-3.5 h-3.5 text-muted-foreground group-hover:text-destructive transition-colors" />
           </button>
         )}
       </div>
@@ -251,9 +379,9 @@ function JwtPanel({ token, onChange }: { token: string; onChange: (v: string) =>
               onChange(e.target.value);
               localStorage.setItem(JWT_KEY, e.target.value);
             }}
-            placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9…"
-            className="w-full text-xs font-mono rounded-xl border border-border bg-background px-4 py-3 pr-24 focus:outline-none focus:ring-2 focus:border-transparent transition-all"
-            style={{ "--tw-ring-color": "hsl(142 72% 37% / 0.25)" } as React.CSSProperties}
+            placeholder="Collez votre token JWT ici…"
+            className="w-full text-xs font-mono rounded-xl border border-border bg-background px-4 py-3 pr-20 focus:outline-none focus:ring-2 focus:border-transparent transition-all"
+            style={{ "--tw-ring-color": "hsl(142 72% 37% / 0.3)" } as React.CSSProperties}
           />
           <button
             onClick={() => setShow((s) => !s)}
@@ -284,7 +412,7 @@ function CopyButton({ text, size = "sm" }: { text: string; size?: "sm" | "xs" })
       }}
     >
       {copied ? <CheckCheck className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
-      {copied ? "Copié" : "Copier"}
+      {copied ? "Copié !" : "Copier"}
     </button>
   );
 }
@@ -292,28 +420,27 @@ function CopyButton({ text, size = "sm" }: { text: string; size?: "sm" | "xs" })
 // ─── ParamRow ─────────────────────────────────────────────────────────────────
 function ParamRow({ param, value, onChange }: { param: Param; value: string; onChange: (v: string) => void }) {
   const inColors: Record<string, { bg: string; color: string }> = {
-    query:  { bg: "hsl(210 60% 93%)", color: "hsl(210 80% 38%)" },
-    path:   { bg: "hsl(0 60% 93%)",   color: "hsl(0 70% 42%)" },
-    body:   { bg: "hsl(262 55% 93%)", color: "hsl(262 72% 45%)" },
+    query: { bg: "hsl(210 60% 93%)", color: "hsl(210 80% 38%)" },
+    path:  { bg: "hsl(0 60% 93%)",   color: "hsl(0 70% 42%)" },
+    body:  { bg: "hsl(262 55% 93%)", color: "hsl(262 72% 45%)" },
   };
   const ic = inColors[param.in] ?? { bg: "hsl(215 20% 92%)", color: "hsl(215 20% 45%)" };
 
   return (
     <div className="flex flex-col sm:flex-row sm:items-center gap-3 py-3.5 border-b border-border last:border-0">
-      <div className="sm:w-48 shrink-0 space-y-1">
+      <div className="sm:w-52 shrink-0 space-y-1">
         <div className="flex items-center gap-1.5 flex-wrap">
           <code className="text-xs font-mono font-bold text-foreground">{param.name}</code>
-          {param.required && (
-            <span className="text-[9px] font-black text-destructive">REQUIS</span>
-          )}
+          {param.required && <span className="text-[9px] font-black text-destructive">REQUIS</span>}
           <span
             className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded"
             style={{ background: ic.bg, color: ic.color }}
           >
             {param.in}
           </span>
+          <span className="text-[9px] text-muted-foreground">{param.type}</span>
         </div>
-        <p className="text-[11px] text-muted-foreground">{param.description}</p>
+        <p className="text-[11px] text-muted-foreground leading-relaxed">{param.description}</p>
       </div>
       <input
         value={value}
@@ -352,28 +479,30 @@ function EndpointCard({ endpoint, jwtToken }: { endpoint: Endpoint; jwtToken: st
   const curlSnippet = () => {
     const path = buildPath();
     const tokenVal = jwtToken.trim() || "<votre_token_jwt>";
-    const base = `curl -X ${endpoint.method} "https://nnp.forge-solutions.tech/v1${path}" \\\n  -H "Authorization: Bearer ${tokenVal}" \\\n  -H "Accept: application/json"`;
     const bodyParams = endpoint.params.filter((p) => p.in === "body");
     if (bodyParams.length) {
       const data = Object.fromEntries(bodyParams.map((p) => [p.name, values[p.name] || p.default || ""]));
-      return `${base} \\\n  -H "Content-Type: application/json" \\\n  -d '${JSON.stringify(data)}'`;
+      return `curl -X ${endpoint.method} "https://nnp.forge-solutions.tech/v1${path}" \\\n  -H "Content-Type: application/x-www-form-urlencoded" \\\n  -d "${bodyParams.map((p) => `${p.name}=${data[p.name]}`).join("&")}"`;
     }
-    return base;
+    if (!endpoint.requiresAuth) {
+      return `curl -X ${endpoint.method} "https://nnp.forge-solutions.tech/v1${path}" \\\n  -H "Accept: application/json"`;
+    }
+    return `curl -X ${endpoint.method} "https://nnp.forge-solutions.tech/v1${path}" \\\n  -H "Authorization: Bearer ${tokenVal}" \\\n  -H "Accept: application/json"`;
   };
 
   const execute = async () => {
     setLoading(true);
     setResult(null);
-    await new Promise((r) => setTimeout(r, 700 + Math.random() * 400));
+    await new Promise((r) => setTimeout(r, 600 + Math.random() * 400));
 
-    // Simulate 401 if auth required and token missing
     if (endpoint.requiresAuth && !jwtToken.trim()) {
       setResult({
         status: 401,
         error: true,
         body: {
           error: "Unauthorized",
-          message: "Token JWT manquant ou invalide. Veuillez fournir un token Bearer valide.",
+          message: "Token JWT manquant ou invalide. Veuillez fournir un token Bearer valide dans le panneau ci-dessus.",
+          hint: "Obtenez un token via POST /auth/login puis collez-le dans le champ Token JWT.",
           code: 401,
         },
       });
@@ -384,46 +513,75 @@ function EndpointCard({ endpoint, jwtToken }: { endpoint: Endpoint; jwtToken: st
   };
 
   return (
-    <div className="border border-border rounded-2xl overflow-hidden bg-card mb-3 transition-all duration-200 hover:shadow-md hover:border-primary/20">
-      {/* Header */}
+    <div
+      className="border border-border rounded-2xl overflow-hidden bg-card mb-3 transition-all duration-200"
+      style={{ boxShadow: open ? "0 4px 20px -4px hsl(var(--primary) / 0.08)" : "none" }}
+    >
+      {/* Row header */}
       <button
         onClick={() => setOpen(!open)}
         className="w-full flex items-center gap-3 px-5 py-4 text-left hover:bg-secondary/30 transition-colors duration-150"
       >
+        {/* Auth indicator */}
+        <span className="shrink-0">
+          {endpoint.requiresAuth
+            ? <Lock   className="w-3.5 h-3.5 text-muted-foreground/50" />
+            : <Unlock className="w-3.5 h-3.5 text-muted-foreground/40" />
+          }
+        </span>
+
+        {/* Method */}
         <span
           className="shrink-0 text-[10px] font-black px-2.5 py-1 rounded-lg font-mono min-w-[46px] text-center tracking-wider"
           style={{ background: ms.bg, color: ms.text }}
         >
           {endpoint.method}
         </span>
+
+        {/* Path */}
         <code className="text-sm font-mono text-foreground font-semibold flex-1 min-w-0 truncate">
           {endpoint.path}
         </code>
-        <span className="text-sm text-muted-foreground hidden md:block flex-shrink-0 max-w-xs truncate">
+
+        {/* Pack badge */}
+        {endpoint.pack && (
+          <span
+            className="text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full shrink-0 hidden sm:block"
+            style={{
+              background: `${endpoint.packColor}20`,
+              color: endpoint.packColor,
+            }}
+          >
+            {endpoint.pack}
+          </span>
+        )}
+
+        {/* Summary */}
+        <span className="text-xs text-muted-foreground hidden md:block shrink-0 max-w-xs truncate">
           {endpoint.summary}
         </span>
-        {endpoint.requiresAuth && (
-          <Lock className="w-3.5 h-3.5 shrink-0 text-muted-foreground/50" aria-label="Authentification requise" />
-        )}
+
         {open
-          ? <ChevronDown className="w-4 h-4 text-muted-foreground shrink-0" />
+          ? <ChevronDown  className="w-4 h-4 text-muted-foreground shrink-0" />
           : <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />
         }
       </button>
 
       {open && (
         <div className="border-t border-border">
-          {/* Description */}
-          <div className="px-5 py-3 bg-secondary/20 border-b border-border">
+          {/* Description bar */}
+          <div className="px-5 py-3 bg-secondary/20 border-b border-border flex items-start gap-2.5">
+            <Info className="w-3.5 h-3.5 text-muted-foreground shrink-0 mt-0.5" />
             <p className="text-sm text-muted-foreground">{endpoint.description}</p>
           </div>
 
           <div className="p-5 grid lg:grid-cols-2 gap-6">
-            {/* Left: params */}
+            {/* Left: params + execute */}
             <div>
               <h4 className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground mb-3">
                 Paramètres
               </h4>
+
               {endpoint.params.length === 0 ? (
                 <div className="rounded-xl border border-dashed border-border px-4 py-6 text-center">
                   <p className="text-xs text-muted-foreground">Aucun paramètre requis.</p>
@@ -442,26 +600,32 @@ function EndpointCard({ endpoint, jwtToken }: { endpoint: Endpoint; jwtToken: st
                 </div>
               )}
 
-              {/* Auth warning */}
+              {/* 401 warning */}
               {endpoint.requiresAuth && !jwtToken.trim() && (
-                <div className="mt-3 flex items-start gap-2.5 rounded-xl px-4 py-3 text-xs" style={{ background: "hsl(0 60% 97%)", border: "1px solid hsl(0 60% 88%)", color: "hsl(0 70% 40%)" }}>
+                <div
+                  className="mt-3 flex items-start gap-2.5 rounded-xl px-4 py-3 text-xs"
+                  style={{ background: "hsl(0 60% 97%)", border: "1px solid hsl(0 60% 88%)", color: "hsl(0 70% 40%)" }}
+                >
                   <AlertCircle className="w-3.5 h-3.5 shrink-0 mt-0.5" />
-                  <span>Token JWT non renseigné. L'exécution retournera une erreur <strong>401 Unauthorized</strong>.</span>
+                  <span>
+                    Token JWT non renseigné. L'exécution retournera une erreur{" "}
+                    <strong>401 Unauthorized</strong>.
+                  </span>
                 </div>
               )}
 
-              {/* Execute */}
+              {/* Execute button */}
               <button
                 onClick={execute}
                 disabled={loading}
-                className="mt-4 w-full flex items-center justify-center gap-2 gradient-primary text-white text-sm font-bold py-3 rounded-xl hover:opacity-90 transition-all duration-200 disabled:opacity-60 shadow-sm hover:shadow-md"
+                className="mt-4 w-full flex items-center justify-center gap-2 gradient-primary text-white text-sm font-bold py-3 rounded-xl hover:opacity-90 transition-all duration-200 disabled:opacity-60 shadow-sm hover:shadow-md active:scale-[0.99]"
               >
                 {loading ? (
                   <>
                     <svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                       <path d="M21 12a9 9 0 11-6.219-8.56" />
                     </svg>
-                    Exécution en cours…
+                    Exécution…
                   </>
                 ) : (
                   <>
@@ -472,9 +636,9 @@ function EndpointCard({ endpoint, jwtToken }: { endpoint: Endpoint; jwtToken: st
               </button>
             </div>
 
-            {/* Right: curl + response */}
+            {/* Right: cURL + response */}
             <div className="space-y-4">
-              {/* cURL */}
+              {/* cURL snippet */}
               <div>
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">cURL</span>
@@ -482,7 +646,11 @@ function EndpointCard({ endpoint, jwtToken }: { endpoint: Endpoint; jwtToken: st
                 </div>
                 <pre
                   className="text-xs font-mono leading-relaxed rounded-xl p-4 overflow-x-auto"
-                  style={{ background: "hsl(var(--code-bg))", color: "hsl(215 20% 65%)", border: "1px solid hsl(var(--code-border))" }}
+                  style={{
+                    background: "hsl(var(--code-bg))",
+                    color: "hsl(215 20% 65%)",
+                    border: "1px solid hsl(var(--code-border))",
+                  }}
                 >
                   <code>{curlSnippet()}</code>
                 </pre>
@@ -496,9 +664,10 @@ function EndpointCard({ endpoint, jwtToken }: { endpoint: Endpoint; jwtToken: st
                       <span className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">Réponse</span>
                       <span
                         className="text-xs font-black px-2.5 py-0.5 rounded-full"
-                        style={result.error
-                          ? { background: "hsl(0 60% 93%)", color: "hsl(0 70% 40%)" }
-                          : { background: "hsl(142 55% 90%)", color: "hsl(142 72% 25%)" }
+                        style={
+                          result.error
+                            ? { background: "hsl(0 60% 93%)", color: "hsl(0 70% 40%)" }
+                            : { background: "hsl(142 55% 90%)", color: "hsl(142 72% 25%)" }
                         }
                       >
                         {result.status} {result.error ? "Unauthorized" : "OK"}
@@ -529,17 +698,20 @@ function EndpointCard({ endpoint, jwtToken }: { endpoint: Endpoint; jwtToken: st
 // ─── Page ─────────────────────────────────────────────────────────────────────
 export default function ApiExplorer() {
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>(
-    Object.fromEntries(groups.map((g) => [g.name, true]))
+    Object.fromEntries(groups.map((g) => [g.name, g.name === "Endpoints publics" || g.name === "Authentification"]))
   );
   const [jwtToken, setJwtToken] = useState<string>(() => localStorage.getItem(JWT_KEY) ?? "");
-  const toggle = (name: string) => setOpenGroups((p) => ({ ...p, [name]: !p[name] }));
 
+  const toggle = (name: string) => setOpenGroups((p) => ({ ...p, [name]: !p[name] }));
   const totalEndpoints = groups.reduce((a, g) => a + g.endpoints.length, 0);
 
   return (
     <div className="min-h-screen bg-background">
       {/* Top bar */}
-      <header className="gradient-hero border-b sticky top-0 z-40" style={{ borderColor: "hsl(var(--code-border))" }}>
+      <header
+        className="gradient-hero border-b sticky top-0 z-40"
+        style={{ borderColor: "hsl(var(--code-border))" }}
+      >
         <div className="max-w-5xl mx-auto px-6 h-14 flex items-center gap-4">
           <Link
             to="/"
@@ -559,32 +731,43 @@ export default function ApiExplorer() {
             </span>
           </div>
           <div className="ml-auto flex items-center gap-3">
-            <div className="hidden sm:flex items-center gap-2 text-xs px-3 py-1.5 rounded-full" style={{ background: "hsl(0 0% 100% / 0.06)", color: "hsl(215 20% 60%)" }}>
+            <div
+              className="hidden sm:flex items-center gap-2 text-xs px-3 py-1.5 rounded-full"
+              style={{ background: "hsl(0 0% 100% / 0.06)", color: "hsl(215 20% 60%)" }}
+            >
               <Key className="w-3 h-3" />
-              {jwtToken.trim() ? <span style={{ color: "hsl(142 60% 55%)" }}>Token actif</span> : "Aucun token"}
+              {jwtToken.trim()
+                ? <span style={{ color: "hsl(142 60% 55%)" }}>● Token actif</span>
+                : <span>Aucun token</span>
+              }
             </div>
             <span className="w-2 h-2 rounded-full bg-primary animate-pulse-green" />
-            <span className="text-xs hidden sm:block" style={{ color: "hsl(142 60% 55%)" }}>Démo interactive</span>
+            <span className="text-xs hidden sm:block" style={{ color: "hsl(142 60% 55%)" }}>
+              Démo interactive
+            </span>
           </div>
         </div>
       </header>
 
       <div className="max-w-5xl mx-auto px-6 py-10">
-        {/* Page header */}
+        {/* Page title */}
         <div className="mb-8">
           <h1 className="text-2xl md:text-3xl font-extrabold text-foreground mb-2">
             Référence de l'API
           </h1>
           <p className="text-muted-foreground text-sm max-w-2xl leading-relaxed">
-            Explorez et testez les endpoints directement depuis cette page. Renseignez votre token JWT pour accéder aux routes protégées.
+            Explorez et testez les endpoints directement depuis cette page.
+            Renseignez votre token JWT pour accéder aux routes protégées.
           </p>
+
+          {/* Meta chips */}
           <div className="mt-4 flex flex-wrap gap-2.5">
             {[
-              { label: "Base URL", value: "https://nnp.forge-solutions.tech/v1" },
-              { label: "Version",  value: "v1.0" },
-              { label: "Format",   value: "JSON" },
-              { label: "Auth",     value: "Bearer JWT" },
-              { label: "Endpoints", value: String(totalEndpoints) },
+              { label: "Base URL",   value: "https://nnp.forge-solutions.tech/v1" },
+              { label: "Version",    value: "v1.0" },
+              { label: "Format",     value: "JSON" },
+              { label: "Auth",       value: "Bearer JWT · 30 min" },
+              { label: "Endpoints",  value: String(totalEndpoints) },
             ].map((item) => (
               <div
                 key={item.label}
@@ -596,22 +779,43 @@ export default function ApiExplorer() {
               </div>
             ))}
           </div>
+
+          {/* Pack quota summary */}
+          <div className="mt-5 grid grid-cols-2 md:grid-cols-4 gap-2.5">
+            {[
+              { pack: "FREE",           quota: "100 req/j · 1 000/mois", color: "hsl(142 72% 37%)", bg: "hsl(142 55% 96%)" },
+              { pack: "PRO",            quota: "Illimité · +DCI · +CSV",  color: "hsl(262 72% 45%)", bg: "hsl(262 55% 96%)" },
+              { pack: "INSTITUTIONNEL", quota: "Illimité · +Stats",        color: "hsl(38 90% 38%)",  bg: "hsl(38 90% 96%)"  },
+              { pack: "DÉVELOPPEUR",    quota: "Illimité · Accès complet", color: "hsl(0 70% 45%)",   bg: "hsl(0 60% 97%)"   },
+            ].map((q) => (
+              <div
+                key={q.pack}
+                className="rounded-xl px-3.5 py-2.5 border flex items-start gap-2"
+                style={{ background: q.bg, borderColor: `${q.color}30` }}
+              >
+                <Shield className="w-3.5 h-3.5 shrink-0 mt-0.5" style={{ color: q.color }} />
+                <div>
+                  <span className="text-[10px] font-black uppercase tracking-widest" style={{ color: q.color }}>{q.pack}</span>
+                  <p className="text-[11px] text-muted-foreground leading-snug">{q.quota}</p>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
 
-        {/* JWT Panel */}
+        {/* JWT panel */}
         <JwtPanel token={jwtToken} onChange={setJwtToken} />
 
-        {/* Groups */}
+        {/* Endpoint groups */}
         {groups.map((group) => (
           <div key={group.name} className="mb-10">
-            {/* Group header */}
             <button
               onClick={() => toggle(group.name)}
               className="flex items-center gap-3 w-full text-left mb-4 group py-2"
             >
               <div
-                className="w-3 h-3 rounded-full shrink-0 transition-transform duration-200 group-hover:scale-125"
-                style={{ background: group.color }}
+                className="w-3 h-3 rounded-full shrink-0 transition-all duration-200 group-hover:scale-125"
+                style={{ background: group.color, boxShadow: openGroups[group.name] ? `0 0 8px ${group.color}60` : "none" }}
               />
               <span className="text-sm font-bold tracking-wide" style={{ color: group.color }}>
                 {group.name}
@@ -624,8 +828,8 @@ export default function ApiExplorer() {
               </span>
               <div className="flex-1 h-px" style={{ background: `${group.color}20` }} />
               {openGroups[group.name]
-                ? <ChevronDown className="w-4 h-4 shrink-0 transition-transform" style={{ color: group.color }} />
-                : <ChevronRight className="w-4 h-4 shrink-0 transition-transform" style={{ color: group.color }} />
+                ? <ChevronDown  className="w-4 h-4 shrink-0" style={{ color: group.color }} />
+                : <ChevronRight className="w-4 h-4 shrink-0" style={{ color: group.color }} />
               }
             </button>
 
@@ -639,11 +843,15 @@ export default function ApiExplorer() {
           </div>
         ))}
 
-        {/* Footer */}
+        {/* Footer note */}
         <div className="mt-4 rounded-2xl border border-border bg-secondary/40 px-6 py-4 flex flex-col sm:flex-row items-center gap-3">
           <AlertCircle className="w-4 h-4 text-muted-foreground shrink-0" />
           <p className="text-xs text-muted-foreground text-center sm:text-left">
-            Les réponses affichées sont des <strong className="text-foreground">exemples de démonstration</strong>. Pour accéder à l'API en production, un token JWT institutionnel valide est requis.
+            Les réponses affichées sont des{" "}
+            <strong className="text-foreground">exemples de démonstration</strong>.
+            Pour accéder à l'API en production, un token JWT institutionnel valide est requis.
+            Token obtenu via{" "}
+            <code className="font-mono text-foreground">POST /auth/login</code>.
           </p>
         </div>
       </div>
