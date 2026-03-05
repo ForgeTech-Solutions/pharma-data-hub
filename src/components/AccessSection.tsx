@@ -116,7 +116,7 @@ export default function AccessSection() {
 
   return (
     <>
-      <section id="access" ref={sectionRef} className="py-28 bg-background section-fade overflow-hidden relative">
+      <section id="access" ref={sectionRef} className="py-14 bg-background section-fade overflow-hidden relative">
 
         {/* Background grid */}
         <div className="absolute inset-0 pointer-events-none opacity-[0.018]"

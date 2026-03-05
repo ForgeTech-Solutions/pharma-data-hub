@@ -58,7 +58,7 @@ export default function FeaturesSection() {
   }, []);
 
   return (
-    <section id="features" ref={sectionRef} className="py-28 bg-background section-fade overflow-hidden">
+    <section id="features" ref={sectionRef} className="py-14 bg-background section-fade overflow-hidden">
       <div className="max-w-6xl mx-auto px-6 relative">
 
         {/* Header */}

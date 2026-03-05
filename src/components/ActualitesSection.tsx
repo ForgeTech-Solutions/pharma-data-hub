@@ -66,7 +66,7 @@ export default function ActualitesSection() {
   const preview = newsItems.slice(0, 3);
 
   return (
-    <section id="actualites" ref={sectionRef} className="py-28 bg-secondary section-fade overflow-hidden">
+    <section id="actualites" ref={sectionRef} className="py-14 bg-secondary section-fade overflow-hidden">
       <div className="max-w-6xl mx-auto px-6">
 
         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-14">
