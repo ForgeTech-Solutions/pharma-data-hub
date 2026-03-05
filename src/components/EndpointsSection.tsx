@@ -8,7 +8,6 @@ const groups = [
     border: "hsl(0 60% 88%)",
     endpoints: [
       { method: "POST", path: "/auth/token", desc: "Obtenir un token JWT" },
-      { method: "POST", path: "/auth/register", desc: "Créer un compte (Admin)" },
       { method: "POST", path: "/auth/refresh", desc: "Renouveler le token" },
     ],
   },
@@ -23,17 +22,6 @@ const groups = [
       { method: "GET", path: "/medicaments/search", desc: "Recherche full-text" },
       { method: "GET", path: "/medicaments/export/csv", desc: "Export CSV filtré" },
       { method: "GET", path: "/medicaments/stats", desc: "Statistiques & dashboard" },
-    ],
-  },
-  {
-    name: "Import",
-    color: "hsl(210 80% 45%)",
-    bg: "hsl(210 60% 97%)",
-    border: "hsl(210 60% 87%)",
-    endpoints: [
-      { method: "POST", path: "/import/excel", desc: "Importer un fichier Excel" },
-      { method: "GET", path: "/import/status/{job_id}", desc: "Statut d'import" },
-      { method: "GET", path: "/import/history", desc: "Historique des imports" },
     ],
   },
 ];
