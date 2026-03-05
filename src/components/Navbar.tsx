@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { Menu, X } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Menu, X, LayoutDashboard, LogOut } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import AccessRequestModal from "@/components/AccessRequestModal";
 import logo from "@/assets/logo_npp.png";
