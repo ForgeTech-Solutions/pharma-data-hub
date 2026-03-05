@@ -220,25 +220,25 @@ export default function AccessSection() {
                     {/* Pulse ring */}
                     <span className="absolute inset-0 rounded-xl animate-[pulse_2s_cubic-bezier(0.4,0,0.6,1)_infinite]"
                       style={{ background: meta.colorBg, border: `1px solid ${meta.color}` }} />
-                  <button
-                    onClick={() => handleCta(meta.id, 0)}
-                    className="relative shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold transition-all duration-300 group/btn"
-                    style={{ background: meta.colorBg, color: meta.color, border: `1px solid ${meta.colorBorder}` }}
-                    onMouseEnter={(e) => {
-                      (e.currentTarget as HTMLButtonElement).style.background = meta.color;
-                      (e.currentTarget as HTMLButtonElement).style.color = "#fff";
-                      (e.currentTarget as HTMLButtonElement).style.borderColor = meta.color;
-                    }}
-                    onMouseLeave={(e) => {
-                      (e.currentTarget as HTMLButtonElement).style.background = meta.colorBg;
-                      (e.currentTarget as HTMLButtonElement).style.color = meta.color;
-                      (e.currentTarget as HTMLButtonElement).style.borderColor = meta.colorBorder;
-                    }}
-                  >
-                    {pack.cta}
-                    <ArrowRight className="w-3.5 h-3.5 transition-transform duration-200 group-hover/btn:translate-x-1" />
-                  </button>
-                </div>
+                    <button
+                      onClick={() => handleCta(meta.id, 0)}
+                      className="relative shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold transition-all duration-300 group/btn"
+                      style={{ background: meta.colorBg, color: meta.color, border: `1px solid ${meta.colorBorder}` }}
+                      onMouseEnter={(e) => {
+                        (e.currentTarget as HTMLButtonElement).style.background = meta.color;
+                        (e.currentTarget as HTMLButtonElement).style.color = "#fff";
+                        (e.currentTarget as HTMLButtonElement).style.borderColor = meta.color;
+                      }}
+                      onMouseLeave={(e) => {
+                        (e.currentTarget as HTMLButtonElement).style.background = meta.colorBg;
+                        (e.currentTarget as HTMLButtonElement).style.color = meta.color;
+                        (e.currentTarget as HTMLButtonElement).style.borderColor = meta.colorBorder;
+                      }}
+                    >
+                      {pack.cta}
+                      <ArrowRight className="w-3.5 h-3.5 transition-transform duration-200 group-hover/btn:translate-x-1" />
+                    </button>
+                  </div>
               </div>
             );
           })()}
