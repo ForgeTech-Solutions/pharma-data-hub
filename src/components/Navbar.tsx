@@ -94,11 +94,6 @@ export default function Navbar() {
               {i18n.language === "fr" ? "🇬🇧 EN" : "🇫🇷 FR"}
             </button>
 
-            {/* API Explorer */}
-            <Link to="/docs" className="text-sm text-[hsl(215_20%_70%)] hover:text-white transition-colors px-3 py-1.5">
-              {t("nav.explorer")}
-            </Link>
-
             {isLoggedIn ? (
               /* ── Connected state ─────────────────────── */
               <div className="flex items-center gap-2 pl-2 border-l border-[hsl(215_28%_20%)]">
