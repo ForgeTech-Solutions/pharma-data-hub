@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react";
 import { Menu, X } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import AccessRequestModal from "@/components/AccessRequestModal";
 import logo from "@/assets/logo_npp.png";
 
 export default function Navbar() {
+  const { t, i18n } = useTranslation();
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
@@ -15,12 +17,18 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", handler);
   }, []);
 
+  const toggleLang = () => {
+    const next = i18n.language === "fr" ? "en" : "fr";
+    i18n.changeLanguage(next);
+    localStorage.setItem("lang", next);
+  };
+
   const links = [
-    { label: "Fonctionnalités", href: "#features" },
-    { label: "Cas d'usage", href: "#usecases" },
-    { label: "Accès", href: "#access" },
-    { label: "Endpoints", href: "#endpoints" },
-    { label: "Actualités", href: "/actualites", isRoute: true },
+    { label: t("nav.features"), href: "#features" },
+    { label: t("nav.usecases"), href: "#usecases" },
+    { label: t("nav.access"), href: "#access" },
+    { label: t("nav.endpoints"), href: "#endpoints" },
+    { label: t("nav.news"), href: "/actualites", isRoute: true },
   ];
 
   return (
@@ -64,17 +72,24 @@ export default function Navbar() {
           </div>
 
           <div className="hidden md:flex items-center gap-3">
+            {/* Language switcher */}
+            <button
+              onClick={toggleLang}
+              className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest px-3 py-1.5 rounded-lg border border-[hsl(215_28%_20%)] text-[hsl(215_20%_65%)] hover:border-primary hover:text-primary transition-all duration-200"
+            >
+              {i18n.language === "fr" ? "🇬🇧 EN" : "🇫🇷 FR"}
+            </button>
             <Link
               to="/docs"
               className="text-sm text-[hsl(215_20%_70%)] hover:text-white transition-colors px-3 py-1.5"
             >
-              Explorateur API
+              {t("nav.explorer")}
             </Link>
             <button
               onClick={() => setModalOpen(true)}
               className="text-sm gradient-primary text-white px-4 py-1.5 rounded-lg font-medium hover:opacity-90 transition-all duration-200 glow-primary hover:scale-105"
             >
-              Demander l'accès
+              {t("nav.requestAccess")}
             </button>
           </div>
 
@@ -110,10 +125,16 @@ export default function Navbar() {
               )
             )}
             <button
+              onClick={toggleLang}
+              className="text-sm border border-[hsl(215_28%_20%)] text-[hsl(215_20%_65%)] px-4 py-2 rounded-lg font-bold uppercase tracking-widest text-center hover:border-primary hover:text-primary transition-all"
+            >
+              {i18n.language === "fr" ? "🇬🇧 Switch to English" : "🇫🇷 Passer en Français"}
+            </button>
+            <button
               onClick={() => { setMenuOpen(false); setModalOpen(true); }}
               className="text-sm gradient-primary text-white px-4 py-2 rounded-lg font-medium text-center glow-primary"
             >
-              Demander l'accès
+              {t("nav.requestAccess")}
             </button>
           </div>
         )}
