@@ -4,6 +4,25 @@ import AccessRequestModal from "@/components/AccessRequestModal";
 import { Link } from "react-router-dom";
 import { ArrowRight, UserPlus, Zap, Shield, Database } from "lucide-react";
 
+// ─── Animated counter ──────────────────────────────────────────────────────────
+function useCounter(target: number, duration = 1400, start = false) {
+  const [value, setValue] = useState(0);
+  useEffect(() => {
+    if (!start) return;
+    let raf: number;
+    const startTime = performance.now();
+    const animate = (now: number) => {
+      const progress = Math.min((now - startTime) / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      setValue(Math.floor(eased * target));
+      if (progress < 1) raf = requestAnimationFrame(animate);
+    };
+    raf = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(raf);
+  }, [start, target, duration]);
+  return value;
+}
+
 // Typewriter code lines shown in the terminal widget
 const CODE_SEQUENCE = [
   { text: "$ curl -X GET \\", color: "hsl(215 20% 65%)" },
