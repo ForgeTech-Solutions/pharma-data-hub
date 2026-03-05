@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import AccessRequestModal from "@/components/AccessRequestModal";
 import { Link } from "react-router-dom";
