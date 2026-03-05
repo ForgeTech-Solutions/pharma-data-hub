@@ -36,37 +36,19 @@ const groups: Group[] = [
     border: "hsl(0 60% 88%)",
     endpoints: [
       {
-        id: "auth-token",
+        id: "auth-login",
         method: "POST",
-        path: "/auth/token",
+        path: "/auth/login",
         summary: "Obtenir un token JWT",
-        description: "Génère un token d'accès valide 30 minutes à partir de vos identifiants institutionnels.",
+        description: "Génère un token d'accès à partir de vos identifiants. Envoyez username et password en form-data. Placez le token retourné dans le header Authorization de chaque requête protégée.",
         requiresAuth: false,
         params: [
-          { name: "username", in: "body", required: true, type: "string", description: "Identifiant utilisateur" },
-          { name: "password", in: "body", required: true, type: "string", description: "Mot de passe" },
+          { name: "username", in: "body", required: true, type: "string", description: "Adresse e-mail", default: "votre@email.com" },
+          { name: "password", in: "body", required: true, type: "string", description: "Mot de passe", default: "motdepasse" },
         ],
         exampleResponse: {
           access_token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyXzEyMyIsImV4cCI6MTc0MTIwMDAwMH0...",
-          refresh_token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyXzEyMyIsInR5cGUiOiJyZWZyZXNoIn0...",
           token_type: "bearer",
-          expires_in: 1800,
-        },
-      },
-      {
-        id: "auth-refresh",
-        method: "POST",
-        path: "/auth/refresh",
-        summary: "Renouveler le token",
-        description: "Renouvelle un token d'accès expiré via le refresh token.",
-        requiresAuth: false,
-        params: [
-          { name: "refresh_token", in: "body", required: true, type: "string", description: "Token de rafraîchissement" },
-        ],
-        exampleResponse: {
-          access_token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-          token_type: "bearer",
-          expires_in: 1800,
         },
       },
     ],
@@ -81,34 +63,24 @@ const groups: Group[] = [
         method: "GET",
         path: "/medicaments",
         summary: "Liste paginée des médicaments",
-        description: "Retourne la liste complète des médicaments avec pagination, filtres et tri.",
+        description: "Retourne la liste complète des médicaments avec pagination, filtres multiples et tri. Max 200 résultats par page.",
         requiresAuth: true,
         params: [
-          { name: "page", in: "query", type: "integer", description: "Numéro de page", default: "1" },
-          { name: "size", in: "query", type: "integer", description: "Éléments par page (max 100)", default: "20" },
-          { name: "sort_by", in: "query", type: "string", description: "Champ de tri", default: "nom_marque" },
-          { name: "order", in: "query", type: "string", description: "asc ou desc", default: "asc" },
+          { name: "q",                  in: "query", type: "string",  description: "Rechercher par nom, DCI, code ou laboratoire", default: "" },
+          { name: "categorie",          in: "query", type: "string",  description: "NOMENCLATURE | NON_RENOUVELE | RETRAIT", default: "" },
+          { name: "pays_laboratoire",   in: "query", type: "string",  description: "Ex : Algérie, France…", default: "" },
+          { name: "laboratoire",        in: "query", type: "string",  description: "Ex : SAIDAL", default: "" },
+          { name: "type",               in: "query", type: "string",  description: "Ex : GE (générique)", default: "" },
+          { name: "page",               in: "query", type: "integer", description: "Numéro de page", default: "1" },
+          { name: "page_size",          in: "query", type: "integer", description: "Résultats par page (max 200)", default: "20" },
+          { name: "sort_by",            in: "query", type: "string",  description: "Champ de tri (ex : dci)", default: "dci" },
+          { name: "order",              in: "query", type: "string",  description: "asc | desc", default: "asc" },
         ],
         exampleResponse: {
-          total: 7234, page: 1, size: 20,
-          items: [{ id: 1, nom_marque: "AMOXICILLINE 500MG", dci: "Amoxicilline", laboratoire: "SAIDAL", statut: "Actif" }],
-        },
-      },
-      {
-        id: "med-search",
-        method: "GET",
-        path: "/medicaments/search",
-        summary: "Recherche full-text",
-        description: "Recherche par DCI, nom de marque, code AMM, laboratoire ou catégorie thérapeutique.",
-        requiresAuth: true,
-        params: [
-          { name: "q", in: "query", required: true, type: "string", description: "Terme de recherche", default: "amoxicilline" },
-          { name: "page", in: "query", type: "integer", description: "Page", default: "1" },
-          { name: "size", in: "query", type: "integer", description: "Taille", default: "10" },
-        ],
-        exampleResponse: {
-          total: 12, query: "amoxicilline",
-          items: [{ id: 1, nom_marque: "AMOXICILLINE 500MG", dci: "Amoxicilline", code_amm: "AM-2021-001", categorie: "Antibiotique" }],
+          total: 9847, page: 1, page_size: 20,
+          items: [
+            { id: 1, nom_marque: "AMOXICILLINE 500MG GÉLULE", dci: "Amoxicilline", laboratoire: "SAIDAL", pays_laboratoire: "Algérie", type: "GE", categorie: "NOMENCLATURE" },
+          ],
         },
       },
       {
@@ -116,49 +88,100 @@ const groups: Group[] = [
         method: "GET",
         path: "/medicaments/{id}",
         summary: "Détail d'un médicament",
-        description: "Retourne les informations complètes d'un médicament par son identifiant.",
+        description: "Retourne les informations complètes d'un médicament par son identifiant unique.",
         requiresAuth: true,
         params: [
           { name: "id", in: "path", required: true, type: "integer", description: "Identifiant du médicament", default: "1" },
         ],
         exampleResponse: {
-          id: 1, nom_marque: "AMOXICILLINE 500MG CAPS", dci: "Amoxicilline",
-          laboratoire: "SAIDAL", code_amm: "AM-2021-001", forme: "Gélule",
-          dosage: "500 mg", categorie: "Antibiotique", pays_origine: "Algérie",
+          id: 1, nom_marque: "AMOXICILLINE 500MG GÉLULE", dci: "Amoxicilline",
+          laboratoire: "SAIDAL", pays_laboratoire: "Algérie", forme: "Gélule",
+          dosage: "500 mg", type: "GE", categorie: "NOMENCLATURE",
           statut: "Actif", date_enregistrement: "2021-03-15",
         },
       },
       {
-        id: "med-export",
+        id: "med-par-dci",
         method: "GET",
-        path: "/medicaments/export/csv",
-        summary: "Export CSV",
-        description: "Télécharge les données filtrées au format CSV.",
+        path: "/medicaments/par-dci/{dci}",
+        summary: "Médicaments par molécule (DCI)",
+        description: "Retourne tous les médicaments partageant la même molécule active (DCI).",
         requiresAuth: true,
         params: [
-          { name: "q", in: "query", type: "string", description: "Filtre de recherche", default: "" },
-          { name: "statut", in: "query", type: "string", description: "Filtre par statut", default: "" },
+          { name: "dci", in: "path", required: true, type: "string", description: "Nom de la molécule active", default: "paracetamol" },
         ],
         exampleResponse: {
-          message: "Fichier CSV généré",
-          filename: "medicaments_export_2026-03-05.csv",
-          rows: 7234,
+          dci: "Paracetamol", total: 18,
+          items: [
+            { id: 12, nom_marque: "PARACETAMOL 500MG ALGÉRIE", laboratoire: "SAIDAL" },
+            { id: 47, nom_marque: "DOLIPRANE 1000MG", laboratoire: "SANOFI" },
+          ],
         },
       },
       {
         id: "med-stats",
         method: "GET",
-        path: "/medicaments/stats",
-        summary: "Statistiques & Dashboard",
-        description: "Retourne les statistiques agrégées : top laboratoires, répartition par catégorie, pays d'origine.",
+        path: "/medicaments/statistiques",
+        summary: "Statistiques détaillées",
+        description: "Répartition par laboratoire, pays d'origine, type (générique/princeps) et catégorie.",
         requiresAuth: true,
         params: [],
         exampleResponse: {
-          total_medicaments: 7234,
-          top_laboratoires: [{ nom: "SAIDAL", count: 312 }, { nom: "SANOFI", count: 245 }],
-          by_statut: { Actif: 6891, "Non renouvelé": 212, Retiré: 131 },
-          top_categories: [{ categorie: "Antibiotique", count: 890 }],
+          total_medicaments: 9847,
+          by_categorie: { NOMENCLATURE: 7234, NON_RENOUVELE: 1521, RETRAIT: 1092 },
+          by_type: { GE: 5412, Princeps: 4435 },
+          top_pays: [{ pays: "Algérie", count: 3210 }, { pays: "France", count: 1845 }],
+          top_laboratoires: [{ nom: "SAIDAL", count: 512 }, { nom: "SANOFI", count: 387 }],
         },
+      },
+      {
+        id: "med-dashboard",
+        method: "GET",
+        path: "/medicaments/dashboard",
+        summary: "Dashboard & chiffres globaux",
+        description: "Top 10 laboratoires et pays, chiffres globaux pour tableaux de bord et visualisations.",
+        requiresAuth: true,
+        params: [],
+        exampleResponse: {
+          total: 9847,
+          top10_laboratoires: [{ nom: "SAIDAL", count: 512 }, { nom: "SANOFI", count: 387 }],
+          top10_pays: [{ pays: "Algérie", count: 3210 }, { pays: "France", count: 1845 }],
+        },
+      },
+      {
+        id: "med-export",
+        method: "GET",
+        path: "/medicaments/export",
+        summary: "Export CSV complet",
+        description: "Télécharge toutes les données en fichier CSV. Filtres disponibles : categorie, pays_laboratoire, etc.",
+        requiresAuth: true,
+        params: [
+          { name: "categorie",        in: "query", type: "string", description: "NOMENCLATURE | NON_RENOUVELE | RETRAIT", default: "" },
+          { name: "pays_laboratoire", in: "query", type: "string", description: "Ex : France", default: "" },
+          { name: "laboratoire",      in: "query", type: "string", description: "Ex : SAIDAL", default: "" },
+        ],
+        exampleResponse: {
+          message: "Fichier CSV généré",
+          filename: "medicaments_export_2026-03-05.csv",
+          total_rows: 9847,
+        },
+      },
+    ],
+  },
+  {
+    name: "Système",
+    color: "hsl(210 70% 45%)",
+    border: "hsl(210 60% 85%)",
+    endpoints: [
+      {
+        id: "health",
+        method: "GET",
+        path: "/health",
+        summary: "Statut de l'API",
+        description: "Vérifie que l'API est opérationnelle. Accessible sans token JWT.",
+        requiresAuth: false,
+        params: [],
+        exampleResponse: { status: "ok", version: "1.0.0", uptime: "99.98%" },
       },
     ],
   },
@@ -329,7 +352,7 @@ function EndpointCard({ endpoint, jwtToken }: { endpoint: Endpoint; jwtToken: st
   const curlSnippet = () => {
     const path = buildPath();
     const tokenVal = jwtToken.trim() || "<votre_token_jwt>";
-    const base = `curl -X ${endpoint.method} "https://api.npp.dz${path}" \\\n  -H "Authorization: Bearer ${tokenVal}" \\\n  -H "Accept: application/json"`;
+    const base = `curl -X ${endpoint.method} "https://nnp.forge-solutions.tech/v1${path}" \\\n  -H "Authorization: Bearer ${tokenVal}" \\\n  -H "Accept: application/json"`;
     const bodyParams = endpoint.params.filter((p) => p.in === "body");
     if (bodyParams.length) {
       const data = Object.fromEntries(bodyParams.map((p) => [p.name, values[p.name] || p.default || ""]));
@@ -557,7 +580,7 @@ export default function ApiExplorer() {
           </p>
           <div className="mt-4 flex flex-wrap gap-2.5">
             {[
-              { label: "Base URL", value: "https://api.npp.dz" },
+              { label: "Base URL", value: "https://nnp.forge-solutions.tech/v1" },
               { label: "Version",  value: "v1.0" },
               { label: "Format",   value: "JSON" },
               { label: "Auth",     value: "Bearer JWT" },
