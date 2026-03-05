@@ -16,15 +16,9 @@ const features = [
     tag: "Sécurité",
   },
   {
-    icon: FileSpreadsheet,
-    title: "Import Excel multi-feuilles",
-    desc: "Nomenclature, Non Renouvelés et Retraits détectés automatiquement. Support .xlsx natif.",
-    tag: "Import",
-  },
-  {
     icon: Search,
     title: "Recherche full-text",
-    desc: "Par DCI, nom de marque, code AMM, laboratoire ou catégorie. Résultats instantanés.",
+    desc: "Par DCI, nom de marque, code AMM, laboratoire ou catégorie thérapeutique. Résultats instantanés.",
     tag: "Recherche",
   },
   {
@@ -44,6 +38,12 @@ const features = [
     title: "Export CSV",
     desc: "Données filtrées téléchargeables en un seul appel API. Format standard, prêt pour l'analyse.",
     tag: "Export",
+  },
+  {
+    icon: FileSpreadsheet,
+    title: "Données officielles",
+    desc: "Base nationale des médicaments à usage humain en Algérie. Source de vérité unique, régulièrement mise à jour.",
+    tag: "Fiabilité",
   },
 ];
 
