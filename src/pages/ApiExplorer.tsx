@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import {
   ChevronDown, ChevronRight, Play, ArrowLeft, Copy, CheckCheck,
-  Key, AlertCircle, Lock, Unlock, X, Shield, Info,
+  Key, AlertCircle, Lock, Unlock, X, Info,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 
@@ -26,289 +26,239 @@ interface Endpoint {
   packColor?: string;
   exampleResponse: object;
 }
-interface Group {
-  name: string;
-  color: string;
-  border: string;
-  endpoints: Endpoint[];
-}
 
-// ─── Data ─────────────────────────────────────────────────────────────────────
-const groups: Group[] = [
-  // ── Publics ──────────────────────────────────────────────────────────────
+// ─── Data — single flat list ──────────────────────────────────────────────────
+const endpoints: Endpoint[] = [
   {
-    name: "Endpoints publics",
-    color: "hsl(210 70% 45%)",
-    border: "hsl(210 60% 88%)",
-    endpoints: [
-      {
-        id: "health",
-        method: "GET",
-        path: "/health",
-        summary: "Statut de l'API",
-        description: "Vérifie que l'API est opérationnelle. Accessible sans token JWT.",
-        requiresAuth: false,
-        params: [],
-        exampleResponse: { status: "ok", version: "1.0.0", uptime: "99.98%" },
-      },
-      {
-        id: "packs",
-        method: "GET",
-        path: "/packs",
-        summary: "Catalogue des packs",
-        description: "Retourne le catalogue complet des offres d'accès disponibles : FREE, PRO, INSTITUTIONNEL, DÉVELOPPEUR.",
-        requiresAuth: false,
-        params: [],
-        exampleResponse: {
-          packs: [
-            { id: "FREE",          label: "FREE",          req_day: 100,         req_month: 1000,      features: ["Liste","Recherche","Détail"] },
-            { id: "PRO",           label: "PRO",           req_day: "illimité",  req_month: "illimité", features: ["FREE+","DCI","Export CSV"] },
-            { id: "INSTITUTIONNEL",label: "INSTITUTIONNEL",req_day: "illimité",  req_month: "illimité", features: ["PRO+","Stats","Dashboard"] },
-            { id: "DÉVELOPPEUR",   label: "DÉVELOPPEUR",   req_day: "illimité",  req_month: "illimité", features: ["Accès complet"] },
-          ],
-        },
-      },
-    ],
+    id: "health",
+    method: "GET",
+    path: "/health",
+    summary: "Statut de l'API",
+    description: "Vérifie que l'API est opérationnelle. Accessible sans token JWT.",
+    requiresAuth: false,
+    params: [],
+    exampleResponse: { status: "ok", version: "1.0.0", uptime: "99.98%" },
   },
-
-  // ── Auth ──────────────────────────────────────────────────────────────────
   {
-    name: "Authentification",
-    color: "hsl(0 70% 45%)",
-    border: "hsl(0 60% 88%)",
-    endpoints: [
-      {
-        id: "auth-signup",
-        method: "POST",
-        path: "/auth/signup",
-        summary: "Créer un compte",
-        description: "Crée un nouveau compte. Le compte sera en attente d'approbation par un administrateur avant de pouvoir se connecter.",
-        requiresAuth: false,
-        params: [
-          { name: "username", in: "body", required: true, type: "string", description: "Adresse e-mail", default: "votre@email.com" },
-          { name: "password", in: "body", required: true, type: "string", description: "Mot de passe (min. 8 caractères)", default: "motdepasse" },
-          { name: "organisation", in: "body", type: "string", description: "Nom de l'organisation / établissement", default: "" },
-        ],
-        exampleResponse: {
-          message: "Compte créé. En attente d'approbation admin.",
-          user_id: "usr_abc123",
-          status: "pending",
-        },
-      },
-      {
-        id: "auth-login",
-        method: "POST",
-        path: "/auth/login",
-        summary: "Se connecter — obtenir un token JWT",
-        description: "Génère un token d'accès JWT à partir de vos identifiants. Envoyez username et password en form-data. Le token expire après 30 minutes.",
-        requiresAuth: false,
-        params: [
-          { name: "username", in: "body", required: true, type: "string", description: "Adresse e-mail", default: "votre@email.com" },
-          { name: "password", in: "body", required: true, type: "string", description: "Mot de passe", default: "motdepasse" },
-        ],
-        exampleResponse: {
-          access_token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyXzEyMyIsInBhY2siOiJQUk8iLCJleHAiOjE3NDEyMDAwMDB9...",
-          token_type: "bearer",
-          expires_in: 1800,
-        },
-      },
-      {
-        id: "auth-me",
-        method: "GET",
-        path: "/auth/me",
-        summary: "Mon profil, pack & quotas",
-        description: "Retourne les informations du compte connecté : identifiant, pack souscrit, quotas consommés et restants.",
-        requiresAuth: true,
-        params: [],
-        exampleResponse: {
-          user_id: "usr_abc123",
-          email: "votre@email.com",
-          organisation: "CHU Mustapha",
-          pack: "INSTITUTIONNEL",
-          quotas: {
-            today: { used: 48, limit: "illimité" },
-            month: { used: 1204, limit: "illimité" },
-          },
-          approved: true,
-        },
-      },
-    ],
+    id: "packs",
+    method: "GET",
+    path: "/packs",
+    summary: "Catalogue des packs",
+    description: "Retourne le catalogue complet des offres d'accès disponibles : FREE, PRO, INSTITUTIONNEL, DÉVELOPPEUR.",
+    requiresAuth: false,
+    params: [],
+    exampleResponse: {
+      packs: [
+        { id: "FREE",          label: "FREE",          req_day: 100,         req_month: 1000,      features: ["Liste","Recherche","Détail"] },
+        { id: "PRO",           label: "PRO",           req_day: "illimité",  req_month: "illimité", features: ["FREE+","DCI","Export CSV"] },
+        { id: "INSTITUTIONNEL",label: "INSTITUTIONNEL",req_day: "illimité",  req_month: "illimité", features: ["PRO+","Stats","Dashboard"] },
+        { id: "DÉVELOPPEUR",   label: "DÉVELOPPEUR",   req_day: "illimité",  req_month: "illimité", features: ["Accès complet"] },
+      ],
+    },
   },
-
-  // ── Médicaments FREE+ ─────────────────────────────────────────────────────
   {
-    name: "Médicaments — FREE+",
-    color: "hsl(142 72% 37%)",
-    border: "hsl(142 60% 85%)",
-    endpoints: [
-      {
-        id: "med-list",
-        method: "GET",
-        path: "/medicaments/",
-        summary: "Liste paginée des médicaments",
-        description: "Retourne la liste des médicaments avec pagination. Paramètres : skip (offset) et limit (max 200 par page).",
-        requiresAuth: true,
-        pack: "FREE+",
-        packColor: "hsl(142 72% 37%)",
-        params: [
-          { name: "skip",  in: "query", type: "integer", description: "Nombre d'éléments à ignorer (offset)", default: "0" },
-          { name: "limit", in: "query", type: "integer", description: "Résultats par page (max 200)", default: "20" },
-        ],
-        exampleResponse: {
-          total: 9847,
-          skip: 0,
-          limit: 20,
-          items: [
-            { id: 1, nom_marque: "AMOXICILLINE 500MG GÉLULE", dci: "Amoxicilline", laboratoire: "SAIDAL", pays_laboratoire: "Algérie", type: "GE", categorie: "NOMENCLATURE" },
-            { id: 2, nom_marque: "DOLIPRANE 1000MG COMPRIMÉ",  dci: "Paracetamol",  laboratoire: "SANOFI", pays_laboratoire: "France",  type: "Princeps", categorie: "NOMENCLATURE" },
-          ],
-        },
-      },
-      {
-        id: "med-search",
-        method: "GET",
-        path: "/medicaments/search",
-        summary: "Recherche par nom, DCI ou laboratoire",
-        description: "Recherche full-text sur le nom commercial, la DCI (molécule active) ou le laboratoire fabricant.",
-        requiresAuth: true,
-        pack: "FREE+",
-        packColor: "hsl(142 72% 37%)",
-        params: [
-          { name: "q",     in: "query", required: true, type: "string",  description: "Terme de recherche (nom, DCI, laboratoire)", default: "amoxicilline" },
-          { name: "skip",  in: "query",                 type: "integer", description: "Offset de pagination", default: "0" },
-          { name: "limit", in: "query",                 type: "integer", description: "Nombre de résultats (max 200)", default: "20" },
-        ],
-        exampleResponse: {
-          query: "amoxicilline",
-          total: 24,
-          items: [
-            { id: 1, nom_marque: "AMOXICILLINE 500MG GÉLULE", dci: "Amoxicilline", laboratoire: "SAIDAL" },
-            { id: 8, nom_marque: "CLAMOXYL 1G COMPRIMÉ",      dci: "Amoxicilline", laboratoire: "GSK" },
-          ],
-        },
-      },
-      {
-        id: "med-detail",
-        method: "GET",
-        path: "/medicaments/{id}",
-        summary: "Détail complet d'un médicament",
-        description: "Retourne toutes les informations d'un médicament identifié par son ID.",
-        requiresAuth: true,
-        pack: "FREE+",
-        packColor: "hsl(142 72% 37%)",
-        params: [
-          { name: "id", in: "path", required: true, type: "integer", description: "Identifiant unique du médicament", default: "1" },
-        ],
-        exampleResponse: {
-          id: 1,
-          nom_marque: "AMOXICILLINE 500MG GÉLULE",
-          dci: "Amoxicilline",
-          laboratoire: "SAIDAL",
-          pays_laboratoire: "Algérie",
-          forme: "Gélule",
-          dosage: "500 mg",
-          type: "GE",
-          categorie: "NOMENCLATURE",
-          statut: "Actif",
-          date_enregistrement: "2021-03-15",
-        },
-      },
+    id: "auth-signup",
+    method: "POST",
+    path: "/auth/signup",
+    summary: "Créer un compte",
+    description: "Crée un nouveau compte. Le compte sera en attente d'approbation par un administrateur avant de pouvoir se connecter.",
+    requiresAuth: false,
+    params: [
+      { name: "username",     in: "body", required: true, type: "string", description: "Adresse e-mail", default: "votre@email.com" },
+      { name: "password",     in: "body", required: true, type: "string", description: "Mot de passe (min. 8 caractères)", default: "motdepasse" },
+      { name: "organisation", in: "body", type: "string", description: "Nom de l'organisation / établissement", default: "" },
     ],
+    exampleResponse: {
+      message: "Compte créé. En attente d'approbation admin.",
+      user_id: "usr_abc123",
+      status: "pending",
+    },
   },
-
-  // ── Médicaments PRO+ ──────────────────────────────────────────────────────
   {
-    name: "Médicaments — PRO+",
-    color: "hsl(262 72% 45%)",
-    border: "hsl(262 60% 85%)",
-    endpoints: [
-      {
-        id: "med-dci",
-        method: "GET",
-        path: "/medicaments/dci/{dci}",
-        summary: "Médicaments par molécule (DCI)",
-        description: "Retourne tous les médicaments partageant la même molécule active (DCI). Disponible à partir du pack PRO.",
-        requiresAuth: true,
-        pack: "PRO+",
-        packColor: "hsl(262 72% 45%)",
-        params: [
-          { name: "dci", in: "path", required: true, type: "string", description: "Nom de la molécule active (DCI)", default: "paracetamol" },
-        ],
-        exampleResponse: {
-          dci: "Paracetamol",
-          total: 18,
-          items: [
-            { id: 12, nom_marque: "PARACETAMOL 500MG ALGÉRIE", laboratoire: "SAIDAL" },
-            { id: 47, nom_marque: "DOLIPRANE 1000MG",           laboratoire: "SANOFI" },
-          ],
-        },
-      },
-      {
-        id: "med-export",
-        method: "GET",
-        path: "/medicaments/export/csv",
-        summary: "Export complet au format CSV",
-        description: "Télécharge la base complète des médicaments en fichier CSV. Disponible à partir du pack PRO.",
-        requiresAuth: true,
-        pack: "PRO+",
-        packColor: "hsl(262 72% 45%)",
-        params: [
-          { name: "categorie",        in: "query", type: "string", description: "NOMENCLATURE | NON_RENOUVELE | RETRAIT", default: "" },
-          { name: "pays_laboratoire", in: "query", type: "string", description: "Ex : France", default: "" },
-          { name: "laboratoire",      in: "query", type: "string", description: "Ex : SAIDAL", default: "" },
-        ],
-        exampleResponse: {
-          message: "Fichier CSV généré",
-          filename: "medicaments_export_2026-03-05.csv",
-          total_rows: 9847,
-          download_url: "https://nnp.forge-solutions.tech/v1/medicaments/export/csv?token=...",
-        },
-      },
+    id: "auth-login",
+    method: "POST",
+    path: "/auth/login",
+    summary: "Se connecter — obtenir un token JWT",
+    description: "Génère un token d'accès JWT à partir de vos identifiants. Envoyez username et password en form-data. Le token expire après 30 minutes.",
+    requiresAuth: false,
+    params: [
+      { name: "username", in: "body", required: true, type: "string", description: "Adresse e-mail", default: "votre@email.com" },
+      { name: "password", in: "body", required: true, type: "string", description: "Mot de passe", default: "motdepasse" },
     ],
+    exampleResponse: {
+      access_token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyXzEyMyIsInBhY2siOiJQUk8iLCJleHAiOjE3NDEyMDAwMDB9...",
+      token_type: "bearer",
+      expires_in: 1800,
+    },
   },
-
-  // ── Médicaments INSTITUTIONNEL+ ───────────────────────────────────────────
   {
-    name: "Médicaments — INSTITUTIONNEL+",
-    color: "hsl(38 90% 38%)",
-    border: "hsl(38 85% 82%)",
-    endpoints: [
-      {
-        id: "med-stats",
-        method: "GET",
-        path: "/medicaments/stats",
-        summary: "Statistiques globales",
-        description: "Répartition par forme, laboratoire, pays, type et catégorie. Réservé aux packs INSTITUTIONNEL et DÉVELOPPEUR.",
-        requiresAuth: true,
-        pack: "INSTITUTIONNEL+",
-        packColor: "hsl(38 90% 38%)",
-        params: [],
-        exampleResponse: {
-          total_medicaments: 9847,
-          by_categorie: { NOMENCLATURE: 7234, NON_RENOUVELE: 1521, RETRAIT: 1092 },
-          by_type: { GE: 5412, Princeps: 4435 },
-          top_pays: [{ pays: "Algérie", count: 3210 }, { pays: "France", count: 1845 }],
-          top_laboratoires: [{ nom: "SAIDAL", count: 512 }, { nom: "SANOFI", count: 387 }],
-        },
+    id: "auth-me",
+    method: "GET",
+    path: "/auth/me",
+    summary: "Mon profil, pack & quotas",
+    description: "Retourne les informations du compte connecté : identifiant, pack souscrit, quotas consommés et restants.",
+    requiresAuth: true,
+    params: [],
+    exampleResponse: {
+      user_id: "usr_abc123",
+      email: "votre@email.com",
+      organisation: "CHU Mustapha",
+      pack: "INSTITUTIONNEL",
+      quotas: {
+        today: { used: 48, limit: "illimité" },
+        month: { used: 1204, limit: "illimité" },
       },
-      {
-        id: "med-dashboard",
-        method: "GET",
-        path: "/medicaments/dashboard",
-        summary: "Tableau de bord enrichi",
-        description: "Top 10 laboratoires et pays, chiffres globaux pour tableaux de bord et visualisations avancées. Réservé INSTITUTIONNEL+.",
-        requiresAuth: true,
-        pack: "INSTITUTIONNEL+",
-        packColor: "hsl(38 90% 38%)",
-        params: [],
-        exampleResponse: {
-          total: 9847,
-          top10_laboratoires: [{ nom: "SAIDAL", count: 512 }, { nom: "SANOFI", count: 387 }],
-          top10_pays: [{ pays: "Algérie", count: 3210 }, { pays: "France", count: 1845 }],
-          by_forme: { Gélule: 3201, Comprimé: 2987, Sirop: 1204 },
-        },
-      },
+      approved: true,
+    },
+  },
+  {
+    id: "med-list",
+    method: "GET",
+    path: "/medicaments/",
+    summary: "Liste paginée des médicaments",
+    description: "Retourne la liste des médicaments avec pagination. Paramètres : skip (offset) et limit (max 200 par page).",
+    requiresAuth: true,
+    pack: "FREE+",
+    packColor: "hsl(142 72% 37%)",
+    params: [
+      { name: "skip",  in: "query", type: "integer", description: "Nombre d'éléments à ignorer (offset)", default: "0" },
+      { name: "limit", in: "query", type: "integer", description: "Résultats par page (max 200)", default: "20" },
     ],
+    exampleResponse: {
+      total: 9847,
+      skip: 0,
+      limit: 20,
+      items: [
+        { id: 1, nom_marque: "AMOXICILLINE 500MG GÉLULE", dci: "Amoxicilline", laboratoire: "SAIDAL", pays_laboratoire: "Algérie", type: "GE", categorie: "NOMENCLATURE" },
+        { id: 2, nom_marque: "DOLIPRANE 1000MG COMPRIMÉ",  dci: "Paracetamol",  laboratoire: "SANOFI", pays_laboratoire: "France",  type: "Princeps", categorie: "NOMENCLATURE" },
+      ],
+    },
+  },
+  {
+    id: "med-search",
+    method: "GET",
+    path: "/medicaments/search",
+    summary: "Recherche par nom, DCI ou laboratoire",
+    description: "Recherche full-text sur le nom commercial, la DCI (molécule active) ou le laboratoire fabricant.",
+    requiresAuth: true,
+    pack: "FREE+",
+    packColor: "hsl(142 72% 37%)",
+    params: [
+      { name: "q",     in: "query", required: true, type: "string",  description: "Terme de recherche (nom, DCI, laboratoire)", default: "amoxicilline" },
+      { name: "skip",  in: "query",                 type: "integer", description: "Offset de pagination", default: "0" },
+      { name: "limit", in: "query",                 type: "integer", description: "Nombre de résultats (max 200)", default: "20" },
+    ],
+    exampleResponse: {
+      query: "amoxicilline",
+      total: 24,
+      items: [
+        { id: 1, nom_marque: "AMOXICILLINE 500MG GÉLULE", dci: "Amoxicilline", laboratoire: "SAIDAL" },
+        { id: 8, nom_marque: "CLAMOXYL 1G COMPRIMÉ",      dci: "Amoxicilline", laboratoire: "GSK" },
+      ],
+    },
+  },
+  {
+    id: "med-detail",
+    method: "GET",
+    path: "/medicaments/{id}",
+    summary: "Détail complet d'un médicament",
+    description: "Retourne toutes les informations d'un médicament identifié par son ID.",
+    requiresAuth: true,
+    pack: "FREE+",
+    packColor: "hsl(142 72% 37%)",
+    params: [
+      { name: "id", in: "path", required: true, type: "integer", description: "Identifiant unique du médicament", default: "1" },
+    ],
+    exampleResponse: {
+      id: 1,
+      nom_marque: "AMOXICILLINE 500MG GÉLULE",
+      dci: "Amoxicilline",
+      laboratoire: "SAIDAL",
+      pays_laboratoire: "Algérie",
+      forme: "Gélule",
+      dosage: "500 mg",
+      type: "GE",
+      categorie: "NOMENCLATURE",
+      statut: "Actif",
+      date_enregistrement: "2021-03-15",
+    },
+  },
+  {
+    id: "med-dci",
+    method: "GET",
+    path: "/medicaments/dci/{dci}",
+    summary: "Médicaments par molécule (DCI)",
+    description: "Retourne tous les médicaments partageant la même molécule active (DCI). Disponible à partir du pack PRO.",
+    requiresAuth: true,
+    pack: "PRO+",
+    packColor: "hsl(262 72% 45%)",
+    params: [
+      { name: "dci", in: "path", required: true, type: "string", description: "Nom de la molécule active (DCI)", default: "paracetamol" },
+    ],
+    exampleResponse: {
+      dci: "Paracetamol",
+      total: 18,
+      items: [
+        { id: 12, nom_marque: "PARACETAMOL 500MG ALGÉRIE", laboratoire: "SAIDAL" },
+        { id: 47, nom_marque: "DOLIPRANE 1000MG",           laboratoire: "SANOFI" },
+      ],
+    },
+  },
+  {
+    id: "med-export",
+    method: "GET",
+    path: "/medicaments/export/csv",
+    summary: "Export complet au format CSV",
+    description: "Télécharge la base complète des médicaments en fichier CSV. Disponible à partir du pack PRO.",
+    requiresAuth: true,
+    pack: "PRO+",
+    packColor: "hsl(262 72% 45%)",
+    params: [
+      { name: "categorie",        in: "query", type: "string", description: "NOMENCLATURE | NON_RENOUVELE | RETRAIT", default: "" },
+      { name: "pays_laboratoire", in: "query", type: "string", description: "Ex : France", default: "" },
+      { name: "laboratoire",      in: "query", type: "string", description: "Ex : SAIDAL", default: "" },
+    ],
+    exampleResponse: {
+      message: "Fichier CSV généré",
+      filename: "medicaments_export_2026-03-05.csv",
+      total_rows: 9847,
+      download_url: "https://nnp.forge-solutions.tech/v1/medicaments/export/csv?token=...",
+    },
+  },
+  {
+    id: "med-stats",
+    method: "GET",
+    path: "/medicaments/stats",
+    summary: "Statistiques globales",
+    description: "Répartition par forme, laboratoire, pays, type et catégorie. Réservé aux packs INSTITUTIONNEL et DÉVELOPPEUR.",
+    requiresAuth: true,
+    pack: "INSTITUTIONNEL+",
+    packColor: "hsl(38 90% 38%)",
+    params: [],
+    exampleResponse: {
+      total_medicaments: 9847,
+      by_categorie: { NOMENCLATURE: 7234, NON_RENOUVELE: 1521, RETRAIT: 1092 },
+      by_type: { GE: 5412, Princeps: 4435 },
+      top_pays: [{ pays: "Algérie", count: 3210 }, { pays: "France", count: 1845 }],
+      top_laboratoires: [{ nom: "SAIDAL", count: 512 }, { nom: "SANOFI", count: 387 }],
+    },
+  },
+  {
+    id: "med-dashboard",
+    method: "GET",
+    path: "/medicaments/dashboard",
+    summary: "Tableau de bord enrichi",
+    description: "Top 10 laboratoires et pays, chiffres globaux pour tableaux de bord et visualisations avancées. Réservé INSTITUTIONNEL+.",
+    requiresAuth: true,
+    pack: "INSTITUTIONNEL+",
+    packColor: "hsl(38 90% 38%)",
+    params: [],
+    exampleResponse: {
+      total: 9847,
+      top10_laboratoires: [{ nom: "SAIDAL", count: 512 }, { nom: "SANOFI", count: 387 }],
+      top10_pays: [{ pays: "Algérie", count: 3210 }, { pays: "France", count: 1845 }],
+      by_forme: { Gélule: 3201, Comprimé: 2987, Sirop: 1204 },
+    },
   },
 ];
 
@@ -697,13 +647,7 @@ function EndpointCard({ endpoint, jwtToken }: { endpoint: Endpoint; jwtToken: st
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 export default function ApiExplorer() {
-  const [openGroups, setOpenGroups] = useState<Record<string, boolean>>(
-    Object.fromEntries(groups.map((g) => [g.name, g.name === "Endpoints publics" || g.name === "Authentification"]))
-  );
   const [jwtToken, setJwtToken] = useState<string>(() => localStorage.getItem(JWT_KEY) ?? "");
-
-  const toggle = (name: string) => setOpenGroups((p) => ({ ...p, [name]: !p[name] }));
-  const totalEndpoints = groups.reduce((a, g) => a + g.endpoints.length, 0);
 
   return (
     <div className="min-h-screen bg-background">
@@ -756,7 +700,7 @@ export default function ApiExplorer() {
             Référence de l'API
           </h1>
           <p className="text-muted-foreground text-sm max-w-2xl leading-relaxed">
-            Explorez et testez les endpoints directement depuis cette page.
+            Explorez et testez les {endpoints.length} endpoints directement depuis cette page.
             Renseignez votre token JWT pour accéder aux routes protégées.
           </p>
 
@@ -767,7 +711,7 @@ export default function ApiExplorer() {
               { label: "Version",    value: "v1.0" },
               { label: "Format",     value: "JSON" },
               { label: "Auth",       value: "Bearer JWT · 30 min" },
-              { label: "Endpoints",  value: String(totalEndpoints) },
+              { label: "Endpoints",  value: String(endpoints.length) },
             ].map((item) => (
               <div
                 key={item.label}
@@ -779,69 +723,17 @@ export default function ApiExplorer() {
               </div>
             ))}
           </div>
-
-          {/* Pack quota summary */}
-          <div className="mt-5 grid grid-cols-2 md:grid-cols-4 gap-2.5">
-            {[
-              { pack: "FREE",           quota: "100 req/j · 1 000/mois", color: "hsl(142 72% 37%)", bg: "hsl(142 55% 96%)" },
-              { pack: "PRO",            quota: "Illimité · +DCI · +CSV",  color: "hsl(262 72% 45%)", bg: "hsl(262 55% 96%)" },
-              { pack: "INSTITUTIONNEL", quota: "Illimité · +Stats",        color: "hsl(38 90% 38%)",  bg: "hsl(38 90% 96%)"  },
-              { pack: "DÉVELOPPEUR",    quota: "Illimité · Accès complet", color: "hsl(0 70% 45%)",   bg: "hsl(0 60% 97%)"   },
-            ].map((q) => (
-              <div
-                key={q.pack}
-                className="rounded-xl px-3.5 py-2.5 border flex items-start gap-2"
-                style={{ background: q.bg, borderColor: `${q.color}30` }}
-              >
-                <Shield className="w-3.5 h-3.5 shrink-0 mt-0.5" style={{ color: q.color }} />
-                <div>
-                  <span className="text-[10px] font-black uppercase tracking-widest" style={{ color: q.color }}>{q.pack}</span>
-                  <p className="text-[11px] text-muted-foreground leading-snug">{q.quota}</p>
-                </div>
-              </div>
-            ))}
-          </div>
         </div>
 
         {/* JWT panel */}
         <JwtPanel token={jwtToken} onChange={setJwtToken} />
 
-        {/* Endpoint groups */}
-        {groups.map((group) => (
-          <div key={group.name} className="mb-10">
-            <button
-              onClick={() => toggle(group.name)}
-              className="flex items-center gap-3 w-full text-left mb-4 group py-2"
-            >
-              <div
-                className="w-3 h-3 rounded-full shrink-0 transition-all duration-200 group-hover:scale-125"
-                style={{ background: group.color, boxShadow: openGroups[group.name] ? `0 0 8px ${group.color}60` : "none" }}
-              />
-              <span className="text-sm font-bold tracking-wide" style={{ color: group.color }}>
-                {group.name}
-              </span>
-              <span
-                className="text-xs font-bold px-2 py-0.5 rounded-full"
-                style={{ background: `${group.color}12`, color: group.color }}
-              >
-                {group.endpoints.length} endpoint{group.endpoints.length > 1 ? "s" : ""}
-              </span>
-              <div className="flex-1 h-px" style={{ background: `${group.color}20` }} />
-              {openGroups[group.name]
-                ? <ChevronDown  className="w-4 h-4 shrink-0" style={{ color: group.color }} />
-                : <ChevronRight className="w-4 h-4 shrink-0" style={{ color: group.color }} />
-              }
-            </button>
-
-            {openGroups[group.name] && (
-              <div>
-                {group.endpoints.map((ep) => (
-                  <EndpointCard key={ep.id} endpoint={ep} jwtToken={jwtToken} />
-                ))}
-              </div>
-            )}
-          </div>
-        ))}
+        {/* Flat endpoint list */}
+        <div>
+          {endpoints.map((ep) => (
+            <EndpointCard key={ep.id} endpoint={ep} jwtToken={jwtToken} />
+          ))}
+        </div>
 
         {/* Footer note */}
         <div className="mt-4 rounded-2xl border border-border bg-secondary/40 px-6 py-4 flex flex-col sm:flex-row items-center gap-3">

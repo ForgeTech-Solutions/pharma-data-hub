@@ -84,6 +84,7 @@ export default function UseCasesSection() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           {cases.map((c, i) => {
             const isHovered = hovered === i;
+            const Icon = c.icon;
             return (
               <div
                 key={c.title}
@@ -98,12 +99,15 @@ export default function UseCasesSection() {
                 onMouseEnter={() => setHovered(i)}
                 onMouseLeave={() => setHovered(null)}
               >
-                {/* Decorative number */}
+                {/* Large background icon */}
                 <div
-                  className="absolute top-4 right-4 text-6xl font-black leading-none select-none pointer-events-none transition-opacity duration-300"
-                  style={{ color: `${c.accent}0d`, opacity: isHovered ? 1 : 0.5 }}
+                  className="absolute -bottom-6 -right-6 pointer-events-none select-none transition-all duration-500"
+                  style={{
+                    opacity: isHovered ? 0.1 : 0.05,
+                    transform: isHovered ? "scale(1.08) rotate(-6deg)" : "scale(1) rotate(-6deg)",
+                  }}
                 >
-                  {c.num}
+                  <Icon style={{ width: 160, height: 160, color: c.accent }} strokeWidth={1} />
                 </div>
 
                 {/* Left color bar */}
@@ -112,7 +116,7 @@ export default function UseCasesSection() {
                   style={{ background: c.accent, opacity: isHovered ? 1 : 0.4 }}
                 />
 
-                <div className="p-7 pl-8">
+                <div className="relative z-10 p-7 pl-8">
                   {/* Icon + tag */}
                   <div className="flex items-center gap-3 mb-5">
                     <div
@@ -122,7 +126,7 @@ export default function UseCasesSection() {
                         boxShadow: isHovered ? `0 0 0 6px ${c.accent}10` : "none",
                       }}
                     >
-                      <c.icon className="w-5 h-5 transition-transform duration-300 group-hover:scale-110" style={{ color: c.accent }} />
+                      <Icon className="w-5 h-5 transition-transform duration-300 group-hover:scale-110" style={{ color: c.accent }} />
                     </div>
                     <span
                       className="text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full"
