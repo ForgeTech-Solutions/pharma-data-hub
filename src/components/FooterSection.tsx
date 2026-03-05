@@ -6,14 +6,8 @@ export default function FooterSection() {
       <div className="max-w-6xl mx-auto px-6 py-12">
         <div className="flex flex-col md:flex-row items-center justify-between gap-6">
           {/* Brand */}
-          <div className="flex items-center gap-3">
-            <span className="w-9 h-9 rounded-xl gradient-primary flex items-center justify-center text-white font-bold text-sm glow-primary">
-              Rx
-            </span>
-            <div>
-              <div className="text-white font-semibold text-sm">API Nomenclature NPP</div>
-              <div className="text-[hsl(215_20%_50%)] text-xs">Algérie · Projet institutionnel</div>
-            </div>
+          <div className="flex items-center">
+            <img src={logo} alt="API Nomenclature NPP" className="h-10 w-auto opacity-90" />
           </div>
 
           {/* Links */}
