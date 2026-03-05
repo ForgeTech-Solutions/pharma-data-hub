@@ -53,7 +53,6 @@ export default function Navbar() {
     { label: t("nav.features"),  href: "#features" },
     { label: t("nav.usecases"),  href: "#usecases" },
     { label: t("nav.access"),    href: "#access" },
-    { label: t("nav.endpoints"), href: "#endpoints" },
     { label: t("nav.news"),      href: "/actualites", isRoute: true },
   ];
 

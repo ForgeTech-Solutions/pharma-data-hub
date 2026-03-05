@@ -1,149 +1,221 @@
 import { useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
-import { ExternalLink, Lock, Unlock } from "lucide-react";
 import { Link } from "react-router-dom";
+import {
+  Terminal, Zap, Lock, Code2, ArrowRight,
+  Search, Database, BarChart3, Download,
+} from "lucide-react";
 
-interface Endpoint {
-  method: "GET" | "POST";
-  path: string;
-  noAuth?: boolean;
-  pack?: { label: string; bg: string; color: string };
-}
+const FEATURE_CHIPS = [
+  { icon: Search,    label: "Recherche full-text",    color: "hsl(142 72% 37%)",  bg: "hsl(142 72% 37% / 0.1)",  border: "hsl(142 72% 37% / 0.3)" },
+  { icon: Database,  label: "7 000+ médicaments",    color: "hsl(210 80% 50%)",  bg: "hsl(210 80% 50% / 0.1)",  border: "hsl(210 80% 50% / 0.3)" },
+  { icon: Lock,      label: "JWT Bearer Auth",        color: "hsl(38 72% 55%)",   bg: "hsl(38 72% 37% / 0.1)",   border: "hsl(38 72% 37% / 0.3)"  },
+  { icon: Download,  label: "Export CSV",             color: "hsl(262 72% 55%)",  bg: "hsl(262 72% 55% / 0.1)",  border: "hsl(262 72% 55% / 0.3)" },
+  { icon: BarChart3, label: "Dashboard & Stats",      color: "hsl(142 72% 37%)",  bg: "hsl(142 72% 37% / 0.1)",  border: "hsl(142 72% 37% / 0.3)" },
+  { icon: Zap,       label: "< 100ms",               color: "hsl(210 80% 50%)",  bg: "hsl(210 80% 50% / 0.1)",  border: "hsl(210 80% 50% / 0.3)" },
+];
 
-const METHOD_CONFIG: Record<string, { bg: string; text: string }> = {
-  GET:  { bg: "hsl(142 50% 90%)", text: "hsl(142 72% 26%)" },
-  POST: { bg: "hsl(210 70% 91%)", text: "hsl(210 80% 36%)" },
-};
-
-const endpoints: Endpoint[] = [
-  { method: "GET",  path: "/health",               noAuth: true },
-  { method: "GET",  path: "/packs",                noAuth: true },
-  { method: "POST", path: "/auth/signup",           noAuth: true },
-  { method: "POST", path: "/auth/login",            noAuth: true },
-  { method: "GET",  path: "/auth/me" },
-  { method: "GET",  path: "/medicaments/",          pack: { label: "FREE+", bg: "hsl(142 55% 90%)", color: "hsl(142 72% 28%)" } },
-  { method: "GET",  path: "/medicaments/search?q=", pack: { label: "FREE+", bg: "hsl(142 55% 90%)", color: "hsl(142 72% 28%)" } },
-  { method: "GET",  path: "/medicaments/{id}",      pack: { label: "FREE+", bg: "hsl(142 55% 90%)", color: "hsl(142 72% 28%)" } },
-  { method: "GET",  path: "/medicaments/dci/{dci}", pack: { label: "PRO+",  bg: "hsl(210 70% 91%)", color: "hsl(210 80% 38%)" } },
-  { method: "GET",  path: "/medicaments/export/csv",pack: { label: "PRO+",  bg: "hsl(210 70% 91%)", color: "hsl(210 80% 38%)" } },
-  { method: "GET",  path: "/medicaments/stats",     pack: { label: "INSTITUTIONNEL+", bg: "hsl(38 90% 90%)", color: "hsl(38 90% 32%)" } },
-  { method: "GET",  path: "/medicaments/dashboard", pack: { label: "INSTITUTIONNEL+", bg: "hsl(38 90% 90%)", color: "hsl(38 90% 32%)" } },
+const CODE_LINES = [
+  { prompt: "$", cmd: "curl -X GET", accent: false },
+  { prompt: " ", cmd: "  https://nnp.forge-solutions.tech/v1/medicaments/search?q=paracetamol", accent: false },
+  { prompt: " ", cmd: '  -H "Authorization: Bearer <token>"', accent: true },
+  { prompt: " ", cmd: "", accent: false },
+  { prompt: "#", cmd: "← 200 OK · JSON · < 80ms", accent: true },
 ];
 
 export default function EndpointsSection() {
   const { t } = useTranslation();
   const sectionRef = useRef<HTMLElement>(null);
-  const rowRefs    = useRef<(HTMLLIElement | null)[]>([]);
-
-  const descs = t("endpoints.items", { returnObjects: true }) as Array<{ desc: string }>;
+  const cardRef    = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
-      (entries) => entries.forEach((e) => {
-        if (e.isIntersecting) {
-          e.target.classList.add("visible");
-          rowRefs.current.forEach((r, i) => {
-            if (!r) return;
-            r.style.opacity = "0";
-            r.style.transform = "translateY(10px)";
-            setTimeout(() => { if (r) { r.style.opacity = "1"; r.style.transform = "translateY(0)"; } }, i * 45 + 60);
-          });
-        }
-      }),
+      (entries) => entries.forEach((e) => e.isIntersecting && e.target.classList.add("visible")),
       { threshold: 0.05 }
     );
-    if (sectionRef.current) observer.observe(sectionRef.current);
+    [sectionRef, cardRef].forEach((r) => r.current && observer.observe(r.current));
     return () => observer.disconnect();
   }, []);
 
   return (
-    <section id="endpoints" ref={sectionRef} className="py-28 bg-secondary section-fade overflow-hidden">
-      <div className="max-w-5xl mx-auto px-6">
+    <section
+      id="endpoints"
+      ref={sectionRef}
+      className="py-28 section-fade overflow-hidden relative"
+      style={{ background: "hsl(215 28% 7%)" }}
+    >
+      {/* Background grid */}
+      <div
+        className="absolute inset-0 opacity-[0.025] pointer-events-none"
+        style={{
+          backgroundImage:
+            "linear-gradient(hsl(0 0% 100%) 1px, transparent 1px), linear-gradient(90deg, hsl(0 0% 100%) 1px, transparent 1px)",
+          backgroundSize: "48px 48px",
+        }}
+      />
 
-        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-14">
-          <div>
-            <span className="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.18em] text-primary mb-4">
-              <span className="w-6 h-px bg-primary inline-block" />
-              {t("endpoints.label")}
-            </span>
-            <h2 className="text-3xl md:text-4xl font-extrabold text-foreground leading-tight">
-              {t("endpoints.title1")}
-              <br />
-              <span className="text-gradient">{t("endpoints.title2")}</span>
-            </h2>
-            <p className="mt-3 text-sm text-muted-foreground max-w-md">
-              {t("endpoints.subtitle1")}{" "}
-              <code className="font-mono text-xs bg-muted px-1.5 py-0.5 rounded">/health</code>,{" "}
-              <code className="font-mono text-xs bg-muted px-1.5 py-0.5 rounded">/packs</code>{" "}
-              {t("endpoints.subtitle2")}{" "}
-              <code className="font-mono text-xs bg-muted px-1.5 py-0.5 rounded">/auth/signup</code>{" "}
-              {t("endpoints.subtitle3")} <strong>{t("endpoints.subtitle4")}</strong>.
-            </p>
-          </div>
-          <Link to="/docs" className="inline-flex items-center gap-2 text-sm font-semibold text-primary hover:text-primary/80 transition-colors group shrink-0">
-            {t("endpoints.interactiveExplorer")}
-            <ExternalLink className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-          </Link>
+      {/* Glow blobs */}
+      <div className="absolute top-1/3 left-1/4 w-[500px] h-[500px] rounded-full opacity-[0.06] blur-[120px] pointer-events-none" style={{ background: "hsl(142 72% 37%)" }} />
+      <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] rounded-full opacity-[0.05] blur-[100px] pointer-events-none" style={{ background: "hsl(210 80% 50%)" }} />
+
+      <div className="relative max-w-6xl mx-auto px-6">
+
+        {/* Label */}
+        <div className="flex justify-center mb-6">
+          <span className="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.18em] text-primary">
+            <span className="w-6 h-px bg-primary inline-block" />
+            API REST · v1
+            <span className="w-6 h-px bg-primary inline-block" />
+          </span>
         </div>
 
-        <div className="bg-card border border-border rounded-2xl overflow-hidden shadow-sm">
-          <div className="hidden md:grid grid-cols-[20px_56px_1fr_auto_auto] gap-3 items-center px-5 py-2.5 bg-muted/60 border-b border-border text-[10px] font-black uppercase tracking-widest text-muted-foreground">
-            <span />
-            <span>{t("endpoints.method")}</span>
-            <span>{t("endpoints.route")}</span>
-            <span className="text-right pr-2">{t("endpoints.pack")}</span>
-            <span className="text-right">{t("endpoints.description")}</span>
-          </div>
+        {/* Heading */}
+        <div className="text-center mb-16 max-w-2xl mx-auto">
+          <h2 className="text-3xl md:text-5xl font-extrabold text-white leading-tight mb-4">
+            Explorez l'API en{" "}
+            <span className="text-gradient">temps réel</span>
+          </h2>
+          <p className="text-[hsl(215_20%_60%)] text-base leading-relaxed">
+            Testez chaque endpoint directement depuis le navigateur. Authentification, paramètres, réponses en direct — sans quitter votre navigateur.
+          </p>
+        </div>
 
-          <ul>
-            {endpoints.map((ep, i) => {
-              const mc = METHOD_CONFIG[ep.method];
-              return (
-                <li
-                  key={ep.path + ep.method}
-                  ref={(el) => { rowRefs.current[i] = el; }}
-                  className="flex items-center gap-3 px-5 py-3.5 border-b border-border last:border-0 hover:bg-secondary/60 group cursor-default"
-                  style={{ transition: "opacity 0.35s ease, transform 0.35s ease, background 0.15s ease" }}
-                >
-                  <span className="shrink-0 w-5 flex justify-center">
-                    {ep.noAuth
-                      ? <Unlock className="w-3 h-3 text-muted-foreground/35 group-hover:text-muted-foreground/70 transition-colors" />
-                      : <Lock   className="w-3 h-3 text-muted-foreground/35 group-hover:text-muted-foreground/70 transition-colors" />
-                    }
-                  </span>
-                  <span className="shrink-0 text-[10px] font-black px-2.5 py-1 rounded-lg font-mono min-w-[48px] text-center tracking-wider" style={{ background: mc.bg, color: mc.text }}>
-                    {ep.method}
-                  </span>
-                  <code className="text-sm font-mono text-foreground font-semibold flex-1 min-w-0 truncate">{ep.path}</code>
-                  {ep.pack ? (
-                    <span className="text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full shrink-0 hidden sm:block whitespace-nowrap" style={{ background: ep.pack.bg, color: ep.pack.color }}>
-                      {ep.pack.label}
+        {/* Main card */}
+        <div
+          ref={cardRef}
+          className="section-fade relative rounded-3xl border overflow-hidden"
+          style={{ borderColor: "hsl(215 28% 20%)", background: "hsl(215 28% 10%)" }}
+        >
+          {/* Card top stripe */}
+          <div className="h-1 w-full" style={{ background: "linear-gradient(90deg, hsl(142 72% 37%), hsl(210 80% 50%), hsl(262 72% 55%))" }} />
+
+          <div className="grid lg:grid-cols-2 gap-0">
+
+            {/* Left: Terminal mockup */}
+            <div className="p-8 border-r border-[hsl(215_28%_18%)]">
+              <div className="flex items-center gap-2 mb-5">
+                <div className="w-3 h-3 rounded-full bg-[hsl(0_72%_55%)]" />
+                <div className="w-3 h-3 rounded-full bg-[hsl(38_72%_55%)]" />
+                <div className="w-3 h-3 rounded-full bg-[hsl(142_72%_45%)]" />
+                <span className="ml-3 text-[11px] font-mono text-[hsl(215_20%_40%)]">terminal · API NPP</span>
+              </div>
+
+              <div className="font-mono text-sm space-y-1.5">
+                {CODE_LINES.map((line, i) => (
+                  <div key={i} className="flex gap-2.5">
+                    <span
+                      className="shrink-0 text-[11px] font-bold select-none"
+                      style={{ color: line.prompt === "$" ? "hsl(142 72% 50%)" : line.prompt === "#" ? "hsl(38 72% 55%)" : "transparent" }}
+                    >
+                      {line.prompt}
                     </span>
-                  ) : (
-                    <span className="hidden sm:block w-[80px]" />
-                  )}
-                  <span className="text-xs text-muted-foreground hidden lg:block whitespace-nowrap max-w-[220px] truncate text-right">
-                    {descs[i]?.desc}
-                  </span>
-                </li>
-              );
-            })}
-          </ul>
+                    <span
+                      className="text-[13px] break-all"
+                      style={{ color: line.accent ? "hsl(142 72% 60%)" : "hsl(215 20% 70%)" }}
+                    >
+                      {line.cmd}
+                    </span>
+                  </div>
+                ))}
+
+                {/* Animated response */}
+                <div className="mt-4 pt-4 border-t border-[hsl(215_28%_18%)] space-y-1">
+                  {[
+                    '{ "total": 3, "results": [',
+                    '  { "id": 42, "nom_commercial": "Doliprane",',
+                    '    "dci": "Paracétamol", "pack": "500mg",',
+                    '    "laboratoire": "Sanofi", ... }',
+                    ']}'
+                  ].map((l, i) => (
+                    <div
+                      key={i}
+                      className="text-[12px] font-mono"
+                      style={{
+                        color: l.includes('"') ? "hsl(210 80% 70%)" : "hsl(215 20% 55%)",
+                        animationDelay: `${i * 0.15}s`,
+                      }}
+                    >
+                      {l}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Right: Info + CTA */}
+            <div className="p-8 flex flex-col justify-between gap-8">
+              <div>
+                <div className="flex items-center gap-2.5 mb-3">
+                  <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-[hsl(142_72%_37%/0.12)] border border-[hsl(142_72%_37%/0.3)]">
+                    <Terminal size={17} style={{ color: "hsl(142 72% 50%)" }} />
+                  </div>
+                  <h3 className="text-lg font-extrabold text-white">Explorateur interactif</h3>
+                </div>
+                <p className="text-sm text-[hsl(215_20%_55%)] leading-relaxed mb-6">
+                  Notre interface Swagger intégrée vous permet de tester chaque route en live, visualiser les schémas de données et copier des exemples cURL prêts à l'emploi.
+                </p>
+
+                {/* Feature chips */}
+                <div className="flex flex-wrap gap-2 mb-8">
+                  {FEATURE_CHIPS.map(({ icon: Icon, label, color, bg, border }) => (
+                    <span
+                      key={label}
+                      className="flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1.5 rounded-lg"
+                      style={{ color, background: bg, border: `1px solid ${border}` }}
+                    >
+                      <Icon size={11} />
+                      {label}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              {/* CTA buttons */}
+              <div className="flex flex-col sm:flex-row gap-3">
+                <Link
+                  to="/docs"
+                  className="flex-1 flex items-center justify-center gap-2.5 py-3.5 rounded-xl text-sm font-bold text-white gradient-primary glow-primary hover:opacity-90 hover:scale-[1.02] transition-all duration-200 group"
+                >
+                  <Code2 size={16} />
+                  Ouvrir l'Explorateur API
+                  <ArrowRight size={14} className="transition-transform group-hover:translate-x-0.5" />
+                </Link>
+                <Link
+                  to="/signup"
+                  className="flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl text-sm font-bold transition-all duration-200 border"
+                  style={{
+                    color: "hsl(215 20% 70%)",
+                    borderColor: "hsl(215 28% 22%)",
+                    background: "hsl(215 28% 13%)",
+                  }}
+                  onMouseEnter={(e) => {
+                    (e.currentTarget as HTMLAnchorElement).style.color = "#fff";
+                    (e.currentTarget as HTMLAnchorElement).style.borderColor = "hsl(215 28% 32%)";
+                  }}
+                  onMouseLeave={(e) => {
+                    (e.currentTarget as HTMLAnchorElement).style.color = "hsl(215 20% 70%)";
+                    (e.currentTarget as HTMLAnchorElement).style.borderColor = "hsl(215 28% 22%)";
+                  }}
+                >
+                  Demander l'accès
+                </Link>
+              </div>
+            </div>
+          </div>
+
+          {/* Bottom info bar */}
+          <div className="border-t border-[hsl(215_28%_18%)] px-8 py-3.5 flex flex-wrap items-center justify-between gap-3 bg-[hsl(215_28%_8%)]">
+            <div className="flex items-center gap-2 text-[11px] text-[hsl(215_20%_45%)]">
+              <Lock size={11} />
+              <span>Routes protégées :</span>
+              <code className="text-[hsl(215_20%_60%)]">Authorization: Bearer &lt;token&gt;</code>
+            </div>
+            <code className="text-[11px] text-[hsl(215_20%_45%)] font-mono">
+              https://nnp.forge-solutions.tech/v1
+            </code>
+          </div>
         </div>
 
-        <div className="mt-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-          <p className="text-xs text-muted-foreground flex items-center gap-1.5">
-            <Lock className="w-3 h-3 shrink-0" />
-            {t("endpoints.protectedRoutes")}{" "}
-            <code className="font-mono text-foreground">Authorization: Bearer &lt;token&gt;</code>
-            {" "}— {t("endpoints.subtitle4")}
-          </p>
-          <p className="text-xs text-muted-foreground text-right">
-            {t("endpoints.baseUrl")}{" "}
-            <code className="font-mono text-foreground">https://nnp.forge-solutions.tech/v1</code>
-            {" · "}<code className="font-mono text-foreground">JSON</code>
-          </p>
-        </div>
       </div>
     </section>
   );
