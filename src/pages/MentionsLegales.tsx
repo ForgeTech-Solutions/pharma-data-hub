@@ -108,7 +108,7 @@ export default function MentionsLegales() {
   );
 }
 
-function LegalCard({ icon: Icon, title, children }: { icon: React.ComponentType<{ className?: string }>, title: string, children: React.ReactNode }) {
+function LegalCard({ icon: Icon, title, children }: { icon: React.ComponentType<{ className?: string; style?: React.CSSProperties }>, title: string, children: React.ReactNode }) {
   return (
     <div className="rounded-2xl p-6 space-y-4"
       style={{ background: "hsl(215 28% 9%)", border: "1px solid hsl(215 28% 14%)" }}>
