@@ -15,9 +15,11 @@ const PACKS = [
 ];
 
 export default function Signup() {
+  const [searchParams] = useSearchParams();
+  const initialPack = searchParams.get("pack") || "FREE";
   const [form, setForm] = useState({
     email: "", full_name: "", organisation: "",
-    phone: "", message: "", pack: "FREE",
+    phone: "", message: "", pack: initialPack,
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
