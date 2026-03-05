@@ -19,6 +19,7 @@ export default function Navbar() {
     { label: "Cas d'usage", href: "#usecases" },
     { label: "Accès", href: "#access" },
     { label: "Endpoints", href: "#endpoints" },
+    { label: "Actualités", href: "/actualites", isRoute: true },
   ];
 
   return (
@@ -41,15 +42,25 @@ export default function Navbar() {
           </a>
 
           <div className="hidden md:flex items-center gap-6">
-            {links.map((l) => (
-              <a
-                key={l.href}
-                href={l.href}
-                className="text-sm text-[hsl(215_20%_70%)] hover:text-white transition-colors duration-200 relative after:absolute after:bottom-0 after:left-0 after:h-px after:w-0 after:bg-primary after:transition-all after:duration-300 hover:after:w-full"
-              >
-                {l.label}
-              </a>
-            ))}
+            {links.map((l) =>
+              l.isRoute ? (
+                <Link
+                  key={l.href}
+                  to={l.href}
+                  className="text-sm text-[hsl(215_20%_70%)] hover:text-white transition-colors duration-200 relative after:absolute after:bottom-0 after:left-0 after:h-px after:w-0 after:bg-primary after:transition-all after:duration-300 hover:after:w-full"
+                >
+                  {l.label}
+                </Link>
+              ) : (
+                <a
+                  key={l.href}
+                  href={l.href}
+                  className="text-sm text-[hsl(215_20%_70%)] hover:text-white transition-colors duration-200 relative after:absolute after:bottom-0 after:left-0 after:h-px after:w-0 after:bg-primary after:transition-all after:duration-300 hover:after:w-full"
+                >
+                  {l.label}
+                </a>
+              )
+            )}
           </div>
 
           <div className="hidden md:flex items-center gap-3">
@@ -77,16 +88,27 @@ export default function Navbar() {
 
         {menuOpen && (
           <div className="md:hidden bg-[hsl(215_28%_9%)] border-t border-[hsl(var(--code-border))] px-6 py-4 flex flex-col gap-4 animate-fade-in">
-            {links.map((l) => (
-              <a
-                key={l.href}
-                href={l.href}
-                onClick={() => setMenuOpen(false)}
-                className="text-sm text-[hsl(215_20%_70%)] hover:text-white transition-colors"
-              >
-                {l.label}
-              </a>
-            ))}
+            {links.map((l) =>
+              l.isRoute ? (
+                <Link
+                  key={l.href}
+                  to={l.href}
+                  onClick={() => setMenuOpen(false)}
+                  className="text-sm text-[hsl(215_20%_70%)] hover:text-white transition-colors"
+                >
+                  {l.label}
+                </Link>
+              ) : (
+                <a
+                  key={l.href}
+                  href={l.href}
+                  onClick={() => setMenuOpen(false)}
+                  className="text-sm text-[hsl(215_20%_70%)] hover:text-white transition-colors"
+                >
+                  {l.label}
+                </a>
+              )
+            )}
             <button
               onClick={() => { setMenuOpen(false); setModalOpen(true); }}
               className="text-sm gradient-primary text-white px-4 py-2 rounded-lg font-medium text-center glow-primary"

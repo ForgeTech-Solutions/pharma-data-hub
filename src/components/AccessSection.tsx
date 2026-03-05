@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import {
-  CheckCircle2, ArrowRight, Zap, Shield, RefreshCw, BarChart3,
-  Sparkles, Lock, Crown, Code2, Infinity, Check, X, ChevronRight
+  ArrowRight, Zap, Shield, RefreshCw, BarChart3,
+  Sparkles, Lock, Crown, Code2, Infinity, Check, X,
 } from "lucide-react";
 import AccessRequestModal from "@/components/AccessRequestModal";
 
@@ -10,12 +10,12 @@ const packs = [
     id: "FREE",
     name: "FREE",
     tagline: "Pour découvrir",
-    desc: "Accès de base à la nomenclature nationale.",
+    desc: "Accès de base à la nomenclature nationale. Parfait pour tester l'API et développer un prototype.",
     color: "hsl(215 28% 50%)",
     colorBg: "hsl(215 28% 50% / 0.08)",
     colorBorder: "hsl(215 28% 50% / 0.25)",
+    quotaLabel: "100 req / jour",
     icon: Sparkles,
-    quota: { day: "100 req/j", month: "1 000 req/mois" },
     features: [
       { label: "Liste des médicaments", ok: true },
       { label: "Recherche (nom, DCI, labo)", ok: true },
@@ -32,12 +32,12 @@ const packs = [
     id: "PRO",
     name: "PRO",
     tagline: "Pour les professionnels",
-    desc: "Requêtes illimitées et accès DCI & export.",
+    desc: "Requêtes illimitées, accès DCI groupé et export complet. Idéal pour les pharmacies et éditeurs.",
     color: "hsl(210 80% 50%)",
     colorBg: "hsl(210 80% 50% / 0.08)",
     colorBorder: "hsl(210 80% 50% / 0.3)",
+    quotaLabel: "Illimité",
     icon: Code2,
-    quota: { day: "Illimité", month: "Illimité" },
     features: [
       { label: "Liste des médicaments", ok: true },
       { label: "Recherche (nom, DCI, labo)", ok: true },
@@ -54,12 +54,12 @@ const packs = [
     id: "INSTITUTIONNEL",
     name: "INSTITUTIONNEL",
     tagline: "Pour les établissements",
-    desc: "Accès complet avec stats et tableau de bord.",
+    desc: "Accès complet avec statistiques avancées et tableau de bord. Pour hôpitaux, CHU et ministères.",
     color: "hsl(142 72% 37%)",
     colorBg: "hsl(142 72% 37% / 0.08)",
     colorBorder: "hsl(142 72% 37% / 0.35)",
+    quotaLabel: "Illimité",
     icon: Shield,
-    quota: { day: "Illimité", month: "Illimité" },
     features: [
       { label: "Liste des médicaments", ok: true },
       { label: "Recherche (nom, DCI, labo)", ok: true },
@@ -76,12 +76,12 @@ const packs = [
     id: "DÉVELOPPEUR",
     name: "DÉVELOPPEUR",
     tagline: "Pour les éditeurs logiciels",
-    desc: "Accès complet, sandbox et SLA dédié.",
+    desc: "Accès complet, sandbox de test, SLA dédié et support prioritaire. Pour les intégrateurs métier.",
     color: "hsl(262 72% 55%)",
     colorBg: "hsl(262 72% 55% / 0.08)",
     colorBorder: "hsl(262 72% 55% / 0.3)",
+    quotaLabel: "Illimité",
     icon: Crown,
-    quota: { day: "Illimité", month: "Illimité" },
     features: [
       { label: "Liste des médicaments", ok: true },
       { label: "Recherche (nom, DCI, labo)", ok: true },
@@ -103,17 +103,9 @@ const stats = [
   { icon: Shield,    value: "24/7",   label: "Support",       sub: "équipe dédiée" },
 ];
 
-const quotaRows = [
-  { pack: "FREE",          color: "hsl(215 28% 50%)", day: "100",       month: "1 000",    access: "Liste, recherche, détail" },
-  { pack: "PRO",           color: "hsl(210 80% 50%)", day: "Illimité",  month: "Illimité", access: "+ DCI groupée, export CSV" },
-  { pack: "INSTITUTIONNEL",color: "hsl(142 72% 37%)", day: "Illimité",  month: "Illimité", access: "+ Statistiques, dashboard" },
-  { pack: "DÉVELOPPEUR",   color: "hsl(262 72% 55%)", day: "Illimité",  month: "Illimité", access: "Accès complet + sandbox" },
-];
-
 export default function AccessSection() {
   const sectionRef = useRef<HTMLElement>(null);
   const cardRefs   = useRef<(HTMLDivElement | null)[]>([]);
-  const tableRef   = useRef<HTMLDivElement>(null);
   const statsRef   = useRef<HTMLDivElement>(null);
   const [modalOpen, setModalOpen]   = useState(false);
   const [selectedType, setSelectedType] = useState("");
@@ -124,7 +116,7 @@ export default function AccessSection() {
       (entries) => entries.forEach((e) => e.isIntersecting && e.target.classList.add("visible")),
       { threshold: 0.05 }
     );
-    [sectionRef, statsRef, tableRef].forEach((r) => r.current && observer.observe(r.current));
+    [sectionRef, statsRef].forEach((r) => r.current && observer.observe(r.current));
     cardRefs.current.forEach((r) => r && observer.observe(r));
     return () => observer.disconnect();
   }, []);
@@ -154,7 +146,7 @@ export default function AccessSection() {
           </div>
 
           {/* ── Pack cards ── */}
-          <div className="grid sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-14">
+          <div className="grid sm:grid-cols-2 xl:grid-cols-4 gap-5 mb-14">
             {packs.map((pack, i) => (
               <div
                 key={pack.id}
@@ -162,15 +154,19 @@ export default function AccessSection() {
                 className="section-fade group relative flex flex-col rounded-2xl border overflow-hidden transition-all duration-500 hover:-translate-y-2"
                 style={{
                   transitionDelay: `${pack.delay}ms`,
-                  background: pack.featured ? `linear-gradient(160deg, hsl(215 28% 9%), hsl(142 40% 10%))` : "hsl(var(--card))",
+                  background: pack.featured
+                    ? `linear-gradient(160deg, hsl(215 28% 9%), hsl(142 40% 10%))`
+                    : "hsl(var(--card))",
                   borderColor: pack.featured ? pack.color : "hsl(var(--border))",
-                  boxShadow: pack.featured ? `0 0 0 1px ${pack.colorBorder}, 0 24px 60px -12px ${pack.colorBg}` : undefined,
+                  boxShadow: pack.featured
+                    ? `0 0 0 1px ${pack.colorBorder}, 0 32px 64px -16px ${pack.colorBg}`
+                    : undefined,
                 }}
               >
                 {/* Featured ribbon */}
                 {pack.featured && (
                   <div
-                    className="absolute top-0 right-0 text-[9px] font-black uppercase tracking-widest px-3 py-1 text-white rounded-bl-xl"
+                    className="absolute top-0 right-0 text-[9px] font-black uppercase tracking-widest px-3 py-1.5 text-white rounded-bl-xl z-10"
                     style={{ background: pack.color }}
                   >
                     Recommandé
@@ -178,25 +174,39 @@ export default function AccessSection() {
                 )}
 
                 {/* Color accent top bar */}
-                <div className="h-[3px] w-full shrink-0" style={{ background: pack.color }} />
+                <div className="h-1 w-full shrink-0" style={{ background: pack.color }} />
 
-                <div className="p-5 flex flex-col flex-1">
+                {/* Background icon watermark */}
+                <div
+                  className="absolute bottom-4 right-4 pointer-events-none select-none transition-all duration-500 group-hover:scale-110 group-hover:opacity-100"
+                  style={{ opacity: 0.06 }}
+                >
+                  <pack.icon
+                    style={{
+                      width: 80,
+                      height: 80,
+                      color: pack.color,
+                    }}
+                  />
+                </div>
+
+                <div className="p-6 flex flex-col flex-1 relative z-10">
                   {/* Icon + pack name */}
-                  <div className="flex items-center gap-3 mb-4">
+                  <div className="flex items-start gap-3 mb-5">
                     <div
-                      className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 transition-transform duration-300 group-hover:scale-110"
+                      className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-transform duration-300 group-hover:scale-110"
                       style={{ background: pack.colorBg }}
                     >
-                      <pack.icon className="w-4 h-4" style={{ color: pack.color }} />
+                      <pack.icon className="w-5 h-5" style={{ color: pack.color }} />
                     </div>
                     <div>
                       <div
-                        className="text-[10px] font-black uppercase tracking-widest leading-none"
+                        className="text-[11px] font-black uppercase tracking-widest leading-none mb-0.5"
                         style={{ color: pack.color }}
                       >
                         {pack.name}
                       </div>
-                      <div className={`text-[11px] mt-0.5 ${pack.featured ? "text-white/60" : "text-muted-foreground"}`}>
+                      <div className={`text-xs ${pack.featured ? "text-white/60" : "text-muted-foreground"}`}>
                         {pack.tagline}
                       </div>
                     </div>
@@ -204,21 +214,21 @@ export default function AccessSection() {
 
                   {/* Quota pill */}
                   <div
-                    className="flex items-center gap-1.5 text-[11px] font-semibold px-3 py-1.5 rounded-lg mb-4 w-fit"
+                    className="inline-flex items-center gap-1.5 text-[11px] font-bold px-3 py-1.5 rounded-lg mb-5 w-fit"
                     style={{ background: pack.colorBg, color: pack.color }}
                   >
-                    {pack.quota.day === "Illimité"
+                    {pack.quotaLabel === "Illimité"
                       ? <><Infinity className="w-3.5 h-3.5" /> Illimité</>
-                      : <><Zap className="w-3 h-3" /> {pack.quota.day}</>
+                      : <><Zap className="w-3 h-3" /> {pack.quotaLabel}</>
                     }
                   </div>
 
-                  <p className={`text-xs mb-5 leading-relaxed ${pack.featured ? "text-white/60" : "text-muted-foreground"}`}>
+                  <p className={`text-xs mb-6 leading-relaxed ${pack.featured ? "text-white/60" : "text-muted-foreground"}`}>
                     {pack.desc}
                   </p>
 
                   {/* Feature list */}
-                  <ul className="space-y-2 mb-6 flex-1">
+                  <ul className="space-y-2.5 mb-7 flex-1">
                     {pack.features.map((f) => (
                       <li key={f.label} className="flex items-center gap-2 text-xs">
                         {f.ok
@@ -226,7 +236,7 @@ export default function AccessSection() {
                           : <X className="w-3.5 h-3.5 shrink-0 text-muted-foreground/40" />
                         }
                         <span className={f.ok
-                          ? pack.featured ? "text-white/80" : "text-foreground"
+                          ? pack.featured ? "text-white/85" : "text-foreground"
                           : "text-muted-foreground/40 line-through"
                         }>
                           {f.label}
@@ -238,7 +248,7 @@ export default function AccessSection() {
                   {/* CTA */}
                   <button
                     onClick={() => openModal(pack.name)}
-                    className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-bold transition-all duration-300 group/btn"
+                    className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-xs font-bold transition-all duration-300 group/btn"
                     style={{ background: pack.colorBg, color: pack.color }}
                     onMouseEnter={(e) => {
                       (e.currentTarget as HTMLButtonElement).style.background = pack.color;
@@ -252,67 +262,6 @@ export default function AccessSection() {
                     {pack.cta}
                     <ArrowRight className="w-3.5 h-3.5 transition-transform duration-200 group-hover/btn:translate-x-1" />
                   </button>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* ── Quota comparison table ── */}
-          <div
-            ref={tableRef}
-            className="section-fade mb-14 rounded-2xl border border-border overflow-hidden"
-            style={{ transitionDelay: "200ms" }}
-          >
-            {/* Table header */}
-            <div className="grid grid-cols-4 bg-muted/60 border-b border-border text-[11px] font-black uppercase tracking-widest text-muted-foreground">
-              <div className="px-5 py-3.5">Pack</div>
-              <div className="px-5 py-3.5 text-center">Req / jour</div>
-              <div className="px-5 py-3.5 text-center">Req / mois</div>
-              <div className="px-5 py-3.5">Accès inclus</div>
-            </div>
-
-            {quotaRows.map((row, i) => (
-              <div
-                key={row.pack}
-                className={`grid grid-cols-4 text-sm items-center transition-colors duration-150 hover:bg-muted/30 ${i < quotaRows.length - 1 ? "border-b border-border" : ""}`}
-              >
-                {/* Pack name */}
-                <div className="px-5 py-4 flex items-center gap-2.5">
-                  <span
-                    className="w-2 h-2 rounded-full shrink-0"
-                    style={{ background: row.color }}
-                  />
-                  <span className="font-bold text-foreground text-xs tracking-wide">{row.pack}</span>
-                </div>
-
-                {/* Day quota */}
-                <div className="px-5 py-4 text-center">
-                  {row.day === "Illimité"
-                    ? <span className="inline-flex items-center gap-1 text-xs font-semibold" style={{ color: row.color }}>
-                        <Infinity className="w-3.5 h-3.5" /> Illimité
-                      </span>
-                    : <span className="inline-flex items-center justify-center w-16 mx-auto text-xs font-bold px-2 py-0.5 rounded-full" style={{ background: `${row.color}15`, color: row.color }}>
-                        {row.day}
-                      </span>
-                  }
-                </div>
-
-                {/* Month quota */}
-                <div className="px-5 py-4 text-center">
-                  {row.month === "Illimité"
-                    ? <span className="inline-flex items-center gap-1 text-xs font-semibold" style={{ color: row.color }}>
-                        <Infinity className="w-3.5 h-3.5" /> Illimité
-                      </span>
-                    : <span className="inline-flex items-center justify-center w-20 mx-auto text-xs font-bold px-2 py-0.5 rounded-full" style={{ background: `${row.color}15`, color: row.color }}>
-                        {row.month}
-                      </span>
-                  }
-                </div>
-
-                {/* Access */}
-                <div className="px-5 py-4 flex items-center gap-1.5 text-xs text-muted-foreground">
-                  <ChevronRight className="w-3 h-3 shrink-0" style={{ color: row.color }} />
-                  {row.access}
                 </div>
               </div>
             ))}
