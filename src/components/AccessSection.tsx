@@ -236,13 +236,14 @@ export default function AccessSection() {
                     >
                       {pack.cta}
                       <ArrowRight className="w-3.5 h-3.5 transition-transform duration-200 group-hover/btn:translate-x-1" />
-                     </button>
-                  </div>{/* /CTA wrapper */}
-                </div>{/* /px-6 content row */}
-                </div>{/* /inner card */}
-              </div>{/* /outer glow-border */}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
             );
           })()}
+
 
           {/* PRO / INSTITUTIONNEL / DÉVELOPPEUR — 3-column grid */}
           <div className="grid sm:grid-cols-3 gap-5 mb-14">
