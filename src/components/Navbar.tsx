@@ -1,19 +1,22 @@
 import { useState, useEffect } from "react";
-import { Menu, X } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Menu, X, LayoutDashboard, LogOut } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import AccessRequestModal from "@/components/AccessRequestModal";
 import logo from "@/assets/logo_npp.png";
 
 export default function Navbar() {
   const { t, i18n } = useTranslation();
+  const navigate = useNavigate();
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
     const handler = () => setScrolled(window.scrollY > 20);
     window.addEventListener("scroll", handler);
+    setIsLoggedIn(!!localStorage.getItem("npp_token"));
     return () => window.removeEventListener("scroll", handler);
   }, []);
 
@@ -21,6 +24,14 @@ export default function Navbar() {
     const next = i18n.language === "fr" ? "en" : "fr";
     i18n.changeLanguage(next);
     localStorage.setItem("lang", next);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("npp_token");
+    localStorage.removeItem("npp_pack");
+    localStorage.removeItem("npp_approved");
+    setIsLoggedIn(false);
+    navigate("/login");
   };
 
   const links = [
@@ -85,12 +96,31 @@ export default function Navbar() {
             >
               {t("nav.explorer")}
             </Link>
-            <button
-              onClick={() => setModalOpen(true)}
-              className="text-sm gradient-primary text-white px-4 py-1.5 rounded-lg font-medium hover:opacity-90 transition-all duration-200 glow-primary hover:scale-105"
-            >
-              {t("nav.requestAccess")}
-            </button>
+            {isLoggedIn ? (
+              <>
+                <Link
+                  to="/dashboard"
+                  className="flex items-center gap-1.5 text-sm text-[hsl(215_20%_70%)] hover:text-white transition-colors px-3 py-1.5"
+                >
+                  <LayoutDashboard size={14} />
+                  Mon Espace
+                </Link>
+                <button
+                  onClick={handleLogout}
+                  className="flex items-center gap-1.5 text-sm text-[hsl(215_20%_65%)] hover:text-[hsl(0_72%_60%)] transition-colors px-3 py-1.5 rounded-lg hover:bg-[hsl(0_72%_37%/0.1)] border border-transparent hover:border-[hsl(0_72%_37%/0.3)]"
+                >
+                  <LogOut size={14} />
+                  Déconnexion
+                </button>
+              </>
+            ) : (
+              <button
+                onClick={() => setModalOpen(true)}
+                className="text-sm gradient-primary text-white px-4 py-1.5 rounded-lg font-medium hover:opacity-90 transition-all duration-200 glow-primary hover:scale-105"
+              >
+                {t("nav.requestAccess")}
+              </button>
+            )}
           </div>
 
           <button
@@ -130,12 +160,30 @@ export default function Navbar() {
             >
               {i18n.language === "fr" ? "🇬🇧 Switch to English" : "🇫🇷 Passer en Français"}
             </button>
-            <button
-              onClick={() => { setMenuOpen(false); setModalOpen(true); }}
-              className="text-sm gradient-primary text-white px-4 py-2 rounded-lg font-medium text-center glow-primary"
-            >
-              {t("nav.requestAccess")}
-            </button>
+            {isLoggedIn ? (
+              <>
+                <Link
+                  to="/dashboard"
+                  onClick={() => setMenuOpen(false)}
+                  className="flex items-center justify-center gap-2 text-sm text-[hsl(215_20%_70%)] hover:text-white transition-colors py-2"
+                >
+                  <LayoutDashboard size={14} /> Mon Espace
+                </Link>
+                <button
+                  onClick={() => { setMenuOpen(false); handleLogout(); }}
+                  className="text-sm text-[hsl(0_72%_60%)] border border-[hsl(0_72%_37%/0.4)] px-4 py-2 rounded-lg text-center hover:bg-[hsl(0_72%_37%/0.12)] transition-all"
+                >
+                  Déconnexion
+                </button>
+              </>
+            ) : (
+              <button
+                onClick={() => { setMenuOpen(false); setModalOpen(true); }}
+                className="text-sm gradient-primary text-white px-4 py-2 rounded-lg font-medium text-center glow-primary"
+              >
+                {t("nav.requestAccess")}
+              </button>
+            )}
           </div>
         )}
       </nav>
