@@ -185,7 +185,13 @@ export default function AccessSection() {
                       <meta.icon className="w-4 h-4" style={{ color: meta.color }} />
                     </div>
                     <div>
-                      <div className="text-[10px] font-black uppercase tracking-widest" style={{ color: meta.color }}>{meta.id}</div>
+                      <div className="flex items-center gap-2">
+                        <div className="text-[10px] font-black uppercase tracking-widest" style={{ color: meta.color }}>{meta.id}</div>
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-widest text-white"
+                          style={{ background: "linear-gradient(135deg, hsl(142 72% 37%), hsl(162 72% 42%))" }}>
+                          Gratuit
+                        </span>
+                      </div>
                       <div className="text-xs text-muted-foreground">{pack.tagline}</div>
                     </div>
                   </div>
