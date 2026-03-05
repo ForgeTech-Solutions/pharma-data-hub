@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import {
   ArrowRight, Zap, Shield, RefreshCw, BarChart3,
@@ -17,12 +18,15 @@ const STAT_ICONS = [BarChart3, Zap, RefreshCw, Shield];
 
 export default function AccessSection() {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const sectionRef = useRef<HTMLElement>(null);
   const cardRefs   = useRef<(HTMLDivElement | null)[]>([]);
   const statsRef   = useRef<HTMLDivElement>(null);
   const [modalOpen, setModalOpen]   = useState(false);
   const [selectedType, setSelectedType] = useState("");
   const [hoveredStat, setHoveredStat]   = useState<number | null>(null);
+
+  const isLoggedIn = !!localStorage.getItem("npp_token");
 
   const packs = t("access.packs", { returnObjects: true }) as Array<{
     tagline: string; desc: string; quotaLabel: string; cta: string;
@@ -41,6 +45,18 @@ export default function AccessSection() {
   }, []);
 
   const openModal = (packId: string) => { setSelectedType(packId); setModalOpen(true); };
+
+  // CTA per pack: FREE → /signup, others → modal if not logged in, dashboard/pack if logged in
+  const handleCta = (packId: string, index: number) => {
+    if (index === 0) {
+      // FREE pack → always go to signup
+      navigate(`/signup?pack=${packId}`);
+    } else if (isLoggedIn) {
+      navigate("/dashboard/pack");
+    } else {
+      openModal(packId);
+    }
+  };
 
   return (
     <>
@@ -130,23 +146,14 @@ export default function AccessSection() {
                     </ul>
 
                 <button
-                  onClick={() => openModal(meta.id)}
+                  onClick={() => handleCta(meta.id, i)}
                   className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-xs font-bold transition-all duration-300 group/btn"
                   style={{ background: meta.colorBg, color: meta.color }}
                   onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = meta.color; (e.currentTarget as HTMLButtonElement).style.color = "#fff"; }}
                   onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = meta.colorBg; (e.currentTarget as HTMLButtonElement).style.color = meta.color; }}
                 >
-                  {i === 0 ? (
-                    <a href="/signup" className="flex items-center gap-2 w-full justify-center" onClick={(e) => e.stopPropagation()}>
-                      {pack.cta}
-                      <ArrowRight className="w-3.5 h-3.5 transition-transform duration-200 group-hover/btn:translate-x-1" />
-                    </a>
-                  ) : (
-                    <>
-                      {pack.cta}
-                      <ArrowRight className="w-3.5 h-3.5 transition-transform duration-200 group-hover/btn:translate-x-1" />
-                    </>
-                  )}
+                  {pack.cta}
+                  <ArrowRight className="w-3.5 h-3.5 transition-transform duration-200 group-hover/btn:translate-x-1" />
                 </button>
                   </div>
                 </div>
