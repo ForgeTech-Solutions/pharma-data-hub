@@ -17,6 +17,9 @@ import DashboardPassword from "./pages/DashboardPassword";
 import DashboardDelete from "./pages/DashboardDelete";
 import DashboardTokens from "./pages/DashboardTokens";
 import PageTransition from "./components/PageTransition";
+import MentionsLegales from "./pages/MentionsLegales";
+import PolitiqueConfidentialite from "./pages/PolitiqueConfidentialite";
+import Contact from "./pages/Contact";
 
 const queryClient = new QueryClient();
 
@@ -37,6 +40,9 @@ function AnimatedRoutes() {
         <Route path="/dashboard/password" element={<DashboardPassword />} />
         <Route path="/dashboard/delete" element={<DashboardDelete />} />
         <Route path="/dashboard/tokens" element={<DashboardTokens />} />
+        <Route path="/mentions-legales" element={<MentionsLegales />} />
+        <Route path="/politique-confidentialite" element={<PolitiqueConfidentialite />} />
+        <Route path="/contact" element={<Contact />} />
         {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
         <Route path="*" element={<NotFound />} />
       </Routes>

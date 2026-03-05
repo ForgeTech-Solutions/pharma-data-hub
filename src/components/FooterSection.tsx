@@ -6,28 +6,27 @@ const LINK_GROUPS = [
   {
     titleKey: "footer.col1.title",
     items: [
-      { labelKey: "footer.col1.link1", href: "/docs",      icon: FileText   },
-      { labelKey: "footer.col1.link2", href: "/docs",      icon: ExternalLink },
-      { labelKey: "footer.col1.link3", href: "/#features", icon: null        },
-      { labelKey: "footer.col1.link4", href: "/#access",   icon: null        },
+      { labelKey: "footer.col1.link1", href: "/docs",           icon: FileText },
+      { labelKey: "footer.col1.link3", href: "/#features",      icon: null     },
+      { labelKey: "footer.col1.link4", href: "/#access",        icon: null     },
     ],
   },
   {
     titleKey: "footer.col2.title",
     items: [
-      { labelKey: "footer.col2.link1", href: "/#usecases", icon: null },
-      { labelKey: "footer.col2.link2", href: "/actualites", icon: null },
-      { labelKey: "footer.col2.link3", href: "/#access",   icon: null },
-      { labelKey: "footer.col2.link4", href: "mailto:api@msprh.dz", icon: Mail },
+      { labelKey: "footer.col2.link1", href: "/#usecases",          icon: null },
+      { labelKey: "footer.col2.link2", href: "/actualites",          icon: null },
+      { labelKey: "footer.col2.link3", href: "/#access",             icon: null },
+      { labelKey: "footer.col2.link4", href: "/contact",             icon: Mail },
     ],
   },
   {
     titleKey: "footer.col3.title",
     items: [
-      { labelKey: "footer.col3.link1", href: "#", icon: null },
-      { labelKey: "footer.col3.link2", href: "#", icon: null },
-      { labelKey: "footer.col3.link3", href: "#", icon: Github },
-      { labelKey: "footer.col3.link4", href: "#", icon: null },
+      { labelKey: "footer.col3.link1", href: "/mentions-legales",        icon: null   },
+      { labelKey: "footer.col3.link2", href: "/politique-confidentialite", icon: null  },
+      { labelKey: "footer.col3.link3", href: "#",                         icon: Github },
+      { labelKey: "footer.col3.link4", href: "#",                         icon: null   },
     ],
   },
 ];
@@ -45,7 +44,7 @@ export default function FooterSection() {
           {/* Brand column — spans 2 on lg */}
           <div className="lg:col-span-2 flex flex-col gap-5">
             <div className="flex items-center gap-3">
-              <img src={logo} alt="API NPP" className="h-14 w-auto opacity-90" />
+              <img src={logo} alt="API NPP" className="w-full max-w-[220px] h-auto opacity-90" />
             </div>
             <p className="text-sm leading-relaxed max-w-xs" style={{ color: "hsl(215 20% 50%)" }}>
               {t("footer.slogan")}
