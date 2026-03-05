@@ -33,13 +33,8 @@ export default function Navbar() {
         }`}
       >
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-          <a href="#" className="flex items-center gap-2.5 group">
-            <span className="w-8 h-8 rounded-lg gradient-primary flex items-center justify-center text-white font-bold text-sm glow-primary animate-pulse-green">
-              Rx
-            </span>
-            <span className="text-white font-semibold text-sm tracking-tight">
-              API <span className="text-gradient">NPP</span>
-            </span>
+          <a href="#" className="flex items-center group">
+            <img src={logo} alt="API Nomenclature NPP" className="h-9 w-auto" />
           </a>
 
           <div className="hidden md:flex items-center gap-6">
