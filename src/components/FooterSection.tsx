@@ -7,7 +7,9 @@ export default function FooterSection() {
         <div className="flex flex-col md:flex-row items-center justify-between gap-6">
           {/* Brand */}
           <div className="flex items-center">
-            <img src={logo} alt="API Nomenclature NPP" className="h-10 w-auto opacity-90" />
+            <div className="bg-white/95 rounded-xl px-4 py-2 shadow-md">
+              <img src={logo} alt="API Nomenclature NPP" className="h-12 w-auto" />
+            </div>
           </div>
 
           {/* Links */}
