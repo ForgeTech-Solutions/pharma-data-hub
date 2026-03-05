@@ -46,6 +46,18 @@ export default function AccessSection() {
 
   const openModal = (packId: string) => { setSelectedType(packId); setModalOpen(true); };
 
+  // CTA per pack: FREE → /signup, others → modal if not logged in, dashboard/pack if logged in
+  const handleCta = (packId: string, index: number) => {
+    if (index === 0) {
+      // FREE pack → always go to signup
+      navigate(`/signup?pack=${packId}`);
+    } else if (isLoggedIn) {
+      navigate("/dashboard/pack");
+    } else {
+      openModal(packId);
+    }
+  };
+
   return (
     <>
       <section id="access" ref={sectionRef} className="py-28 bg-background section-fade overflow-hidden">
