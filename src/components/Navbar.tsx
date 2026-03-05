@@ -160,12 +160,30 @@ export default function Navbar() {
             >
               {i18n.language === "fr" ? "🇬🇧 Switch to English" : "🇫🇷 Passer en Français"}
             </button>
-            <button
-              onClick={() => { setMenuOpen(false); setModalOpen(true); }}
-              className="text-sm gradient-primary text-white px-4 py-2 rounded-lg font-medium text-center glow-primary"
-            >
-              {t("nav.requestAccess")}
-            </button>
+            {isLoggedIn ? (
+              <>
+                <Link
+                  to="/dashboard"
+                  onClick={() => setMenuOpen(false)}
+                  className="flex items-center justify-center gap-2 text-sm text-[hsl(215_20%_70%)] hover:text-white transition-colors py-2"
+                >
+                  <LayoutDashboard size={14} /> Mon Espace
+                </Link>
+                <button
+                  onClick={() => { setMenuOpen(false); handleLogout(); }}
+                  className="text-sm text-[hsl(0_72%_60%)] border border-[hsl(0_72%_37%/0.4)] px-4 py-2 rounded-lg text-center hover:bg-[hsl(0_72%_37%/0.12)] transition-all"
+                >
+                  Déconnexion
+                </button>
+              </>
+            ) : (
+              <button
+                onClick={() => { setMenuOpen(false); setModalOpen(true); }}
+                className="text-sm gradient-primary text-white px-4 py-2 rounded-lg font-medium text-center glow-primary"
+              >
+                {t("nav.requestAccess")}
+              </button>
+            )}
           </div>
         )}
       </nav>
