@@ -19,6 +19,7 @@ export default function Navbar() {
     { label: "Cas d'usage", href: "#usecases" },
     { label: "Accès", href: "#access" },
     { label: "Endpoints", href: "#endpoints" },
+    { label: "Actualités", href: "/actualites", isRoute: true },
   ];
 
   return (
