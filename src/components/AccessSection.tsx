@@ -1,6 +1,7 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { useHealth } from "@/hooks/useHealth";
 import {
   ArrowRight, Zap, Shield, RefreshCw, BarChart3,
   Sparkles, Lock, Crown, Code2, Infinity, Check, X, Star,
@@ -85,12 +86,22 @@ export default function AccessSection() {
   const [statsTriggered, setStatsTriggered] = useState(false);
 
   const isLoggedIn = !!localStorage.getItem("npp_token");
+  const { data: health } = useHealth();
 
   const packs  = t("access.packs",  { returnObjects: true }) as Array<{
     tagline: string; desc: string; quotaLabel: string; cta: string;
     features: Array<{ label: string; ok: boolean }>;
   }>;
-  const stats = t("access.stats", { returnObjects: true }) as Array<{ value: string; label: string; sub: string }>;
+  const stats = useMemo(() => {
+    const base = t("access.stats", { returnObjects: true }) as Array<{ value: string; label: string; sub: string }>;
+    if (!health) return base;
+    return base.map((s, i) => {
+      if (i === 0) return { ...s, value: health.total_medicaments.toLocaleString("fr-DZ"), sub: `dont ${health.total_laboratoires} laboratoires` };
+      if (i === 1) return { ...s, value: `${health.uptime_percent.toFixed(2)}%`, sub: "uptime temps réel" };
+      if (i === 2) return { ...s, value: `${health.db_latency_ms.toFixed(1)}ms`, sub: "latence DB mesurée" };
+      return s;
+    });
+  }, [t, health]);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -116,7 +127,7 @@ export default function AccessSection() {
 
   return (
     <>
-      <section id="access" ref={sectionRef} className="py-14 bg-background section-fade overflow-hidden relative">
+      <section id="access" ref={sectionRef} className="pt-14 pb-0 bg-background section-fade overflow-hidden relative">
 
         {/* Background grid */}
         <div className="absolute inset-0 pointer-events-none opacity-[0.018]"
@@ -375,7 +386,7 @@ export default function AccessSection() {
           </div>
 
           {/* Auth notice */}
-          <div className="section-fade mb-14 flex items-start gap-3 px-5 py-4 rounded-xl border"
+          <div className="mb-4 flex items-start gap-3 px-5 py-4 rounded-xl border"
             style={{
               transitionDelay: "280ms",
               background: "hsl(142 72% 37% / 0.05)",
@@ -398,7 +409,7 @@ export default function AccessSection() {
           </div>
 
           {/* Stats banner */}
-          <div ref={statsRef} className="section-fade relative rounded-3xl overflow-hidden gradient-hero"
+          <div ref={statsRef} className="relative rounded-3xl overflow-hidden gradient-hero"
             style={{ transitionDelay: "320ms" }}>
             <div className="absolute inset-0 opacity-[0.03]"
               style={{
@@ -409,7 +420,7 @@ export default function AccessSection() {
             <div className="absolute top-0 left-0 right-0 h-px"
               style={{ background: "linear-gradient(90deg, transparent, hsl(142 72% 37% / 0.5), hsl(262 72% 55% / 0.3), transparent)" }} />
 
-            <div className="relative px-8 py-12 grid grid-cols-2 md:grid-cols-4 gap-8">
+            <div className="relative px-8 py-6 grid grid-cols-2 md:grid-cols-4 gap-6">
               {stats.map((s, i) => (
                 <StatCell key={i} s={s} i={i} triggered={statsTriggered} />
               ))}

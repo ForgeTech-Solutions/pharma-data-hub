@@ -4,12 +4,12 @@ import { authApi } from "@/lib/api";
 import { useAuth } from "@/hooks/useAuth";
 import { scheduleTokenRefresh } from "@/lib/api";
 import logo from "@/assets/logo_npp.png";
-import { LogIn, Eye, EyeOff, AlertCircle, CheckCircle2, Clock, Info, Shield, Zap, Database } from "lucide-react";
+import { LogIn, Eye, EyeOff, AlertCircle, CheckCircle2, Clock, Info, Shield, Zap, Database, Activity, FlaskConical } from "lucide-react";
+import { useHealth } from "@/hooks/useHealth";
 
-// Mini trust badges shown on the side panel
 const TRUST = [
   { icon: Shield,   label: "JWT sécurisé",      sub: "Token Bearer 30 min"  },
-  { icon: Database, label: "7 000+ médicaments", sub: "Base nationale MSPRH" },
+  { icon: Database, label: "Base officielle",    sub: "Nomenclature MSPRH"   },
   { icon: Zap,      label: "< 100ms",            sub: "Latence moyenne"       },
 ];
 
@@ -114,11 +114,14 @@ export default function Login() {
               </div>
             ))}
           </div>
+
+          {/* Live stats */}
+          <LiveStats />
         </div>
 
         {/* Bottom: legal */}
         <p className="relative z-10 text-[10px]" style={{ color: "hsl(215 20% 35%)" }}>
-          © 2025–2026 API NPP · MSPRH · République Algérienne
+          © 2025–2026 API NPP · ForgeTech Solutions
         </p>
       </div>
 
@@ -254,6 +257,58 @@ function Banner({ icon: Icon, color, title, body }: { icon: React.ElementType; c
         {title && <strong className="text-white block mb-0.5">{title}</strong>}
         <span style={{ color: `hsl(${color})` }}>{body}</span>
       </div>
+    </div>
+  );
+}
+
+function LiveStats() {
+  const { data: h, loading } = useHealth();
+  const stats = [
+    {
+      icon: Database,
+      value: loading ? "—" : (h?.total_medicaments ?? 0).toLocaleString("fr-DZ"),
+      label: "Médicaments",
+      color: "hsl(142 72% 50%)",
+      bg: "hsl(142 72% 37% / 0.1)",
+      border: "hsl(142 72% 37% / 0.22)",
+    },
+    {
+      icon: FlaskConical,
+      value: loading ? "—" : String(h?.total_laboratoires ?? 0),
+      label: "Laboratoires",
+      color: "hsl(210 80% 60%)",
+      bg: "hsl(210 80% 50% / 0.1)",
+      border: "hsl(210 80% 50% / 0.22)",
+    },
+    {
+      icon: Activity,
+      value: loading ? "—" : `${(h?.uptime_percent ?? 0).toFixed(1)}%`,
+      label: "Disponibilité",
+      color: "hsl(262 72% 65%)",
+      bg: "hsl(262 72% 55% / 0.1)",
+      border: "hsl(262 72% 55% / 0.22)",
+    },
+    {
+      icon: Zap,
+      value: loading ? "—" : `${h?.db_latency_ms ?? 0}ms`,
+      label: "Latence DB",
+      color: "hsl(38 90% 55%)",
+      bg: "hsl(38 90% 38% / 0.1)",
+      border: "hsl(38 90% 38% / 0.22)",
+    },
+  ];
+  return (
+    <div className="grid grid-cols-2 gap-2">
+      {stats.map(({ icon: Icon, value, label, color, bg, border }) => (
+        <div key={label} className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl"
+          style={{ background: bg, border: `1px solid ${border}` }}>
+          <Icon className="w-3.5 h-3.5 shrink-0" style={{ color }} />
+          <div>
+            <div className="text-sm font-black leading-none text-white">{value}</div>
+            <div className="text-[10px] mt-0.5" style={{ color: "hsl(215 20% 50%)" }}>{label}</div>
+          </div>
+        </div>
+      ))}
     </div>
   );
 }

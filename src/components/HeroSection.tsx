@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import AccessRequestModal from "@/components/AccessRequestModal";
 import { Link } from "react-router-dom";
 import { ArrowRight, UserPlus, Zap, Shield, Database } from "lucide-react";
+import { useHealth } from "@/hooks/useHealth";
 
 // ─── Animated counter ──────────────────────────────────────────────────────────
 function useCounter(target: number, duration = 1400, start = false) {
@@ -174,11 +175,7 @@ function FloatingParticles() {
   );
 }
 
-const STATS = [
-  { icon: Database, value: "7 000+", numTarget: 7000, suffix: "+", label: "Médicaments",      color: "hsl(142 72% 45%)" },
-  { icon: Zap,      value: "< 100ms", numTarget: null, suffix: null, label: "Latence",          color: "hsl(210 80% 55%)" },
-  { icon: Shield,   value: "JWT",     numTarget: null, suffix: null, label: "Authentification", color: "hsl(262 72% 60%)" },
-];
+
 
 function StatItem({ icon: Icon, value, numTarget, suffix, label, color, triggered }: {
   icon: React.ElementType; value: string; numTarget: number | null; suffix: string | null;
@@ -186,7 +183,7 @@ function StatItem({ icon: Icon, value, numTarget, suffix, label, color, triggere
 }) {
   const counted = useCounter(numTarget ?? 0, 1600, triggered && numTarget !== null);
   const displayValue = triggered && numTarget !== null
-    ? `${(counted / 1000).toFixed(0)} 000${suffix ?? ""}`
+    ? `${counted.toLocaleString("fr-DZ")}${suffix ?? ""}`
     : value;
 
   return (
@@ -205,9 +202,37 @@ function StatItem({ icon: Icon, value, numTarget, suffix, label, color, triggere
 
 export default function HeroSection() {
   const { t } = useTranslation();
+  const { data: health } = useHealth();
   const [modalOpen, setModalOpen] = useState(false);
   const statsRef   = useRef<HTMLDivElement>(null);
   const [statsTriggered, setStatsTriggered] = useState(false);
+
+  const STATS = [
+    {
+      icon: Database,
+      value: health?.total_medicaments ? health.total_medicaments.toLocaleString("fr-DZ") : "12 483",
+      numTarget: health?.total_medicaments ?? 12483,
+      suffix: "",
+      label: "Médicaments",
+      color: "hsl(142 72% 45%)",
+    },
+    {
+      icon: Zap,
+      value: health?.db_latency_ms != null ? `${health.db_latency_ms.toFixed(1)}ms` : "< 100ms",
+      numTarget: null as null,
+      suffix: null as null,
+      label: "Latence DB",
+      color: "hsl(210 80% 55%)",
+    },
+    {
+      icon: Shield,
+      value: health?.uptime_percent != null ? `${health.uptime_percent.toFixed(2)}%` : "99.9%",
+      numTarget: null as null,
+      suffix: null as null,
+      label: "Disponibilité",
+      color: "hsl(262 72% 60%)",
+    },
+  ];
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -302,7 +327,7 @@ export default function HeroSection() {
                   { label: "REST JSON",    color: "hsl(142 72% 37%)",  bg: "hsl(142 72% 37% / 0.1)",  border: "hsl(142 72% 37% / 0.3)"  },
                   { label: "HTTPS / TLS", color: "hsl(210 80% 50%)",  bg: "hsl(210 80% 50% / 0.1)",  border: "hsl(210 80% 50% / 0.3)"  },
                   { label: "MSPRH officiel", color: "hsl(38 72% 55%)", bg: "hsl(38 72% 37% / 0.1)",   border: "hsl(38 72% 37% / 0.3)"   },
-                  { label: "99.9% uptime",color: "hsl(262 72% 55%)",  bg: "hsl(262 72% 55% / 0.1)",  border: "hsl(262 72% 55% / 0.3)"  },
+                  { label: `${health?.uptime_percent?.toFixed(2) ?? "99.87"}% uptime`, color: "hsl(262 72% 55%)", bg: "hsl(262 72% 55% / 0.1)", border: "hsl(262 72% 55% / 0.3)" },
                 ].map(({ label, color, bg, border }) => (
                   <span key={label} className="text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-lg"
                     style={{ color, background: bg, border: `1px solid ${border}` }}>

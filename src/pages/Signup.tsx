@@ -4,8 +4,9 @@ import { authApi } from "@/lib/api";
 import logo from "@/assets/logo_npp.png";
 import {
   UserPlus, AlertCircle, CheckCircle2,
-  Sparkles, Code2, Shield, Crown, ArrowRight, Zap, Database,
+  Sparkles, Code2, Shield, Crown, ArrowRight, Zap, Database, Activity, FlaskConical,
 } from "lucide-react";
+import { useHealth } from "@/hooks/useHealth";
 
 const PACKS = [
   { id: "FREE",           label: "FREE",           sub: "100 req/j · gratuit",         icon: Sparkles, color: "hsl(215 28% 55%)", colorRaw: "215 28% 55%" },
@@ -137,10 +138,13 @@ export default function Signup() {
               </div>
             ))}
           </div>
+
+          {/* Live stats */}
+          <LiveStats />
         </div>
 
         <p className="relative z-10 text-[10px]" style={{ color: "hsl(215 20% 35%)" }}>
-          © 2025–2026 API NPP · MSPRH · République Algérienne
+          © 2025–2026 API NPP · ForgeTech Solutions
         </p>
       </div>
 
@@ -288,6 +292,58 @@ export default function Signup() {
           </div>
         </div>
       </div>
+    </div>
+  );
+}
+
+function LiveStats() {
+  const { data: h, loading } = useHealth();
+  const stats = [
+    {
+      icon: Database,
+      value: loading ? "—" : (h?.total_medicaments ?? 0).toLocaleString("fr-DZ"),
+      label: "Médicaments",
+      color: "hsl(142 72% 50%)",
+      bg: "hsl(142 72% 37% / 0.1)",
+      border: "hsl(142 72% 37% / 0.22)",
+    },
+    {
+      icon: FlaskConical,
+      value: loading ? "—" : String(h?.total_laboratoires ?? 0),
+      label: "Laboratoires",
+      color: "hsl(210 80% 60%)",
+      bg: "hsl(210 80% 50% / 0.1)",
+      border: "hsl(210 80% 50% / 0.22)",
+    },
+    {
+      icon: Activity,
+      value: loading ? "—" : `${(h?.uptime_percent ?? 0).toFixed(1)}%`,
+      label: "Disponibilité",
+      color: "hsl(262 72% 65%)",
+      bg: "hsl(262 72% 55% / 0.1)",
+      border: "hsl(262 72% 55% / 0.22)",
+    },
+    {
+      icon: Zap,
+      value: loading ? "—" : `${h?.db_latency_ms ?? 0}ms`,
+      label: "Latence DB",
+      color: "hsl(38 90% 55%)",
+      bg: "hsl(38 90% 38% / 0.1)",
+      border: "hsl(38 90% 38% / 0.22)",
+    },
+  ];
+  return (
+    <div className="grid grid-cols-2 gap-2">
+      {stats.map(({ icon: Icon, value, label, color, bg, border }) => (
+        <div key={label} className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl"
+          style={{ background: bg, border: `1px solid ${border}` }}>
+          <Icon className="w-3.5 h-3.5 shrink-0" style={{ color }} />
+          <div>
+            <div className="text-sm font-black leading-none text-white">{value}</div>
+            <div className="text-[10px] mt-0.5" style={{ color: "hsl(215 20% 50%)" }}>{label}</div>
+          </div>
+        </div>
+      ))}
     </div>
   );
 }

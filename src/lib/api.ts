@@ -1,4 +1,4 @@
-export const BASE_URL = "https://nnp.forge-solutions.tech/v1";
+export const BASE_URL = "https://npp.forge-solutions.tech/v1";
 
 // ─── JWT helpers ────────────────────────────────────────────────────────────
 
@@ -240,6 +240,28 @@ export interface UserPackDetail {
   };
   all_packs: string[];
   upgrade_message?: string;
+}
+
+// ─── Health endpoint ─────────────────────────────────────────────────────────
+
+export interface HealthData {
+  status: "ok" | "degraded" | "down";
+  version: string;
+  uptime: string;
+  uptime_seconds: number;
+  uptime_percent: number;
+  deployed_since: string;
+  db_latency_ms: number;
+  total_medicaments: number;
+  total_laboratoires: number;
+  derniere_mise_a_jour: string;
+  derniere_mise_a_jour_date: string;
+}
+
+export async function fetchHealth(): Promise<HealthData> {
+  const res = await fetch(`${BASE_URL}/health`);
+  if (!res.ok) throw new Error("health check failed");
+  return res.json() as Promise<HealthData>;
 }
 
 export const PACK_COLORS: Record<string, { color: string; bg: string; border: string; label: string }> = {
