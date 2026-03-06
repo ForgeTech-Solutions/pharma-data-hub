@@ -9,7 +9,7 @@ import {
 const FEATURE_CHIPS = [
   { icon: Search,    label: "Recherche full-text",    color: "hsl(142 72% 37%)",  bg: "hsl(142 72% 37% / 0.1)",  border: "hsl(142 72% 37% / 0.3)" },
   { icon: Database,  label: "7 000+ médicaments",    color: "hsl(210 80% 50%)",  bg: "hsl(210 80% 50% / 0.1)",  border: "hsl(210 80% 50% / 0.3)" },
-  { icon: Lock,      label: "JWT Bearer Auth",        color: "hsl(38 72% 55%)",   bg: "hsl(38 72% 37% / 0.1)",   border: "hsl(38 72% 37% / 0.3)"  },
+  { icon: Lock,      label: "Authentification par Clé API",        color: "hsl(38 72% 55%)",   bg: "hsl(38 72% 37% / 0.1)",   border: "hsl(38 72% 37% / 0.3)"  },
   { icon: Download,  label: "Export CSV",             color: "hsl(262 72% 55%)",  bg: "hsl(262 72% 55% / 0.1)",  border: "hsl(262 72% 55% / 0.3)" },
   { icon: BarChart3, label: "Dashboard & Stats",      color: "hsl(142 72% 37%)",  bg: "hsl(142 72% 37% / 0.1)",  border: "hsl(142 72% 37% / 0.3)" },
   { icon: Zap,       label: "< 100ms",               color: "hsl(210 80% 50%)",  bg: "hsl(210 80% 50% / 0.1)",  border: "hsl(210 80% 50% / 0.3)" },
@@ -18,7 +18,7 @@ const FEATURE_CHIPS = [
 const CODE_LINES = [
   { prompt: "$", cmd: "curl -X GET", accent: false },
   { prompt: " ", cmd: "  https://nnp.forge-solutions.tech/v1/medicaments/search?q=paracetamol", accent: false },
-  { prompt: " ", cmd: '  -H "Authorization: Bearer <token>"', accent: true },
+  { prompt: " ", cmd: '  -H "X-API-Key: npp_sk_votre_cle_api"', accent: true },
   { prompt: " ", cmd: "", accent: false },
   { prompt: "#", cmd: "← 200 OK · JSON · < 80ms", accent: true },
 ];
@@ -208,7 +208,7 @@ export default function EndpointsSection() {
             <div className="flex items-center gap-2 text-[11px] text-[hsl(215_20%_45%)]">
               <Lock size={11} />
               <span>Routes protégées :</span>
-              <code className="text-[hsl(215_20%_60%)]">Authorization: Bearer &lt;token&gt;</code>
+              <code className="text-[hsl(215_20%_60%)]">X-API-Key: npp_sk_...</code>
             </div>
             <code className="text-[11px] text-[hsl(215_20%_45%)] font-mono">
               https://nnp.forge-solutions.tech/v1

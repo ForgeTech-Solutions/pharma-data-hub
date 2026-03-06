@@ -194,7 +194,7 @@ export default function FooterSection() {
 
           {/* Version tags — right */}
           <div className="order-3 flex items-center gap-1.5">
-            {["v1.0", "REST", "JWT"].map((tag) => (
+            {["v1.0", "REST", "API Key"].map((tag) => (
               <span
                 key={tag}
                 className="text-[10px] font-bold px-2 py-0.5 rounded"

@@ -11,22 +11,15 @@ const SNIPPETS = {
     bg:    "hsl(142 72% 37% / 0.08)",
     border:"hsl(142 72% 37% / 0.3)",
     lines: [
-      { text: "# 1. Authentification — obtenir un token JWT", type: "comment" },
-      { text: "curl -X POST \\", type: "keyword" },
-      { text: '  "https://nnp.forge-solutions.tech/v1/auth/login" \\', type: "string" },
-      { text: '  -H "Content-Type: application/json" \\', type: "string" },
-      { text: `  -d '{"email":"user@sante.dz","password":"••••••••"}'`, type: "value" },
-      { text: "", type: "blank" },
-      { text: "# Réponse", type: "comment" },
-      { text: '{ "access_token": "eyJhbGci...", "token_type": "bearer" }', type: "json" },
-      { text: "", type: "blank" },
-      { text: "# 2. Rechercher un médicament par DCI", type: "comment" },
+      { text: "# Rechercher un médicament par DCI", type: "comment" },
       { text: "curl -X GET \\", type: "keyword" },
       { text: '  "https://nnp.forge-solutions.tech/v1/medicaments/search?q=amoxicilline" \\', type: "string" },
-      { text: '  -H "Authorization: Bearer eyJhbGci..."', type: "string" },
+      { text: '  -H "X-API-Key: npp_sk_votre_cle_api"', type: "string" },
       { text: "", type: "blank" },
+      { text: "# ← 200 OK · JSON · < 80ms", type: "comment" },
       { text: '{ "total": 12, "results": [ { "id": 189,', type: "json" },
-      { text: '    "nom_commercial": "Amoxil 500mg", "dci": "Amoxicilline" } ] }', type: "json" },
+      { text: '    "nom_commercial": "Amoxil 500mg", "dci": "Amoxicilline",', type: "json" },
+      { text: '    "laboratoire": "GSK", "statut": "Autorisé" } ] }', type: "json" },
     ],
   },
   python: {
@@ -39,22 +32,15 @@ const SNIPPETS = {
       { text: "import requests", type: "keyword" },
       { text: "", type: "blank" },
       { text: "BASE = \"https://nnp.forge-solutions.tech/v1\"", type: "value" },
+      { text: "API_KEY = \"npp_sk_votre_cle_api\"", type: "string" },
       { text: "", type: "blank" },
-      { text: "# 1. Authentification", type: "comment" },
-      { text: "res = requests.post(f\"{BASE}/auth/login\", json={", type: "plain" },
-      { text: "    \"email\": \"user@sante.dz\",", type: "string" },
-      { text: "    \"password\": \"••••••••\"", type: "string" },
-      { text: "})", type: "plain" },
-      { text: "token = res.json()[\"access_token\"]", type: "value" },
-      { text: "", type: "blank" },
-      { text: "# 2. Recherche médicament", type: "comment" },
-      { text: "headers = {\"Authorization\": f\"Bearer {token}\"}", type: "plain" },
+      { text: "# Recherche médicament par DCI", type: "comment" },
       { text: "data = requests.get(", type: "keyword" },
       { text: "    f\"{BASE}/medicaments/search\",", type: "string" },
       { text: "    params={\"q\": \"amoxicilline\"},", type: "value" },
-      { text: "    headers=headers", type: "plain" },
+      { text: "    headers={\"X-API-Key\": API_KEY}", type: "plain" },
       { text: ").json()", type: "plain" },
-      { text: "print(data[\"total\"], \"résultats\")", type: "json" },
+      { text: "print(data[\"total\"], \"résultats trouvés\")", type: "json" },
     ],
   },
   js: {
@@ -65,23 +51,14 @@ const SNIPPETS = {
     border:"hsl(38 90% 55% / 0.3)",
     lines: [
       { text: "const BASE = \"https://nnp.forge-solutions.tech/v1\";", type: "value" },
+      { text: "const API_KEY = \"npp_sk_votre_cle_api\";", type: "string" },
       { text: "", type: "blank" },
-      { text: "// 1. Authentification", type: "comment" },
-      { text: "const { access_token } = await fetch(", type: "keyword" },
-      { text: "  `${BASE}/auth/login`,", type: "string" },
-      { text: "  { method: \"POST\",", type: "plain" },
-      { text: "    headers: { \"Content-Type\": \"application/json\" },", type: "string" },
-      { text: "    body: JSON.stringify({", type: "plain" },
-      { text: "      email: \"user@sante.dz\",", type: "string" },
-      { text: "      password: \"••••••••\"", type: "string" },
-      { text: "    })", type: "plain" },
-      { text: "  }).then(r => r.json());", type: "plain" },
-      { text: "", type: "blank" },
-      { text: "// 2. Recherche médicament", type: "comment" },
+      { text: "// Recherche de médicament", type: "comment" },
       { text: "const data = await fetch(", type: "keyword" },
       { text: "  `${BASE}/medicaments/search?q=amoxicilline`,", type: "string" },
-      { text: "  { headers: { Authorization: `Bearer ${access_token}` } }", type: "value" },
+      { text: "  { headers: { \"X-API-Key\": API_KEY } }", type: "value" },
       { text: ").then(r => r.json());", type: "plain" },
+      { text: "", type: "blank" },
       { text: "console.log(data.total, \"résultats\");", type: "json" },
     ],
   },
@@ -101,7 +78,7 @@ const TOKEN_COLORS: Record<string, string> = {
 };
 
 const FEATURES = [
-  "Authentification en 1 appel POST",
+  "Clé API permanente · X-API-Key",
   "Réponses JSON normalisées",
   "Codes HTTP standard (200/401/429)",
   "Documentation OpenAPI 3.0 intégrée",
@@ -158,8 +135,8 @@ export default function CodeSection() {
             </h2>
 
             <p className="text-sm text-muted-foreground leading-relaxed mb-8 max-w-md">
-              Une API RESTful intuitive documentée via Swagger UI. Authentifiez-vous, interrogez
-              la base nationale et intégrez les données dans vos systèmes sans friction.
+              Une API RESTful intuitive documentée via Swagger UI. Générez une clé API depuis votre
+              dashboard, interrogez la base nationale et intégrez les données sans friction.
             </p>
 
             {/* Feature list */}

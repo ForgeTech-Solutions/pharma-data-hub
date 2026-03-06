@@ -3,7 +3,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { PACK_COLORS, tokenSecondsLeft } from "@/lib/api";
 import logo from "@/assets/logo_npp.png";
 import {
-  LayoutDashboard, BarChart3, Package, User, KeyRound,
+  LayoutDashboard, BarChart3, Package, User, KeyRound, Key,
   Trash2, LogOut, Menu, X, ChevronRight, Clock, AlertTriangle,
 } from "lucide-react";
 import { useState, useEffect } from "react";
@@ -12,9 +12,10 @@ const NAV_ITEMS = [
   { label: "Vue d'ensemble",     href: "/dashboard",          icon: LayoutDashboard },
   { label: "Mes statistiques",   href: "/dashboard/stats",    icon: BarChart3 },
   { label: "Mon pack",           href: "/dashboard/pack",     icon: Package },
-  { label: "Mes tokens",         href: "/dashboard/tokens",   icon: KeyRound },
+  { label: "Clés API",           href: "/dashboard/api-keys", icon: Key },
   { label: "Mon profil",         href: "/dashboard/profile",  icon: User },
   { label: "Changer le MDP",     href: "/dashboard/password", icon: KeyRound },
+  { label: "Mes tokens",         href: "/dashboard/tokens",   icon: KeyRound },
   { label: "Supprimer le compte",href: "/dashboard/delete",   icon: Trash2, danger: true },
 ];
 

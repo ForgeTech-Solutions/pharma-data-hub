@@ -48,9 +48,7 @@ function StatCell({ s, i, triggered }: { s: { value: string; label: string; sub:
   const counted = useCounter(numericTarget ?? 0, 1600, triggered && numericTarget !== null);
 
   const displayValue = triggered && numericTarget !== null
-    ? (numericTarget >= 1000
-      ? (counted / 1000).toFixed(0) + " 000" + (suffix ?? "")
-      : counted + (suffix ?? ""))
+    ? counted.toLocaleString("fr-FR") + (suffix ?? "")
     : s.value;
 
   return (
@@ -401,10 +399,9 @@ export default function AccessSection() {
               {t("access.authBody2")}{" "}
               <code className="px-1 py-0.5 rounded bg-muted text-foreground font-mono text-[10px]">/auth/signup</code>{")"}{" "}
               {t("access.authBody3")}{" "}
-              <code className="px-1 py-0.5 rounded bg-muted text-foreground font-mono text-[10px]">Authorization: Bearer &lt;token&gt;</code>.{" "}
+              <code className="px-1 py-0.5 rounded bg-muted text-foreground font-mono text-[10px]">X-API-Key: npp_sk_...</code>.{" "}
               {t("access.authBody4")}{" "}
-              <code className="px-1 py-0.5 rounded bg-muted text-foreground font-mono text-[10px]">POST /auth/login</code>{" "}
-              {t("access.authBody5")} <strong className="text-foreground">{t("access.authBody6")}</strong>.
+              <code className="px-1 py-0.5 rounded bg-muted text-foreground font-mono text-[10px]">{t("access.authBody5")}</code>.
             </p>
           </div>
 

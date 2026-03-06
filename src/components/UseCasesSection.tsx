@@ -88,7 +88,7 @@ export default function UseCasesSection() {
                 ref={(el) => { cardRefs.current[i] = el; }}
                 className={`section-fade group relative rounded-2xl border overflow-hidden cursor-default
                   transition-all duration-500 flex flex-col
-                  ${isTall ? "md:row-span-2" : ""}`}
+                  ${isTall ? "md:row-span-2" : ""} ${i === 3 ? "md:col-span-2" : ""}`}
                 style={{
                   background: "hsl(var(--card))",
                   borderColor: isH ? accent.border : "hsl(var(--border))",

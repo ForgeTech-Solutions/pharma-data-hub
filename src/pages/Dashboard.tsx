@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { authApi, UserProfile, PACK_COLORS } from "@/lib/api";
+import { Link, useNavigate } from "react-router-dom";
+import { authApi, UserApiKeysResponse, UserProfile, PACK_COLORS } from "@/lib/api";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import { Progress } from "@/components/ui/progress";
 import {
   User, Building2, Phone, Mail, Calendar, Clock,
-  Check, AlertTriangle, Infinity,
+  Check, AlertTriangle, Infinity, Key, ArrowRight,
 } from "lucide-react";
 
 function formatDate(iso: string) {
@@ -21,11 +21,18 @@ function daysSince(iso: string) {
 export default function Dashboard() {
   const navigate = useNavigate();
   const [user, setUser] = useState<UserProfile | null>(null);
+  const [keys, setKeys] = useState<UserApiKeysResponse | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!localStorage.getItem("npp_token")) { navigate("/login"); return; }
-    authApi.me().then(setUser).catch(() => navigate("/login")).finally(() => setLoading(false));
+    Promise.all([authApi.me(), authApi.listApiKeys()])
+      .then(([me, apiKeys]) => {
+        setUser(me);
+        setKeys(apiKeys);
+      })
+      .catch(() => navigate("/login"))
+      .finally(() => setLoading(false));
   }, [navigate]);
 
   if (loading) return (
@@ -42,6 +49,10 @@ export default function Dashboard() {
   const packMeta = PACK_COLORS[packKey] || PACK_COLORS["FREE"];
   const pd = user.pack_detail;
   const q = user.quota;
+  const activeKeys = (keys?.api_keys || []).filter((item) => item.is_active).length;
+  const lastUsed = (keys?.api_keys || [])
+    .filter((item) => item.last_used_at)
+    .sort((a, b) => new Date(b.last_used_at || 0).getTime() - new Date(a.last_used_at || 0).getTime())[0]?.last_used_at;
 
   return (
     <DashboardLayout user={user}>
@@ -63,7 +74,7 @@ export default function Dashboard() {
           </div>
         </div>
 
-        <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-5">
+        <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-5">
           {/* Profile card */}
           <div className="rounded-2xl border border-[hsl(var(--code-border))] bg-[hsl(215_28%_11%)] p-5">
             <h2 className="text-xs font-bold uppercase tracking-widest text-[hsl(215_20%_55%)] mb-4 flex items-center gap-2">
@@ -142,6 +153,38 @@ export default function Dashboard() {
                   </p>
                 </div>
               </div>
+            </div>
+          )}
+
+          {/* API keys card */}
+          {keys && (
+            <div className="rounded-2xl border border-[hsl(var(--code-border))] bg-[hsl(215_28%_11%)] p-5">
+              <h2 className="text-xs font-bold uppercase tracking-widest text-[hsl(215_20%_55%)] mb-4 flex items-center gap-2">
+                <Key size={13} /> Clés API
+              </h2>
+
+              <div className="text-2xl font-black text-white mb-1">
+                {activeKeys} clé(s) active(s) sur {keys.max_keys} maximum
+              </div>
+
+              <p className="text-xs text-[hsl(215_20%_55%)] mb-4">
+                Dernière utilisation: {lastUsed
+                  ? new Date(lastUsed).toLocaleString("fr-FR", {
+                      day: "2-digit",
+                      month: "2-digit",
+                      year: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })
+                  : "Jamais utilisée"}
+              </p>
+
+              <Link
+                to="/dashboard/api-keys"
+                className="inline-flex items-center gap-2 text-sm font-semibold text-[hsl(142_72%_55%)] hover:text-[hsl(142_72%_65%)] transition-colors"
+              >
+                Gérer mes clés <ArrowRight size={14} />
+              </Link>
             </div>
           )}
         </div>

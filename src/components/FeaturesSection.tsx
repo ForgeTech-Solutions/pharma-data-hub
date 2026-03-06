@@ -13,14 +13,14 @@ const ACCENT_COLORS = [
   { color: "hsl(210 80% 50%)", bg: "hsl(210 80% 50% / 0.08)", border: "hsl(210 80% 50% / 0.25)" },
 ];
 
-// Asymmetric grid: card 0 and 5 are wide (col-span-2) on md+
+// Asymmetric grid: card 0 spans 2, card 5 spans full width (3)
 const GRID_SPANS = [
   "md:col-span-2",
   "",
   "",
   "",
   "",
-  "md:col-span-2",
+  "md:col-span-3",
 ];
 
 export default function FeaturesSection() {

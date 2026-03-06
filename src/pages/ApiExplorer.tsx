@@ -34,7 +34,7 @@ const endpoints: Endpoint[] = [
     method: "GET",
     path: "/health",
     summary: "Statut de l'API",
-    description: "Vérifie que l'API est opérationnelle. Accessible sans token JWT.",
+    description: "Vérifie que l'API est opérationnelle. Accessible sans clé API.",
     requiresAuth: false,
     params: [],
     exampleResponse: {
@@ -90,8 +90,8 @@ const endpoints: Endpoint[] = [
     id: "auth-login",
     method: "POST",
     path: "/auth/login",
-    summary: "Se connecter — obtenir un token JWT",
-    description: "Génère un token d'accès JWT à partir de vos identifiants. Envoyez username et password en form-data. Le token expire après 30 minutes.",
+    summary: "Se connecter",
+    description: "Génère un token d'accès JWT à partir de vos identifiants. Le token est utilisé pour accéder au dashboard. Pour les appels API, utilisez une clé API (X-API-Key) générée depuis votre tableau de bord.",
     requiresAuth: false,
     params: [
       { name: "username", in: "body", required: true, type: "string", description: "Adresse e-mail", default: "votre@email.com" },
@@ -279,54 +279,54 @@ const METHOD_STYLES: Record<string, { bg: string; text: string }> = {
   POST: { bg: "hsl(210 65% 90%)", text: "hsl(210 80% 32%)" },
 };
 
-// ─── JWT Panel ────────────────────────────────────────────────────────────────
-const JWT_KEY = "npp_jwt_token";
+// ─── API Key Panel ────────────────────────────────────────────────────────────
+const API_KEY_STORAGE = "npp_api_key";
 
-function JwtPanel({ token, onChange }: { token: string; onChange: (v: string) => void }) {
+function ApiKeyPanel({ apiKey, onChange }: { apiKey: string; onChange: (v: string) => void }) {
   const [show, setShow] = useState(false);
-  const hasToken = token.trim().length > 0;
+  const hasKey = apiKey.trim().length > 0;
 
   return (
     <div
       className="rounded-2xl border overflow-hidden mb-8 transition-all duration-300"
       style={{
-        borderColor: hasToken ? "hsl(142 60% 75%)" : "hsl(var(--border))",
-        background: hasToken ? "hsl(142 60% 98%)" : "hsl(var(--card))",
-        boxShadow: hasToken ? "0 0 0 1px hsl(142 60% 80% / 0.5)" : "none",
+        borderColor: hasKey ? "hsl(142 60% 75%)" : "hsl(var(--border))",
+        background: hasKey ? "hsl(142 60% 98%)" : "hsl(var(--card))",
+        boxShadow: hasKey ? "0 0 0 1px hsl(142 60% 80% / 0.5)" : "none",
       }}
     >
       <div className="flex items-center gap-3 px-5 py-4">
         <div
           className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 transition-all duration-300"
-          style={{ background: hasToken ? "hsl(142 60% 90%)" : "hsl(0 60% 92%)" }}
+          style={{ background: hasKey ? "hsl(142 60% 90%)" : "hsl(0 60% 92%)" }}
         >
-          {hasToken
+          {hasKey
             ? <Unlock className="w-4 h-4" style={{ color: "hsl(142 72% 35%)" }} />
             : <Lock   className="w-4 h-4" style={{ color: "hsl(0 70% 45%)" }} />
           }
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-sm font-bold" style={{ color: hasToken ? "hsl(142 72% 30%)" : "hsl(var(--foreground))" }}>
-              Token JWT
+            <span className="text-sm font-bold" style={{ color: hasKey ? "hsl(142 72% 30%)" : "hsl(var(--foreground))" }}>
+              Clé API
             </span>
-            {hasToken
-              ? <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full" style={{ background: "hsl(142 60% 88%)", color: "hsl(142 72% 28%)" }}>● Actif</span>
-              : <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full" style={{ background: "hsl(0 60% 93%)", color: "hsl(0 70% 42%)" }}>Requis pour les routes protégées</span>
+            {hasKey
+              ? <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full" style={{ background: "hsl(142 60% 88%)", color: "hsl(142 72% 28%)" }}>● Active</span>
+              : <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full" style={{ background: "hsl(0 60% 93%)", color: "hsl(0 70% 42%)" }}>Requise pour les routes protégées</span>
             }
             <span className="text-[10px] text-muted-foreground hidden sm:block">
-              · Expire après 30 min · Obtenu via POST /auth/login
+              · Clé permanente · Générée dans Dashboard → Clés API
             </span>
           </div>
           <p className="text-xs text-muted-foreground mt-0.5 truncate font-mono">
-            {hasToken ? `${token.slice(0, 48)}…` : "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9…"}
+            {hasKey ? `${apiKey.slice(0, 32)}…` : "npp_sk_…"}
           </p>
         </div>
-        {hasToken && (
+        {hasKey && (
           <button
-            onClick={() => { onChange(""); localStorage.removeItem(JWT_KEY); }}
+            onClick={() => { onChange(""); localStorage.removeItem(API_KEY_STORAGE); }}
             className="p-1.5 rounded-lg hover:bg-destructive/10 transition-colors group"
-            title="Effacer le token"
+            title="Effacer la clé"
           >
             <X className="w-3.5 h-3.5 text-muted-foreground group-hover:text-destructive transition-colors" />
           </button>
@@ -336,12 +336,12 @@ function JwtPanel({ token, onChange }: { token: string; onChange: (v: string) =>
         <div className="relative">
           <input
             type={show ? "text" : "password"}
-            value={token}
+            value={apiKey}
             onChange={(e) => {
               onChange(e.target.value);
-              localStorage.setItem(JWT_KEY, e.target.value);
+              localStorage.setItem(API_KEY_STORAGE, e.target.value);
             }}
-            placeholder="Collez votre token JWT ici…"
+            placeholder="Collez votre clé API ici (npp_sk_…)"
             className="w-full text-xs font-mono rounded-xl border border-border bg-background px-4 py-3 pr-20 focus:outline-none focus:ring-2 focus:border-transparent transition-all"
             style={{ "--tw-ring-color": "hsl(142 72% 37% / 0.3)" } as React.CSSProperties}
           />
@@ -440,7 +440,7 @@ function EndpointCard({ endpoint, jwtToken }: { endpoint: Endpoint; jwtToken: st
 
   const curlSnippet = () => {
     const path = buildPath();
-    const tokenVal = jwtToken.trim() || "<votre_token_jwt>";
+    const keyVal = jwtToken.trim() || "npp_sk_votre_cle_api";
     const bodyParams = endpoint.params.filter((p) => p.in === "body");
     if (bodyParams.length) {
       const data = Object.fromEntries(bodyParams.map((p) => [p.name, values[p.name] || p.default || ""]));
@@ -449,7 +449,7 @@ function EndpointCard({ endpoint, jwtToken }: { endpoint: Endpoint; jwtToken: st
     if (!endpoint.requiresAuth) {
       return `curl -X ${endpoint.method} "https://nnp.forge-solutions.tech/v1${path}" \\\n  -H "Accept: application/json"`;
     }
-    return `curl -X ${endpoint.method} "https://nnp.forge-solutions.tech/v1${path}" \\\n  -H "Authorization: Bearer ${tokenVal}" \\\n  -H "Accept: application/json"`;
+    return `curl -X ${endpoint.method} "https://nnp.forge-solutions.tech/v1${path}" \\\n  -H "X-API-Key: ${keyVal}" \\\n  -H "Accept: application/json"`;
   };
 
   const execute = async () => {
@@ -463,8 +463,8 @@ function EndpointCard({ endpoint, jwtToken }: { endpoint: Endpoint; jwtToken: st
         error: true,
         body: {
           error: "Unauthorized",
-          message: "Token JWT manquant ou invalide. Veuillez fournir un token Bearer valide dans le panneau ci-dessus.",
-          hint: "Obtenez un token via POST /auth/login puis collez-le dans le champ Token JWT.",
+          message: "Clé API manquante ou invalide. Veuillez fournir une clé API valide dans le panneau ci-dessus.",
+          hint: "Générez une clé API depuis Dashboard → Clés API puis collez-la dans le champ Clé API.",
           code: 401,
         },
       });
@@ -570,7 +570,7 @@ function EndpointCard({ endpoint, jwtToken }: { endpoint: Endpoint; jwtToken: st
                 >
                   <AlertCircle className="w-3.5 h-3.5 shrink-0 mt-0.5" />
                   <span>
-                    Token JWT non renseigné. L'exécution retournera une erreur{" "}
+                    Clé API non renseignée. L'exécution retournera une erreur{" "}
                     <strong>401 Unauthorized</strong>.
                   </span>
                 </div>
@@ -659,7 +659,7 @@ function EndpointCard({ endpoint, jwtToken }: { endpoint: Endpoint; jwtToken: st
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 export default function ApiExplorer() {
-  const [jwtToken, setJwtToken] = useState<string>(() => localStorage.getItem(JWT_KEY) ?? "");
+  const [jwtToken, setJwtToken] = useState<string>(() => localStorage.getItem(API_KEY_STORAGE) ?? "");
 
   return (
     <div className="min-h-screen bg-background">
@@ -693,8 +693,8 @@ export default function ApiExplorer() {
             >
               <Key className="w-3 h-3" />
               {jwtToken.trim()
-                ? <span style={{ color: "hsl(142 60% 55%)" }}>● Token actif</span>
-                : <span>Aucun token</span>
+                ? <span style={{ color: "hsl(142 60% 55%)" }}>● Clé active</span>
+                : <span>Aucune clé</span>
               }
             </div>
             <span className="w-2 h-2 rounded-full bg-primary animate-pulse-green" />
@@ -713,7 +713,7 @@ export default function ApiExplorer() {
           </h1>
           <p className="text-muted-foreground text-sm max-w-2xl leading-relaxed">
             Explorez et testez les {endpoints.length} endpoints directement depuis cette page.
-            Renseignez votre token JWT pour accéder aux routes protégées.
+            Renseignez votre clé API pour accéder aux routes protégées.
           </p>
 
           {/* Meta chips */}
@@ -722,7 +722,7 @@ export default function ApiExplorer() {
               { label: "Base URL",   value: "https://nnp.forge-solutions.tech/v1" },
               { label: "Version",    value: "v1.0" },
               { label: "Format",     value: "JSON" },
-              { label: "Auth",       value: "Bearer JWT · 30 min" },
+              { label: "Auth",       value: "X-API-Key" },
               { label: "Endpoints",  value: String(endpoints.length) },
             ].map((item) => (
               <div
@@ -737,8 +737,8 @@ export default function ApiExplorer() {
           </div>
         </div>
 
-        {/* JWT panel */}
-        <JwtPanel token={jwtToken} onChange={setJwtToken} />
+        {/* API Key panel */}
+        <ApiKeyPanel apiKey={jwtToken} onChange={setJwtToken} />
 
         {/* Flat endpoint list */}
         <div>
@@ -753,9 +753,9 @@ export default function ApiExplorer() {
           <p className="text-xs text-muted-foreground text-center sm:text-left">
             Les réponses affichées sont des{" "}
             <strong className="text-foreground">exemples de démonstration</strong>.
-            Pour accéder à l'API en production, un token JWT institutionnel valide est requis.
-            Token obtenu via{" "}
-            <code className="font-mono text-foreground">POST /auth/login</code>.
+            Pour accéder à l'API en production, une clé API valide est requise.
+            Générez votre clé depuis{" "}
+            <code className="font-mono text-foreground">Dashboard → Clés API</code>.
           </p>
         </div>
       </div>

@@ -28,7 +28,7 @@ function useCounter(target: number, duration = 1400, start = false) {
 const CODE_SEQUENCE = [
   { text: "$ curl -X GET \\", color: "hsl(215 20% 65%)" },
   { text: '    "https://nnp.forge-solutions.tech/v1/medicaments/search?q=amoxicilline" \\', color: "hsl(215 20% 55%)" },
-  { text: '    -H "Authorization: Bearer eyJhbGci..."', color: "hsl(142 72% 55%)" },
+  { text: '    -H "X-API-Key: npp_sk_votre_cle_api"', color: "hsl(142 72% 55%)" },
   { text: "", color: "" },
   { text: "← 200 OK  · 43ms", color: "hsl(142 72% 45%)" },
   { text: '{', color: "hsl(210 80% 70%)" },
@@ -109,9 +109,9 @@ function LiveTerminal() {
 
 // ─── Floating code tokens ─────────────────────────────────────────────────────
 const CODE_TOKENS = [
-  "GET /medicaments", "Bearer eyJ...", "200 OK", "{ id: 189 }",
-  "DCI:", "Authorization:", "search?q=", "application/json",
-  "curl -X", "\"statut\":", "pagination", "JWT", "< 100ms",
+  "GET /medicaments", "X-API-Key: npp_sk_...", "200 OK", "{ id: 189 }",
+  "DCI:", "X-API-Key:", "search?q=", "application/json",
+  "curl -X", "\"statut\":", "pagination", "API Key", "< 100ms",
   "REST API", "7000+", ".json()", "fetch(", "requests.get(",
 ];
 

@@ -105,7 +105,13 @@ export async function apiFetch<T>(
     let detail = "Une erreur est survenue.";
     try {
       const err = await res.json();
-      detail = err.detail || detail;
+      if (typeof err?.detail === "string") {
+        detail = err.detail;
+      } else if (typeof err?.detail?.message === "string") {
+        detail = err.detail.message;
+      } else if (typeof err?.message === "string") {
+        detail = err.message;
+      }
     } catch {
       // ignore
     }
@@ -162,6 +168,18 @@ export const authApi = {
   stats: () => apiFetch<UserStats>("/auth/me/stats"),
 
   pack: () => apiFetch<UserPackDetail>("/auth/me/pack"),
+
+  listApiKeys: () => apiFetch<UserApiKeysResponse>("/auth/me/api-keys"),
+
+  createApiKey: (name: string) =>
+    apiFetch<CreateApiKeyResponse>(`/auth/me/api-keys?name=${encodeURIComponent(name)}`, {
+      method: "POST",
+    }),
+
+  deleteApiKey: (id: number) =>
+    apiFetch<{ message: string; id: number }>(`/auth/me/api-keys/${id}`, {
+      method: "DELETE",
+    }),
 
   deleteAccount: (password: string, confirm_email: string) =>
     apiFetch<{ message: string; email: string }>("/auth/me/delete", {
@@ -240,6 +258,34 @@ export interface UserPackDetail {
   };
   all_packs: string[];
   upgrade_message?: string;
+}
+
+export interface UserApiKey {
+  id: number;
+  name: string;
+  key_prefix: string;
+  is_active: boolean;
+  created_at: string;
+  last_used_at: string | null;
+  last_used_ip: string | null;
+  requests_count: number;
+}
+
+export interface UserApiKeysResponse {
+  api_keys: UserApiKey[];
+  total: number;
+  max_keys: number;
+  remaining_slots: number;
+}
+
+export interface CreateApiKeyResponse {
+  message: string;
+  api_key: string;
+  id: number;
+  name: string;
+  key_prefix: string;
+  pack: string;
+  created_at: string;
 }
 
 // ─── Health endpoint ─────────────────────────────────────────────────────────

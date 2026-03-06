@@ -1,19 +1,24 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { authApi, UserStats, PACK_COLORS } from "@/lib/api";
+import { authApi, UserApiKeysResponse, UserStats, PACK_COLORS } from "@/lib/api";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
-import { BarChart3, Calendar, TrendingUp, TrendingDown, Tag } from "lucide-react";
+import { BarChart3, Calendar, TrendingUp, TrendingDown, Tag, KeyRound, Activity, Clock3 } from "lucide-react";
 
 export default function DashboardStats() {
   const navigate = useNavigate();
   const [stats, setStats] = useState<UserStats | null>(null);
+  const [apiKeys, setApiKeys] = useState<UserApiKeysResponse | null>(null);
   const [user, setUser] = useState<{ full_name?: string; pack?: string } | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!localStorage.getItem("npp_token")) { navigate("/login"); return; }
-    Promise.all([authApi.stats(), authApi.me()])
-      .then(([s, u]) => { setStats(s); setUser(u); })
+    Promise.all([authApi.stats(), authApi.me(), authApi.listApiKeys()])
+      .then(([s, u, k]) => {
+        setStats(s);
+        setUser(u);
+        setApiKeys(k);
+      })
       .catch(() => navigate("/login"))
       .finally(() => setLoading(false));
   }, [navigate]);
@@ -29,6 +34,10 @@ export default function DashboardStats() {
 
   const packKey = stats.pack || "FREE";
   const packMeta = PACK_COLORS[packKey] || PACK_COLORS["FREE"];
+  const totalApiKeyRequests = (apiKeys?.api_keys || []).reduce((sum, item) => sum + item.requests_count, 0);
+  const latestApiUse = (apiKeys?.api_keys || [])
+    .filter((item) => item.last_used_at)
+    .sort((a, b) => new Date(b.last_used_at || 0).getTime() - new Date(a.last_used_at || 0).getTime())[0]?.last_used_at;
 
   const cards = [
     { label: "Requêtes aujourd'hui", value: stats.requests_today, icon: BarChart3, color: "hsl(210 80% 50%)" },
@@ -97,6 +106,50 @@ export default function DashboardStats() {
                   {f}
                 </span>
               ))}
+            </div>
+          </div>
+        )}
+
+        {/* API keys stats */}
+        {apiKeys && (
+          <div className="rounded-2xl border border-[hsl(var(--code-border))] bg-[hsl(215_28%_11%)] p-5">
+            <h2 className="text-xs font-bold uppercase tracking-widest text-[hsl(215_20%_55%)] mb-4">
+              Clés API
+            </h2>
+            <div className="grid sm:grid-cols-3 gap-4">
+              <div className="rounded-xl border border-[hsl(215_28%_16%)] bg-[hsl(215_28%_8%)] p-4">
+                <div className="w-8 h-8 rounded-lg flex items-center justify-center mb-2 bg-[hsl(215_28%_16%)]">
+                  <KeyRound size={14} className="text-[hsl(210_80%_60%)]" />
+                </div>
+                <div className="text-2xl font-black text-white">{apiKeys.total}</div>
+                <div className="text-xs text-[hsl(215_20%_55%)] mt-1">Total clés créées</div>
+              </div>
+
+              <div className="rounded-xl border border-[hsl(215_28%_16%)] bg-[hsl(215_28%_8%)] p-4">
+                <div className="w-8 h-8 rounded-lg flex items-center justify-center mb-2 bg-[hsl(215_28%_16%)]">
+                  <Activity size={14} className="text-[hsl(142_72%_55%)]" />
+                </div>
+                <div className="text-2xl font-black text-white">{totalApiKeyRequests.toLocaleString("fr-FR")}</div>
+                <div className="text-xs text-[hsl(215_20%_55%)] mt-1">Total requêtes via clés API</div>
+              </div>
+
+              <div className="rounded-xl border border-[hsl(215_28%_16%)] bg-[hsl(215_28%_8%)] p-4">
+                <div className="w-8 h-8 rounded-lg flex items-center justify-center mb-2 bg-[hsl(215_28%_16%)]">
+                  <Clock3 size={14} className="text-[hsl(262_72%_65%)]" />
+                </div>
+                <div className="text-sm font-black text-white truncate">
+                  {latestApiUse
+                    ? new Date(latestApiUse).toLocaleString("fr-FR", {
+                        day: "2-digit",
+                        month: "2-digit",
+                        year: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })
+                    : "Jamais utilisée"}
+                </div>
+                <div className="text-xs text-[hsl(215_20%_55%)] mt-1">Dernière utilisation</div>
+              </div>
             </div>
           </div>
         )}
