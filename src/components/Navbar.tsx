@@ -53,7 +53,6 @@ export default function Navbar() {
     { label: t("nav.features"),  href: "#features" },
     { label: t("nav.usecases"),  href: "#usecases" },
     { label: t("nav.access"),    href: "#access" },
-    { label: t("nav.news"),      href: "/actualites", isRoute: true },
   ];
 
   const linkCls = "text-sm text-[hsl(215_20%_70%)] hover:text-white transition-colors duration-200 relative after:absolute after:bottom-0 after:left-0 after:h-px after:w-0 after:bg-primary after:transition-all after:duration-300 hover:after:w-full";

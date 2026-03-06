@@ -17,7 +17,6 @@ const LINK_GROUPS = [
     titleKey: "footer.col2.title",
     items: [
       { labelKey: "footer.col2.link1", href: "/#usecases",  icon: null, external: false },
-      { labelKey: "footer.col2.link2", href: "/actualites", icon: null, external: false },
       { labelKey: "footer.col2.link3", href: "/#access",    icon: null, external: false },
       { labelKey: "footer.col2.link4", href: "/contact",    icon: Mail, external: false },
     ],

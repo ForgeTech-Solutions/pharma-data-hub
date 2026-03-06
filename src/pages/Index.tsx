@@ -5,7 +5,6 @@ import UseCasesSection from "@/components/UseCasesSection";
 import CodeSection from "@/components/CodeSection";
 import AccessSection from "@/components/AccessSection";
 import EndpointsSection from "@/components/EndpointsSection";
-import ActualitesSection from "@/components/ActualitesSection";
 import FooterSection from "@/components/FooterSection";
 
 const Index = () => {
@@ -18,7 +17,6 @@ const Index = () => {
       <CodeSection />
       <AccessSection />
       <EndpointsSection />
-      <ActualitesSection />
       <FooterSection />
     </div>
   );

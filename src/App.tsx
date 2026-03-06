@@ -5,7 +5,6 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import Index from "./pages/Index";
 import ApiExplorer from "./pages/ApiExplorer";
-import Actualites from "./pages/Actualites";
 import NotFound from "./pages/NotFound";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
@@ -32,7 +31,6 @@ function AnimatedRoutes() {
       <Routes location={location}>
         <Route path="/" element={<Index />} />
         <Route path="/docs" element={<ApiExplorer />} />
-        <Route path="/actualites" element={<Actualites />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/dashboard" element={<Dashboard />} />
