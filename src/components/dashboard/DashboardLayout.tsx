@@ -15,7 +15,6 @@ const NAV_ITEMS = [
   { label: "Clés API",           href: "/dashboard/api-keys", icon: Key },
   { label: "Mon profil",         href: "/dashboard/profile",  icon: User },
   { label: "Changer le MDP",     href: "/dashboard/password", icon: KeyRound },
-  { label: "Mes tokens",         href: "/dashboard/tokens",   icon: KeyRound },
   { label: "Supprimer le compte",href: "/dashboard/delete",   icon: Trash2, danger: true },
 ];
 
@@ -55,10 +54,9 @@ function TokenBadge() {
   const border = urgent ? "hsl(0 72% 37%/0.4)"   : warn ? "hsl(38 72% 37%/0.35)" : "hsl(142 72% 37%/0.3)";
 
   return (
-    <NavLink
-      to="/dashboard/tokens"
-      title="Voir mes tokens"
-      className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-[11px] font-mono font-bold transition-all duration-300 hover:scale-105"
+    <div
+      title="Session active"
+      className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-[11px] font-mono font-bold"
       style={{ color, background: bg, borderColor: border }}
     >
       {urgent ? (
@@ -67,7 +65,7 @@ function TokenBadge() {
         <Clock size={11} />
       )}
       {label}
-    </NavLink>
+    </div>
   );
 }
 

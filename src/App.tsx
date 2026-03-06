@@ -14,7 +14,6 @@ import DashboardPack from "./pages/DashboardPack";
 import DashboardProfile from "./pages/DashboardProfile";
 import DashboardPassword from "./pages/DashboardPassword";
 import DashboardDelete from "./pages/DashboardDelete";
-import DashboardTokens from "./pages/DashboardTokens";
 import DashboardApiKeys from "./pages/DashboardApiKeys";
 import PageTransition from "./components/PageTransition";
 import MentionsLegales from "./pages/MentionsLegales";
@@ -40,7 +39,6 @@ function AnimatedRoutes() {
         <Route path="/dashboard/profile" element={<DashboardProfile />} />
         <Route path="/dashboard/password" element={<DashboardPassword />} />
         <Route path="/dashboard/delete" element={<DashboardDelete />} />
-        <Route path="/dashboard/tokens" element={<DashboardTokens />} />
         <Route path="/mentions-legales" element={<MentionsLegales />} />
         <Route path="/politique-confidentialite" element={<PolitiqueConfidentialite />} />
         <Route path="/contact" element={<Contact />} />

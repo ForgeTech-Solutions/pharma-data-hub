@@ -50,11 +50,20 @@ function Field({ label, required: req, error, valid, hint, children }: {
 export default function Signup() {
   const [searchParams] = useSearchParams();
   const initialPack = searchParams.get("pack") || "FREE";
+  const initialEmail = searchParams.get("email") || "";
+  const initialFullName = searchParams.get("full_name") || "";
+  const initialOrganisation = searchParams.get("organisation") || "";
+  const initialPhone = searchParams.get("phone") || "";
+  const initialMessage = searchParams.get("message") || "";
   const formRef = useRef<HTMLDivElement>(null);
 
   const [form, setForm] = useState({
-    email: "", full_name: "", organisation: "",
-    phone: "", message: "", pack: initialPack,
+    email: initialEmail,
+    full_name: initialFullName,
+    organisation: initialOrganisation,
+    phone: initialPhone,
+    message: initialMessage,
+    pack: initialPack,
   });
   const [touched, setTouched] = useState<Record<string, boolean>>({});
   const [loading, setLoading] = useState(false);

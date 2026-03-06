@@ -164,24 +164,24 @@ export default function AccessSection() {
             return (
               <div
                 ref={(el) => { cardRefs.current[0] = el; }}
-                className="section-fade free-card-glow-border group mb-5"
+                className="section-fade free-card-orbit group mb-6"
               >
                 <div
-                  className="relative rounded-2xl overflow-hidden free-card-shimmer transition-all duration-500"
+                  className="relative rounded-2xl overflow-hidden free-card-shimmer transition-all duration-500 free-card-modern"
                   style={{
-                    background: "linear-gradient(135deg, hsl(215 28% 9%) 0%, hsl(220 30% 11%) 50%, hsl(215 28% 9%) 100%)",
-                    border: "1px solid hsl(215 28% 50% / 0.3)",
+                    background: "radial-gradient(120% 140% at 0% 0%, hsl(215 34% 14%) 0%, hsl(215 28% 9%) 46%, hsl(220 30% 10%) 100%)",
+                    border: "1px solid hsl(215 30% 52% / 0.35)",
                   }}
                 >
                 {/* Ambient glow */}
-                <div className="absolute -top-10 -left-10 w-48 h-48 rounded-full blur-[60px] pointer-events-none"
-                  style={{ background: "hsl(215 28% 50% / 0.12)" }} />
-                <div className="absolute -bottom-8 right-10 w-36 h-36 rounded-full blur-[50px] pointer-events-none"
-                  style={{ background: "hsl(142 72% 37% / 0.08)" }} />
+                <div className="absolute -top-14 -left-14 w-56 h-56 rounded-full blur-[70px] pointer-events-none"
+                  style={{ background: "hsl(215 50% 58% / 0.15)" }} />
+                <div className="absolute -bottom-10 right-8 w-44 h-44 rounded-full blur-[60px] pointer-events-none"
+                  style={{ background: "hsl(142 72% 42% / 0.12)" }} />
 
                 {/* Watermark */}
                 <div className="absolute right-6 top-1/2 -translate-y-1/2 pointer-events-none select-none transition-all duration-500 group-hover:scale-110"
-                  style={{ opacity: 0.07 }}>
+                  style={{ opacity: 0.08 }}>
                   <meta.icon style={{ width: 80, height: 80, color: meta.color }} />
                 </div>
 
@@ -198,6 +198,10 @@ export default function AccessSection() {
                         <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-widest text-white"
                           style={{ background: "linear-gradient(135deg, hsl(142 72% 37%), hsl(162 72% 42%))" }}>
                           Gratuit
+                        </span>
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-widest"
+                          style={{ color: "hsl(210 80% 65%)", background: "hsl(210 80% 55% / 0.1)", border: "1px solid hsl(210 80% 55% / 0.28)" }}>
+                          Nouveau
                         </span>
                       </div>
                       <div className="text-xs text-muted-foreground">{pack.tagline}</div>

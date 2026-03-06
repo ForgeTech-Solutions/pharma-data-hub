@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
 import { X, CheckCircle2, Send, Loader2, Sparkles, Code2, Shield, Crown } from "lucide-react";
 import { z } from "zod";
 
@@ -17,6 +18,7 @@ interface Props { open: boolean; onClose: () => void; defaultType?: string; }
 
 export default function AccessRequestModal({ open, onClose, defaultType = "" }: Props) {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const overlayRef = useRef<HTMLDivElement>(null);
   const [form, setForm] = useState<FormData>({ nom: "", organisation: "", email: "", telephone: "", pack: defaultType, message: "" });
   const [errors, setErrors] = useState<Errors>({});
@@ -59,8 +61,17 @@ export default function AccessRequestModal({ open, onClose, defaultType = "" }: 
       return;
     }
     setStatus("loading");
-    await new Promise((r) => setTimeout(r, 1500));
-    setStatus("success");
+    const params = new URLSearchParams({
+      pack: form.pack,
+      email: form.email,
+      full_name: form.nom,
+      organisation: form.organisation,
+      phone: form.telephone,
+      message: form.message,
+    });
+    navigate(`/signup?${params.toString()}`);
+    onClose();
+    setStatus("idle");
   };
 
   const selectedPack = PACK_META.find((p) => p.id === form.pack);
