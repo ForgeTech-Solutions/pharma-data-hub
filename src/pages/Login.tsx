@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import { authApi } from "@/lib/api";
+import { authApi, decodeJwt } from "@/lib/api";
 import { useAuth } from "@/hooks/useAuth";
 import { scheduleTokenRefresh } from "@/lib/api";
 import logo from "@/assets/logo_npp.png";
@@ -36,6 +36,39 @@ export default function Login() {
     return () => clearTimeout(t);
   }, []);
 
+  // Single entry point on /login: if already authenticated, redirect by role.
+  useEffect(() => {
+    const token = localStorage.getItem("npp_token");
+    if (!token) return;
+
+    let cancelled = false;
+
+    authApi
+      .me()
+      .then((me) => {
+        if (cancelled) return;
+        localStorage.setItem("npp_role", me.role || "");
+        localStorage.setItem("npp_pack", me.pack || "");
+        localStorage.setItem("npp_approved", String(!!me.is_approved));
+
+        const canAccessAdmin =
+          me.role === "ADMIN" && me.is_active === true && me.is_approved === true;
+        navigate(canAccessAdmin ? "/admin" : "/dashboard", { replace: true });
+      })
+      .catch(() => {
+        if (cancelled) return;
+
+        // Fallback: keep /login as a single gateway even if /auth/me is temporarily unavailable.
+        const payload = decodeJwt(token);
+        const fallbackRole = payload?.role || localStorage.getItem("npp_role") || "";
+        navigate(fallbackRole === "ADMIN" ? "/admin" : "/dashboard", { replace: true });
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [navigate]);
+
   const emailValid    = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   const passwordValid = password.length >= 6;
 
@@ -47,17 +80,44 @@ export default function Login() {
     setLoading(true);
     try {
       const res = await authApi.login(email, password);
-      saveSession(res.access_token, res.pack, res.is_approved);
+
+      const payload = decodeJwt(res.access_token);
+      const roleFromToken = payload?.role || "";
+      const packFromToken = payload?.pack || res.pack || "";
+      const approvedFromLogin = !!res.is_approved;
+
+      // Save immediately after successful /auth/login.
+      saveSession(res.access_token, packFromToken, approvedFromLogin, roleFromToken);
       scheduleTokenRefresh(res.access_token);
-      navigate("/dashboard");
+
+      // Try to enrich session with /auth/me, but do not block login if it fails.
+      let role = roleFromToken;
+      let isApproved = approvedFromLogin;
+      let isActive = true;
+
+      try {
+        const me = await authApi.me();
+        role = me.role || role;
+        isApproved = typeof me.is_approved === "boolean" ? me.is_approved : isApproved;
+        isActive = typeof me.is_active === "boolean" ? me.is_active : isActive;
+        saveSession(res.access_token, me.pack || packFromToken, isApproved, role);
+      } catch {
+        // Keep fallback data from JWT/login response.
+      }
+
+      const canAccessAdmin = role === "ADMIN" && isActive && isApproved;
+      navigate(canAccessAdmin ? "/admin" : "/dashboard", { replace: true });
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Erreur inconnue";
-      if (msg.toLowerCase().includes("attente") || msg.toLowerCase().includes("validation")) {
+      const low = msg.toLowerCase();
+      if (low.includes("attente") || low.includes("validation")) {
         setError("Votre compte est en attente de validation par un administrateur.");
-      } else if (msg.toLowerCase().includes("désactivé") || msg.toLowerCase().includes("disabled")) {
+      } else if (low.includes("désactivé") || low.includes("disabled")) {
         setError("Votre compte a été désactivé. Contactez l'administrateur.");
+      } else if (low.includes("failed to fetch") || low.includes("network")) {
+        setError("Connexion au serveur impossible. Vérifiez que l'API est démarrée et l'URL BASE_URL.");
       } else {
-        setError("Email ou mot de passe incorrect.");
+        setError(msg || "Email ou mot de passe incorrect.");
       }
     } finally {
       setLoading(false);

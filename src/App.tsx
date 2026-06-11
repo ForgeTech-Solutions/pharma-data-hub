@@ -15,7 +15,15 @@ import DashboardProfile from "./pages/DashboardProfile";
 import DashboardPassword from "./pages/DashboardPassword";
 import DashboardDelete from "./pages/DashboardDelete";
 import DashboardApiKeys from "./pages/DashboardApiKeys";
+import AdminDashboard from "./pages/AdminDashboard";
+import AdminUsers from "./pages/AdminUsers";
+import AdminPacks from "./pages/AdminPacks";
+import AdminApiKeys from "./pages/AdminApiKeys";
+import AdminEmail from "./pages/AdminEmail";
+import AdminImport from "./pages/AdminImport";
+import Unauthorized from "./pages/Unauthorized";
 import PageTransition from "./components/PageTransition";
+import AdminRoute from "./components/admin/AdminRoute";
 import MentionsLegales from "./pages/MentionsLegales";
 import PolitiqueConfidentialite from "./pages/PolitiqueConfidentialite";
 import ConditionsUtilisation from "./pages/ConditionsUtilisation";
@@ -39,6 +47,13 @@ function AnimatedRoutes() {
         <Route path="/dashboard/profile" element={<DashboardProfile />} />
         <Route path="/dashboard/password" element={<DashboardPassword />} />
         <Route path="/dashboard/delete" element={<DashboardDelete />} />
+        <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
+        <Route path="/admin/users" element={<AdminRoute><AdminUsers /></AdminRoute>} />
+        <Route path="/admin/packs" element={<AdminRoute><AdminPacks /></AdminRoute>} />
+        <Route path="/admin/api-keys" element={<AdminRoute><AdminApiKeys /></AdminRoute>} />
+        <Route path="/admin/email" element={<AdminRoute><AdminEmail /></AdminRoute>} />
+        <Route path="/admin/import" element={<AdminRoute><AdminImport /></AdminRoute>} />
+        <Route path="/unauthorized" element={<Unauthorized />} />
         <Route path="/mentions-legales" element={<MentionsLegales />} />
         <Route path="/politique-confidentialite" element={<PolitiqueConfidentialite />} />
         <Route path="/contact" element={<Contact />} />

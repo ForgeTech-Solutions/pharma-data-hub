@@ -33,6 +33,24 @@ npm install
 npm run dev
 ```
 
+## Variables d'environnement
+
+Créer un fichier .env (ou .env.local) à la racine du projet en partant de .env.example :
+
+```sh
+cp .env.example .env
+```
+
+Variable disponible :
+
+- VITE_API_BASE_URL : URL de base de l'API backend
+
+Exemple :
+
+```env
+VITE_API_BASE_URL=http://localhost:8000
+```
+
 ## Scripts disponibles
 
 | Commande | Description |

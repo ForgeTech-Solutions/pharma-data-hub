@@ -1,4 +1,5 @@
-export const BASE_URL = "https://npp.forge-solutions.tech/v1";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
+export const BASE_URL = API_BASE_URL.replace(/\/+$/, "");
 
 // ─── JWT helpers ────────────────────────────────────────────────────────────
 
@@ -48,6 +49,7 @@ export function scheduleTokenRefresh(token: string) {
     localStorage.removeItem("npp_token");
     localStorage.removeItem("npp_pack");
     localStorage.removeItem("npp_approved");
+    localStorage.removeItem("npp_role");
     window.location.href = "/login?expired=1";
   }, fireIn);
 }
@@ -67,6 +69,7 @@ function handleUnauthorized() {
   localStorage.removeItem("npp_token");
   localStorage.removeItem("npp_pack");
   localStorage.removeItem("npp_approved");
+  localStorage.removeItem("npp_role");
   window.location.href = "/login";
 }
 
@@ -90,7 +93,7 @@ export async function apiFetch<T>(
     headers["Authorization"] = `Bearer ${token}`;
   }
 
-  if (!(options.body instanceof URLSearchParams)) {
+  if (!(options.body instanceof URLSearchParams) && !(options.body instanceof FormData)) {
     headers["Content-Type"] = headers["Content-Type"] || "application/json";
   }
 
@@ -287,6 +290,419 @@ export interface CreateApiKeyResponse {
   pack: string;
   created_at: string;
 }
+
+export interface AdminStats {
+  total_users: number;
+  approved: number;
+  pending_approval: number;
+  active: number;
+  inactive: number;
+  by_pack: Record<string, number>;
+}
+
+export interface AdminEmailStatus {
+  enabled: boolean;
+  configured: boolean;
+  provider: string;
+  mail_from: string;
+  mail_from_name: string;
+  admin_notification_email: string;
+  tenant_id_set: boolean;
+  client_id_set: boolean;
+  client_secret_set: boolean;
+  templates: string[];
+}
+
+export interface AdminOverviewServer {
+  status: "online" | "degraded" | "offline" | string;
+  runtime: string;
+  last_downtime: string | null;
+  version?: string;
+  uptime_seconds?: number;
+  uptime_percent?: number;
+  db_latency_ms?: number;
+  total_medicaments?: number;
+  total_laboratoires?: number;
+  derniere_mise_a_jour?: string;
+  derniere_mise_a_jour_date?: string;
+  deployed_since?: string;
+}
+
+export interface AdminOverviewMetrics {
+  api_calls: number;
+  active_users: number;
+  new_users: number;
+  trend_percent?: {
+    api_calls?: number;
+    active_users?: number;
+    new_users?: number;
+  };
+}
+
+export interface AdminOverviewActivity {
+  labels: string[];
+  values: number[];
+}
+
+export interface AdminOverviewIncident {
+  id: number;
+  title: string;
+  message: string;
+  reporter: string;
+  severity: "low" | "medium" | "high";
+}
+
+export interface AdminOverview {
+  server: AdminOverviewServer;
+  metrics: AdminOverviewMetrics;
+  activity: AdminOverviewActivity;
+  incidents: AdminOverviewIncident[];
+  updated_at?: string;
+}
+
+export interface ImportSheetPreview {
+  name: string;
+  rows: number;
+  detected_type?: string;
+  detected_category?: string;
+  columns?: string[];
+  error?: string | null;
+}
+
+export interface ImportPreviewResponse {
+  filename: string;
+  sheets: ImportSheetPreview[];
+}
+
+export interface ImportSheetProcessed {
+  rows_inserted: number;
+  rows_updated: number;
+  rows_ignored: number;
+  category?: string;
+  errors?: string[];
+}
+
+export interface ImportNomenclatureResponse {
+  version_nomenclature: string;
+  source_fichier: string;
+  sheets_processed: Record<string, ImportSheetProcessed>;
+  total_rows_inserted: number;
+  total_rows_updated: number;
+  available_sheets: string[];
+}
+
+export interface DuplicateItem {
+  code: string;
+  version: string;
+  categorie: string;
+  count: number;
+}
+
+export interface ImportDuplicatesResponse {
+  total_duplicates: number;
+  duplicates: DuplicateItem[];
+}
+
+export interface CleanDuplicateDetail {
+  code: string;
+  version: string;
+  categorie: string;
+  kept: number;
+  deleted: number;
+}
+
+export interface ImportCleanDuplicatesResponse {
+  dry_run: boolean;
+  total_groups: number;
+  total_entries_deleted: number;
+  details: CleanDuplicateDetail[];
+}
+
+export interface AdminPack {
+  slug: string;
+  name: string;
+  target: string;
+  description?: string;
+  features?: string[];
+  limitations?: string[];
+  rate_limit_day?: number;
+  rate_limit_month?: number;
+  requires_approval?: boolean;
+}
+
+export interface AdminPacksResponse {
+  packs: AdminPack[];
+  total: number;
+}
+
+export interface AdminUser {
+  id: number;
+  email: string;
+  full_name: string;
+  role: "ADMIN" | "LECTEUR" | string;
+  pack: string;
+  is_active: boolean;
+  is_approved: boolean;
+  created_at: string;
+  organisation?: string;
+  phone?: string;
+}
+
+export interface AdminUsersResponse {
+  items: AdminUser[];
+  total: number;
+  page: number;
+  page_size: number;
+  total_pages: number;
+  pending_approval: number;
+}
+
+export interface AdminPendingUsersResponse {
+  pending: AdminUser[];
+  total: number;
+}
+
+export interface ApproveUserResponse {
+  message: string;
+  user_id: number;
+  email: string;
+  full_name: string;
+  pack: string;
+  generated_password?: string;
+  email_sent?: boolean;
+  note?: string;
+}
+
+export interface AdminApiKey {
+  id: number;
+  user_id: number;
+  user_email?: string;
+  user_pack?: string;
+  name: string;
+  key_prefix: string;
+  is_active: boolean;
+  created_at: string;
+  last_used_at: string | null;
+  last_used_ip: string | null;
+  requests_count: number;
+}
+
+export interface AdminApiKeysResponse {
+  api_keys: AdminApiKey[];
+  total: number;
+  page: number;
+  page_size: number;
+}
+
+export interface AdminUserApiKeysResponse {
+  user_id: number;
+  user_email: string;
+  user_pack: string;
+  api_keys: AdminApiKey[];
+  total: number;
+}
+
+export interface AdminEmailDebugResponse {
+  mail_from: string;
+  tenant_id: string;
+  client_id: string;
+  token_acquired: boolean;
+  token_error: string | null;
+  token_roles: string[];
+  token_audience: string;
+  token_issuer: string;
+  mail_send_granted: boolean;
+  mailbox_check: string;
+  diagnosis: string[];
+}
+
+export interface AdminEmailTestResponse {
+  message: string;
+  success: boolean;
+  hint?: string;
+}
+
+export interface AdminEmailSendResponse {
+  success: boolean;
+  to: string;
+  subject: string;
+}
+
+function buildQuery(params: Record<string, string | number | boolean | undefined>) {
+  const q = new URLSearchParams();
+  Object.entries(params).forEach(([k, v]) => {
+    if (v === undefined || v === null || v === "") return;
+    q.set(k, String(v));
+  });
+  const s = q.toString();
+  return s ? `?${s}` : "";
+}
+
+export const adminApi = {
+  stats: () => apiFetch<AdminStats>("/admin/stats"),
+  emailStatus: () => apiFetch<AdminEmailStatus>("/admin/email/status"),
+  overview: (period: "week" | "month" = "week") =>
+    apiFetch<AdminOverview>(`/admin/dashboard/overview${buildQuery({ period })}`),
+
+  packs: () => apiFetch<AdminPacksResponse>("/admin/packs"),
+
+  packDetail: (packSlug: string) =>
+    apiFetch<AdminPack>(`/admin/packs/${encodeURIComponent(packSlug)}`),
+
+  users: (params?: {
+    page?: number;
+    page_size?: number;
+    pack?: string;
+    is_approved?: boolean;
+    is_active?: boolean;
+  }) =>
+    apiFetch<AdminUsersResponse>(`/admin/users${buildQuery(params || {})}`),
+
+  pendingUsers: () => apiFetch<AdminPendingUsersResponse>("/admin/users/pending"),
+
+  userDetail: (userId: number) => apiFetch<AdminUser>(`/admin/users/${userId}`),
+
+  createUser: (body: {
+    email: string;
+    password: string;
+    full_name: string;
+    role?: string;
+    pack?: string;
+    organisation?: string;
+    phone?: string;
+  }) =>
+    apiFetch<AdminUser>("/admin/users", {
+      method: "POST",
+      body: JSON.stringify(body),
+    }),
+
+  updateUser: (
+    userId: number,
+    body: Partial<{
+      full_name: string;
+      role: string;
+      pack: string;
+      is_active: boolean;
+      is_approved: boolean;
+      organisation: string;
+      phone: string;
+    }>
+  ) =>
+    apiFetch<AdminUser>(`/admin/users/${userId}`, {
+      method: "PATCH",
+      body: JSON.stringify(body),
+    }),
+
+  approveUser: (userId: number, body?: { pack?: string; password?: string }) =>
+    apiFetch<ApproveUserResponse>(`/admin/users/${userId}/approve`, {
+      method: "POST",
+      body: JSON.stringify(body || {}),
+    }),
+
+  changeUserPack: (userId: number, pack: string) =>
+    apiFetch<AdminUser>(`/admin/users/${userId}/pack${buildQuery({ pack })}`, {
+      method: "POST",
+    }),
+
+  deactivateUser: (userId: number) =>
+    apiFetch<{ message: string; user_id: number }>(`/admin/users/${userId}`, {
+      method: "DELETE",
+    }),
+
+  resetUserPassword: (userId: number, newPassword?: string) =>
+    apiFetch<{
+      message: string;
+      user_id: number;
+      email: string;
+      generated_password?: string;
+      email_sent?: boolean;
+    }>(`/admin/users/${userId}/reset-password${buildQuery({ new_password: newPassword })}`, {
+      method: "POST",
+    }),
+
+  apiKeys: (params?: {
+    page?: number;
+    page_size?: number;
+    user_id?: number;
+    is_active?: boolean;
+  }) =>
+    apiFetch<AdminApiKeysResponse>(`/admin/api-keys${buildQuery(params || {})}`),
+
+  apiKeyDetail: (keyId: number) =>
+    apiFetch<AdminApiKey>(`/admin/api-keys/${keyId}`),
+
+  setApiKeyStatus: (keyId: number, isActive: boolean) =>
+    apiFetch<{ message: string; id: number; is_active: boolean }>(
+      `/admin/api-keys/${keyId}${buildQuery({ is_active: isActive })}`,
+      { method: "PATCH" }
+    ),
+
+  deleteApiKeyAdmin: (keyId: number) =>
+    apiFetch<{ message: string; id: number }>(`/admin/api-keys/${keyId}`, {
+      method: "DELETE",
+    }),
+
+  userApiKeys: (userId: number) =>
+    apiFetch<AdminUserApiKeysResponse>(`/admin/users/${userId}/api-keys`),
+
+  emailDebug: () => apiFetch<AdminEmailDebugResponse>("/admin/email/debug"),
+
+  emailTest: (toEmail: string) =>
+    apiFetch<AdminEmailTestResponse>(`/admin/email/test${buildQuery({ to_email: toEmail })}`, {
+      method: "POST",
+    }),
+
+  emailSend: (toEmail: string, subject: string, bodyHtml: string) =>
+    apiFetch<AdminEmailSendResponse>(
+      `/admin/email/send${buildQuery({ to_email: toEmail, subject, body_html: bodyHtml })}`,
+      { method: "POST" }
+    ),
+
+  importSheetsPreview: (file: File) => {
+    const body = new FormData();
+    body.append("file", file);
+    return apiFetch<ImportPreviewResponse>("/import/sheets/preview", {
+      method: "POST",
+      body,
+    });
+  },
+
+  importNomenclature: (params: {
+    file: File;
+    version: string;
+    sheet_names?: string;
+    remplacer_version?: boolean;
+  }) => {
+    const body = new FormData();
+    body.append("file", params.file);
+    body.append("version", params.version);
+    if (params.sheet_names) body.append("sheet_names", params.sheet_names);
+    if (typeof params.remplacer_version === "boolean") {
+      body.append("remplacer_version", String(params.remplacer_version));
+    }
+    return apiFetch<ImportNomenclatureResponse>("/import/nomenclature", {
+      method: "POST",
+      body,
+    });
+  },
+
+  importDuplicates: (version?: string) =>
+    apiFetch<ImportDuplicatesResponse>(`/import/duplicates${buildQuery({ version })}`),
+
+  importCleanDuplicates: (params?: {
+    version?: string;
+    keep_strategy?: "latest" | "first";
+    dry_run?: boolean;
+  }) =>
+    apiFetch<ImportCleanDuplicatesResponse>(
+      `/import/clean-duplicates${buildQuery({
+        version: params?.version,
+        keep_strategy: params?.keep_strategy,
+        dry_run: params?.dry_run,
+      })}`,
+      { method: "POST" }
+    ),
+};
 
 // ─── Health endpoint ─────────────────────────────────────────────────────────
 
